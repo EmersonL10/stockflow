@@ -5,6 +5,7 @@
 
 <head>
     <meta charset="UTF-8">
+
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
@@ -18,6 +19,9 @@
 
 <div class="layout">
 
+    <!-- =========================
+         MENÚ LATERAL
+         ========================= -->
     <aside class="sidebar">
 
         <div class="brand">
@@ -27,11 +31,12 @@
 
         <nav class="menu">
 
-            <a th:href="@{/}" class="active">
+            <a th:href="@{/}"
+               class="active">
                 Dashboard
             </a>
 
-            <a href="#">
+            <a th:href="@{/conductores}">
                 Conductores
             </a>
 
@@ -64,17 +69,24 @@
     </aside>
 
 
+    <!-- =========================
+         CONTENIDO PRINCIPAL
+         ========================= -->
     <main class="main-content">
 
+        <!-- CABECERA -->
         <header class="topbar">
 
             <div>
                 <h1>Dashboard</h1>
+
                 <p>
                     Gestión Operativa y Administrativa
                 </p>
             </div>
 
+
+            <!-- USUARIO AUTENTICADO -->
             <div class="user-area">
 
                 <div class="user-info">
@@ -87,6 +99,8 @@
 
                 </div>
 
+
+                <!-- CERRAR SESIÓN -->
                 <form th:action="@{/logout}"
                       method="post">
 
@@ -102,6 +116,9 @@
         </header>
 
 
+        <!-- =========================
+             BIENVENIDA
+             ========================= -->
         <section class="welcome">
 
             <h2>
@@ -116,38 +133,89 @@
         </section>
 
 
+        <!-- =========================
+             INDICADORES
+             ========================= -->
         <section class="cards">
 
             <article class="card">
-                <span>Conductores</span>
-                <strong>0</strong>
-                <small>Registrados</small>
+
+                <span>
+                    Conductores
+                </span>
+
+                <strong>
+                    0
+                </strong>
+
+                <small>
+                    Registrados
+                </small>
+
             </article>
 
-            <article class="card">
-                <span>Vehículos</span>
-                <strong>0</strong>
-                <small>Registrados</small>
-            </article>
 
             <article class="card">
-                <span>Salidas de hoy</span>
-                <strong>0</strong>
-                <small>Operaciones</small>
+
+                <span>
+                    Vehículos
+                </span>
+
+                <strong>
+                    0
+                </strong>
+
+                <small>
+                    Registrados
+                </small>
+
             </article>
 
+
             <article class="card">
-                <span>Encomiendas</span>
-                <strong>0</strong>
-                <small>Pendientes</small>
+
+                <span>
+                    Salidas de hoy
+                </span>
+
+                <strong>
+                    0
+                </strong>
+
+                <small>
+                    Operaciones
+                </small>
+
+            </article>
+
+
+            <article class="card">
+
+                <span>
+                    Encomiendas
+                </span>
+
+                <strong>
+                    0
+                </strong>
+
+                <small>
+                    Pendientes
+                </small>
+
             </article>
 
         </section>
 
 
+        <!-- =========================
+             RESUMEN OPERATIVO
+             ========================= -->
         <section class="panel">
 
-            <h3>Resumen operativo</h3>
+            <h3>
+                Resumen operativo
+            </h3>
 
             <p>
                 Todavía no existen operaciones registradas.
@@ -162,4 +230,5 @@
 </div>
 
 </body>
+
 </html>

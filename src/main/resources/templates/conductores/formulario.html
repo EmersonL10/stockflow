@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title th:text="${conductor.id == null
+            ? 'Registrar conductor | StockFlow'
+            : 'Editar conductor | StockFlow'}">
+        Conductor | StockFlow
+    </title>
+
+    <link rel="stylesheet"
+          th:href="@{/css/dashboard.css}">
+</head>
+
+<body>
+
+<div class="layout">
+
+    <!-- =========================
+         MENÚ LATERAL
+         ========================= -->
+    <aside class="sidebar">
+
+        <div class="brand">
+            <h2>StockFlow</h2>
+            <span>Honoria Express S.A.C.</span>
+        </div>
+
+        <nav class="menu">
+
+            <a th:href="@{/}">
+                Dashboard
+            </a>
+
+            <a th:href="@{/conductores}"
+               class="active">
+                Conductores
+            </a>
+
+            <a href="#">
+                Vehículos
+            </a>
+
+            <a href="#">
+                Turnos
+            </a>
+
+            <a href="#">
+                Salidas
+            </a>
+
+            <a href="#">
+                Encomiendas
+            </a>
+
+            <a href="#">
+                Caja
+            </a>
+
+            <a href="#">
+                Reportes
+            </a>
+
+        </nav>
+
+    </aside>
+
+
+    <!-- =========================
+         CONTENIDO PRINCIPAL
+         ========================= -->
+    <main class="main-content">
+
+        <header class="topbar">
+
+            <div>
+
+                <h1 th:text="${conductor.id == null
+                        ? 'Nuevo conductor'
+                        : 'Editar conductor'}">
+                    Conductor
+                </h1>
+
+                <p th:text="${conductor.id == null
+                        ? 'Registro de datos del conductor'
+                        : 'Actualización de datos del conductor'}">
+                    Gestión del conductor
+                </p>
+
+            </div>
+
+        </header>
+
+
+        <!-- =========================
+             FORMULARIO
+             ========================= -->
+        <section class="panel">
+
+            <form th:action="@{/conductores/guardar}"
+                  th:object="${conductor}"
+                  method="post"
+                  class="form-grid">
+
+
+                <!-- =========================
+                     ID OCULTO
+                     ========================= -->
+                <input type="hidden"
+                       th:field="*{id}">
+
+
+                <!-- =========================
+                     DNI
+                     ========================= -->
+                <div>
+
+                    <label for="dni">
+                        DNI
+                    </label>
+
+                    <input id="dni"
+                           type="text"
+                           th:field="*{dni}"
+                           maxlength="8"
+                           inputmode="numeric"
+                           autocomplete="off">
+
+                    <div class="field-error"
+                         th:if="${#fields.hasErrors('dni')}"
+                         th:errors="*{dni}">
+                        Error DNI
+                    </div>
+
+                </div>
+
+
+                <!-- =========================
+                     NOMBRES
+                     ========================= -->
+                <div>
+
+                    <label for="nombres">
+                        Nombres
+                    </label>
+
+                    <input id="nombres"
+                           type="text"
+                           th:field="*{nombres}"
+                           maxlength="100"
+                           autocomplete="off">
+
+                    <div class="field-error"
+                         th:if="${#fields.hasErrors('nombres')}"
+                         th:errors="*{nombres}">
+                        Error nombres
+                    </div>
+
+                </div>
+
+
+                <!-- =========================
+                     APELLIDOS
+                     ========================= -->
+                <div>
+
+                    <label for="apellidos">
+                        Apellidos
+                    </label>
+
+                    <input id="apellidos"
+                           type="text"
+                           th:field="*{apellidos}"
+                           maxlength="100"
+                           autocomplete="off">
+
+                    <div class="field-error"
+                         th:if="${#fields.hasErrors('apellidos')}"
+                         th:errors="*{apellidos}">
+                        Error apellidos
+                    </div>
+
+                </div>
+
+
+                <!-- =========================
+                     LICENCIA
+                     ========================= -->
+                <div>
+
+                    <label for="licencia">
+                        Licencia
+                    </label>
+
+                    <input id="licencia"
+                           type="text"
+                           th:field="*{licencia}"
+                           maxlength="20"
+                           autocomplete="off">
+
+                    <div class="field-error"
+                         th:if="${#fields.hasErrors('licencia')}"
+                         th:errors="*{licencia}">
+                        Error licencia
+                    </div>
+
+                </div>
+
+
+                <!-- =========================
+                     TELÉFONO
+                     ========================= -->
+                <div>
+
+                    <label for="telefono">
+                        Teléfono
+                    </label>
+
+                    <input id="telefono"
+                           type="text"
+                           th:field="*{telefono}"
+                           maxlength="9"
+                           inputmode="numeric"
+                           autocomplete="off">
+
+                    <div class="field-error"
+                         th:if="${#fields.hasErrors('telefono')}"
+                         th:errors="*{telefono}">
+                        Error teléfono
+                    </div>
+
+                </div>
+
+
+                <!-- =========================
+                     FECHA DE VENCIMIENTO
+                     ========================= -->
+                <div>
+
+                    <label for="fechaVencimientoLicencia">
+                        Fecha de vencimiento de licencia
+                    </label>
+
+                    <input id="fechaVencimientoLicencia"
+                           type="date"
+                           th:field="*{fechaVencimientoLicencia}">
+
+                </div>
+
+
+                <!-- =========================
+                     ACCIONES
+                     ========================= -->
+                <div class="form-actions">
+
+                    <a th:href="@{/conductores}"
+                       class="secondary-button">
+                        Cancelar
+                    </a>
+
+                    <button type="submit"
+                            class="primary-button"
+                            th:text="${conductor.id == null
+                                    ? 'Guardar conductor'
+                                    : 'Actualizar conductor'}">
+                        Guardar conductor
+                    </button>
+
+                </div>
+
+            </form>
+
+        </section>
+
+    </main>
+
+</div>
+
+</body>
+
+</html>
