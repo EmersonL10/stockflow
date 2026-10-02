@@ -1,0 +1,174 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f4f6f8;
+    color: #1f2937;
+}
+
+.layout {
+    min-height: 100vh;
+    display: flex;
+}
+
+.sidebar {
+    width: 250px;
+    background: #111827;
+    color: white;
+    padding: 24px 18px;
+}
+
+.brand {
+    padding-bottom: 25px;
+    border-bottom: 1px solid #374151;
+}
+
+.brand h2 {
+    font-size: 25px;
+}
+
+.brand span {
+    display: block;
+    margin-top: 5px;
+    color: #9ca3af;
+    font-size: 13px;
+}
+
+.menu {
+    display: flex;
+    flex-direction: column;
+    margin-top: 25px;
+    gap: 7px;
+}
+
+.menu a {
+    color: #d1d5db;
+    text-decoration: none;
+    padding: 12px 14px;
+    border-radius: 7px;
+    transition: 0.2s;
+}
+
+.menu a:hover,
+.menu a.active {
+    background: #1f2937;
+    color: white;
+}
+
+.main-content {
+    flex: 1;
+    padding: 30px;
+}
+
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.topbar h1 {
+    font-size: 28px;
+}
+
+.topbar p {
+    color: #6b7280;
+    margin-top: 4px;
+}
+
+.user-area {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-info span {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.logout-button {
+    border: none;
+    background: #dc2626;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.logout-button:hover {
+    background: #b91c1c;
+}
+
+.welcome {
+    margin-top: 35px;
+}
+
+.welcome h2 {
+    font-size: 24px;
+}
+
+.welcome p {
+    margin-top: 7px;
+    color: #6b7280;
+}
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-top: 30px;
+}
+
+.card {
+    background: white;
+    border-radius: 10px;
+    padding: 22px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.card span {
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.card strong {
+    display: block;
+    font-size: 30px;
+    margin: 12px 0;
+}
+
+.card small {
+    color: #9ca3af;
+}
+
+.panel {
+    background: white;
+    margin-top: 30px;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.panel h3 {
+    margin-bottom: 12px;
+}
+
+.panel p {
+    color: #6b7280;
+}
+
+@media (max-width: 1000px) {
+
+    .cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}

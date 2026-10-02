@@ -1,17 +1,165 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
 <head>
     <meta charset="UTF-8">
-    <title>StockFlow</title>
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Dashboard | StockFlow</title>
+
+    <link rel="stylesheet"
+          th:href="@{/css/dashboard.css}">
 </head>
+
 <body>
 
-    <h1>StockFlow</h1>
+<div class="layout">
 
-    <p>
-        Sistema Web para la Gestión Operativa y Administrativa
-        de Honoria Express S.A.C.
-    </p>
+    <aside class="sidebar">
+
+        <div class="brand">
+            <h2>StockFlow</h2>
+            <span>Honoria Express S.A.C.</span>
+        </div>
+
+        <nav class="menu">
+
+            <a th:href="@{/}" class="active">
+                Dashboard
+            </a>
+
+            <a href="#">
+                Conductores
+            </a>
+
+            <a href="#">
+                Vehículos
+            </a>
+
+            <a href="#">
+                Turnos
+            </a>
+
+            <a href="#">
+                Salidas
+            </a>
+
+            <a href="#">
+                Encomiendas
+            </a>
+
+            <a href="#">
+                Caja
+            </a>
+
+            <a href="#">
+                Reportes
+            </a>
+
+        </nav>
+
+    </aside>
+
+
+    <main class="main-content">
+
+        <header class="topbar">
+
+            <div>
+                <h1>Dashboard</h1>
+                <p>
+                    Gestión Operativa y Administrativa
+                </p>
+            </div>
+
+            <div class="user-area">
+
+                <div class="user-info">
+
+                    <span>Usuario</span>
+
+                    <strong sec:authentication="name">
+                        admin
+                    </strong>
+
+                </div>
+
+                <form th:action="@{/logout}"
+                      method="post">
+
+                    <button type="submit"
+                            class="logout-button">
+                        Cerrar sesión
+                    </button>
+
+                </form>
+
+            </div>
+
+        </header>
+
+
+        <section class="welcome">
+
+            <h2>
+                Bienvenido a StockFlow
+            </h2>
+
+            <p>
+                Panel central para controlar las operaciones
+                de Honoria Express S.A.C.
+            </p>
+
+        </section>
+
+
+        <section class="cards">
+
+            <article class="card">
+                <span>Conductores</span>
+                <strong>0</strong>
+                <small>Registrados</small>
+            </article>
+
+            <article class="card">
+                <span>Vehículos</span>
+                <strong>0</strong>
+                <small>Registrados</small>
+            </article>
+
+            <article class="card">
+                <span>Salidas de hoy</span>
+                <strong>0</strong>
+                <small>Operaciones</small>
+            </article>
+
+            <article class="card">
+                <span>Encomiendas</span>
+                <strong>0</strong>
+                <small>Pendientes</small>
+            </article>
+
+        </section>
+
+
+        <section class="panel">
+
+            <h3>Resumen operativo</h3>
+
+            <p>
+                Todavía no existen operaciones registradas.
+                Los indicadores se actualizarán automáticamente
+                cuando implementemos los módulos del sistema.
+            </p>
+
+        </section>
+
+    </main>
+
+</div>
 
 </body>
 </html>
