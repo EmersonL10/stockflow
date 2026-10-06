@@ -172,3 +172,144 @@ body {
         grid-template-columns: repeat(2, 1fr);
     }
 }
+
+.primary-button {
+    display: inline-block;
+    background: #2563eb;
+    color: white;
+    text-decoration: none;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 7px;
+    cursor: pointer;
+}
+
+.primary-button:hover {
+    background: #1d4ed8;
+}
+
+.secondary-button {
+    display: inline-block;
+    background: #e5e7eb;
+    color: #1f2937;
+    text-decoration: none;
+    padding: 10px 16px;
+    border-radius: 7px;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table th,
+.data-table td {
+    padding: 14px;
+    border-bottom: 1px solid #e5e7eb;
+    text-align: left;
+}
+
+.data-table th {
+    background: #f9fafb;
+    font-size: 13px;
+    color: #6b7280;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.form-grid div {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-grid label {
+    margin-bottom: 7px;
+    font-weight: 600;
+}
+
+.form-grid input {
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 7px;
+    font-size: 14px;
+}
+
+.form-actions {
+    grid-column: 1 / -1;
+    flex-direction: row !important;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+@media (max-width: 800px) {
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.action-buttons {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.action-buttons form {
+    margin: 0;
+}
+
+.success-button {
+    border: none;
+    background: #16a34a;
+    color: white;
+    padding: 10px 14px;
+    border-radius: 7px;
+    cursor: pointer;
+}
+
+.success-button:hover {
+    background: #15803d;
+}
+
+.danger-button {
+    border: none;
+    background: #dc2626;
+    color: white;
+    padding: 10px 14px;
+    border-radius: 7px;
+    cursor: pointer;
+}
+
+.danger-button:hover {
+    background: #b91c1c;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.status-active {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.status-inactive {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.field-error {
+    margin-top: 6px;
+    font-size: 12px;
+    color: #b91c1c;
+    font-weight: 500;
+}

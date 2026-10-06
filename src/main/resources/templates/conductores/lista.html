@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Conductores | StockFlow</title>
+
+    <link rel="stylesheet"
+          th:href="@{/css/dashboard.css}">
+</head>
+
+<body>
+
+<div class="layout">
+
+    <!-- =========================
+         MENÚ LATERAL
+         ========================= -->
+    <aside class="sidebar">
+
+        <div class="brand">
+            <h2>StockFlow</h2>
+            <span>Honoria Express S.A.C.</span>
+        </div>
+
+        <nav class="menu">
+
+            <a th:href="@{/}">
+                Dashboard
+            </a>
+
+            <a th:href="@{/conductores}"
+               class="active">
+                Conductores
+            </a>
+
+            <a href="#">
+                Vehículos
+            </a>
+
+            <a href="#">
+                Turnos
+            </a>
+
+            <a href="#">
+                Salidas
+            </a>
+
+            <a href="#">
+                Encomiendas
+            </a>
+
+            <a href="#">
+                Caja
+            </a>
+
+            <a href="#">
+                Reportes
+            </a>
+
+        </nav>
+
+    </aside>
+
+
+    <!-- =========================
+         CONTENIDO PRINCIPAL
+         ========================= -->
+    <main class="main-content">
+
+        <header class="topbar">
+
+            <div>
+
+                <h1>
+                    Conductores
+                </h1>
+
+                <p>
+                    Gestión de conductores registrados
+                </p>
+
+            </div>
+
+            <a th:href="@{/conductores/nuevo}"
+               class="primary-button">
+                Nuevo conductor
+            </a>
+
+        </header>
+
+
+        <!-- =========================
+             CONTENIDO DEL MÓDULO
+             ========================= -->
+        <section class="panel">
+
+
+            <!-- =========================
+                 MENSAJE DE ÉXITO
+                 ========================= -->
+            <div th:if="${mensajeExito}"
+                th:text="${mensajeExito}"
+                style="
+                    padding: 12px;
+                    margin-bottom: 20px;
+                    border: 1px solid green;
+                    background-color: #e8f5e9;
+                    font-weight: bold;
+                ">
+            </div>
+
+
+            <!-- =========================
+                 TABLA DE CONDUCTORES
+                 ========================= -->
+            <table class="data-table">
+
+                <thead>
+
+                <tr>
+                    <th>DNI</th>
+                    <th>Conductor</th>
+                    <th>Licencia</th>
+                    <th>Teléfono</th>
+                    <th>Vencimiento</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                <!-- =========================
+                     RECORRE LOS CONDUCTORES
+                     ========================= -->
+                <tr th:each="conductor : ${conductores}">
+
+                    <td th:text="${conductor.dni}">
+                    </td>
+
+
+                    <td th:text="${conductor.nombres + ' ' + conductor.apellidos}">
+                    </td>
+
+
+                    <td th:text="${conductor.licencia}">
+                    </td>
+
+
+                    <td th:text="${conductor.telefono}">
+                    </td>
+
+
+                    <td th:text="${conductor.fechaVencimientoLicencia}">
+                    </td>
+
+
+                    <!-- =========================
+                         ESTADO
+                         ========================= -->
+                    <td>
+
+                        <span th:class="${conductor.activo
+                                ? 'status-badge status-active'
+                                : 'status-badge status-inactive'}"
+                              th:text="${conductor.activo
+                                ? 'Activo'
+                                : 'Inactivo'}">
+                        </span>
+
+                    </td>
+
+
+                    <!-- =========================
+                         ACCIONES
+                         ========================= -->
+                    <td>
+
+                        <div class="action-buttons">
+
+
+                            <!-- EDITAR -->
+                            <a th:href="@{/conductores/editar/{id}(id=${conductor.id})}"
+                               class="secondary-button">
+                                Editar
+                            </a>
+
+
+                            <!-- =========================
+                                 ACTIVAR / INACTIVAR
+                                 ========================= -->
+                            <form th:action="@{/conductores/estado/{id}(id=${conductor.id})}"
+                                  method="post">
+
+                                <button type="submit"
+                                        th:class="${conductor.activo
+                                                ? 'danger-button'
+                                                : 'success-button'}"
+                                        th:text="${conductor.activo
+                                                ? 'Inactivar'
+                                                : 'Activar'}">
+
+                                    Cambiar estado
+
+                                </button>
+
+                            </form>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+
+                <!-- =========================
+                     SI NO HAY CONDUCTORES
+                     ========================= -->
+                <tr th:if="${#lists.isEmpty(conductores)}">
+
+                    <td colspan="7">
+                        No hay conductores registrados.
+                    </td>
+
+                </tr>
+
+                </tbody>
+
+            </table>
+
+        </section>
+
+    </main>
+
+</div>
+
+</body>
+
+</html>
