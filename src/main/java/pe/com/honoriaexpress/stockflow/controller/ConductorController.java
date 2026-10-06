@@ -6,6 +6,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.com.honoriaexpress.stockflow.entity.Conductor;
 import pe.com.honoriaexpress.stockflow.service.ConductorService;
 
@@ -16,10 +17,6 @@ public class ConductorController {
 
     private final ConductorService conductorService;
 
-
-    /*
-     * LISTAR CONDUCTORES
-     */
     @GetMapping
     public String listar(Model model) {
 
@@ -31,10 +28,6 @@ public class ConductorController {
         return "conductores/lista";
     }
 
-
-    /*
-     * MOSTRAR FORMULARIO PARA REGISTRAR
-     */
     @GetMapping("/nuevo")
     public String mostrarFormulario(Model model) {
 
@@ -46,10 +39,6 @@ public class ConductorController {
         return "conductores/formulario";
     }
 
-
-    /*
-     * MOSTRAR FORMULARIO PARA EDITAR
-     */
     @GetMapping("/editar/{id}")
     public String editar(
             @PathVariable Long id,
@@ -71,28 +60,20 @@ public class ConductorController {
         return "conductores/formulario";
     }
 
-
-    /*
-     * GUARDAR O ACTUALIZAR CONDUCTOR
-     */
     @PostMapping("/guardar")
     public String guardar(
             @Valid @ModelAttribute("conductor") Conductor conductor,
-            BindingResult result) {
+            BindingResult result,
+            RedirectAttributes redirectAttributes) {
 
         /*
          * ============================================================
-         * 1. VALIDAR DNI DUPLICADO
+         * VALIDACIÓN DE DNI DUPLICADO
          * ============================================================
          */
 
         if (conductor.getId() == null) {
 
-            /*
-             * Es un conductor NUEVO.
-             *
-             * Entonces ningún otro registro debe tener el mismo DNI.
-             */
             if (conductorService.existePorDni(conductor.getDni())) {
 
                 result.rejectValue(
@@ -104,12 +85,6 @@ public class ConductorController {
 
         } else {
 
-            /*
-             * Es una EDICIÓN.
-             *
-             * Buscamos si el DNI pertenece a OTRO conductor,
-             * ignorando el registro que estamos editando.
-             */
             if (conductorService.existeDniEnOtroConductor(
                     conductor.getDni(),
                     conductor.getId())) {
@@ -122,18 +97,14 @@ public class ConductorController {
             }
         }
 
-
         /*
          * ============================================================
-         * 2. VALIDAR LICENCIA DUPLICADA
+         * VALIDACIÓN DE LICENCIA DUPLICADA
          * ============================================================
          */
 
         if (conductor.getId() == null) {
 
-            /*
-             * Registro nuevo.
-             */
             if (conductorService.existePorLicencia(
                     conductor.getLicencia())) {
 
@@ -146,9 +117,6 @@ public class ConductorController {
 
         } else {
 
-            /*
-             * Edición.
-             */
             if (conductorService.existeLicenciaEnOtroConductor(
                     conductor.getLicencia(),
                     conductor.getId())) {
@@ -161,10 +129,9 @@ public class ConductorController {
             }
         }
 
-
         /*
          * ============================================================
-         * 3. SI EXISTE ALGÚN ERROR, VOLVER AL FORMULARIO
+         * SI HAY ERRORES, REGRESAMOS AL FORMULARIO
          * ============================================================
          */
 
@@ -172,27 +139,71 @@ public class ConductorController {
             return "conductores/formulario";
         }
 
-
         /*
          * ============================================================
-         * 4. SI TODO ESTÁ CORRECTO, GUARDAR
+         * SABEMOS SI ES REGISTRO NUEVO O EDICIÓN
          * ============================================================
          */
 
+        boolean esNuevo = conductor.getId() == null;
+
         conductorService.guardar(conductor);
+
+        /*
+         * ============================================================
+         * MENSAJE DE ÉXITO
+         * ============================================================
+         */
+
+        if (esNuevo) {
+
+            redirectAttributes.addFlashAttribute(
+                    "mensajeExito",
+                    "Conductor registrado correctamente."
+            );
+
+        } else {
+
+            redirectAttributes.addFlashAttribute(
+                    "mensajeExito",
+                    "Conductor actualizado correctamente."
+            );
+        }
 
         return "redirect:/conductores";
     }
 
-
-    /*
-     * CAMBIAR ESTADO DEL CONDUCTOR
-     */
     @PostMapping("/estado/{id}")
     public String cambiarEstado(
-            @PathVariable Long id) {
+            @PathVariable Long id,
+            RedirectAttributes redirectAttributes) {
+
+        Conductor conductor = conductorService
+                .buscarPorId(id)
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "Conductor no encontrado con id: " + id
+                        )
+                );
+
+        boolean estabaActivo = conductor.getActivo();
 
         conductorService.cambiarEstado(id);
+
+        if (estabaActivo) {
+
+            redirectAttributes.addFlashAttribute(
+                    "mensajeExito",
+                    "Conductor inactivado correctamente."
+            );
+
+        } else {
+
+            redirectAttributes.addFlashAttribute(
+                    "mensajeExito",
+                    "Conductor activado correctamente."
+            );
+        }
 
         return "redirect:/conductores";
     }

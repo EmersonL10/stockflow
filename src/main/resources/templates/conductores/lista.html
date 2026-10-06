@@ -96,10 +96,29 @@
 
 
         <!-- =========================
-             TABLA DE CONDUCTORES
+             CONTENIDO DEL MÓDULO
              ========================= -->
         <section class="panel">
 
+
+            <!-- =========================
+                 MENSAJE DE ÉXITO
+                 ========================= -->
+            <div th:if="${mensajeExito}"
+                th:text="${mensajeExito}"
+                style="
+                    padding: 12px;
+                    margin-bottom: 20px;
+                    border: 1px solid green;
+                    background-color: #e8f5e9;
+                    font-weight: bold;
+                ">
+            </div>
+
+
+            <!-- =========================
+                 TABLA DE CONDUCTORES
+                 ========================= -->
             <table class="data-table">
 
                 <thead>
@@ -116,6 +135,7 @@
 
                 </thead>
 
+
                 <tbody>
 
                 <!-- =========================
@@ -126,20 +146,26 @@
                     <td th:text="${conductor.dni}">
                     </td>
 
+
                     <td th:text="${conductor.nombres + ' ' + conductor.apellidos}">
                     </td>
+
 
                     <td th:text="${conductor.licencia}">
                     </td>
 
+
                     <td th:text="${conductor.telefono}">
                     </td>
+
 
                     <td th:text="${conductor.fechaVencimientoLicencia}">
                     </td>
 
 
-                    <!-- ESTADO -->
+                    <!-- =========================
+                         ESTADO
+                         ========================= -->
                     <td>
 
                         <span th:class="${conductor.activo
@@ -153,10 +179,13 @@
                     </td>
 
 
-                    <!-- ACCIONES -->
+                    <!-- =========================
+                         ACCIONES
+                         ========================= -->
                     <td>
 
                         <div class="action-buttons">
+
 
                             <!-- EDITAR -->
                             <a th:href="@{/conductores/editar/{id}(id=${conductor.id})}"
@@ -165,7 +194,9 @@
                             </a>
 
 
-                            <!-- ACTIVAR / INACTIVAR -->
+                            <!-- =========================
+                                 ACTIVAR / INACTIVAR
+                                 ========================= -->
                             <form th:action="@{/conductores/estado/{id}(id=${conductor.id})}"
                                   method="post">
 

@@ -110,10 +110,25 @@
 
 
                 <!-- =========================
-                     ID OCULTO
+                     DATOS OCULTOS
                      ========================= -->
+
+                <!--
+                    ID:
+                    Permite distinguir si estamos creando
+                    o actualizando un conductor.
+                -->
                 <input type="hidden"
                        th:field="*{id}">
+
+
+                <!--
+                    ACTIVO:
+                    Conserva el estado actual cuando
+                    editamos un conductor.
+                -->
+                <input type="hidden"
+                       th:field="*{activo}">
 
 
                 <!-- =========================
@@ -250,6 +265,12 @@
                     <input id="fechaVencimientoLicencia"
                            type="date"
                            th:field="*{fechaVencimientoLicencia}">
+
+                    <div class="field-error"
+                         th:if="${#fields.hasErrors('fechaVencimientoLicencia')}"
+                         th:errors="*{fechaVencimientoLicencia}">
+                        Error fecha de vencimiento
+                    </div>
 
                 </div>
 
