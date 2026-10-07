@@ -8,7 +8,7 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
-    <title>Vehículos | StockFlow</title>
+    <title>Turnos | StockFlow</title>
 
     <link rel="stylesheet"
           th:href="@{/css/dashboard.css}">
@@ -38,12 +38,12 @@
                 Conductores
             </a>
 
-            <a th:href="@{/vehiculos}"
-               class="active">
+            <a th:href="@{/vehiculos}">
                 Vehículos
             </a>
 
-            <a th:href="@{/turnos}">
+            <a th:href="@{/turnos}"
+               class="active">
                 Turnos
             </a>
 
@@ -78,18 +78,18 @@
             <div>
 
                 <h1>
-                    Vehículos
+                    Turnos
                 </h1>
 
                 <p>
-                    Gestión de vehículos registrados
+                    Programación y asignación de turnos operativos
                 </p>
 
             </div>
 
-            <a th:href="@{/vehiculos/nuevo}"
+            <a th:href="@{/turnos/nuevo}"
                class="primary-button">
-                Nuevo vehículo
+                Nuevo turno
             </a>
 
         </header>
@@ -114,21 +114,21 @@
 
 
             <!-- =========================
-                 TABLA DE VEHÍCULOS
+                 TABLA DE TURNOS
                  ========================= -->
             <table class="data-table">
 
                 <thead>
 
                 <tr>
-                    <th>Placa</th>
-                    <th>Marca / Modelo</th>
-                    <th>Año</th>
-                    <th>Color</th>
-                    <th>Capacidad</th>
-                    <th>TUC</th>
-                    <th>Vencimiento TUC</th>
+                    <th>Fecha</th>
+                    <th>N.º turno</th>
+                    <th>Ruta</th>
+                    <th>Hora</th>
+                    <th>Conductor</th>
+                    <th>Vehículo</th>
                     <th>Estado</th>
+                    <th>Observación</th>
                     <th>Acciones</th>
                 </tr>
 
@@ -137,42 +137,37 @@
 
                 <tbody>
 
-                <!-- RECORRE TODOS LOS VEHÍCULOS -->
-                <tr th:each="vehiculo : ${vehiculos}">
+                <!-- RECORRE TODOS LOS TURNOS -->
+                <tr th:each="turno : ${turnos}">
 
-                    <td th:text="${vehiculo.placa}">
+                    <td th:text="${turno.fecha}">
                     </td>
 
-                    <td th:text="${vehiculo.marca + ' ' + vehiculo.modelo}">
+                    <td th:text="${turno.numeroTurno}">
                     </td>
 
-                    <td th:text="${vehiculo.anio}">
+                    <td th:text="${turno.sentidoRuta == T(pe.com.honoriaexpress.stockflow.entity.SentidoRuta).PUCALLPA_HONORIA
+                            ? 'Pucallpa → Honoria'
+                            : 'Honoria → Pucallpa'}">
                     </td>
 
-                    <td th:text="${vehiculo.color}">
+                    <td th:text="${turno.horaProgramada}">
                     </td>
 
-                    <td th:text="${vehiculo.capacidadPasajeros}">
+                    <td th:text="${turno.conductor.nombres + ' ' + turno.conductor.apellidos}">
                     </td>
 
-                    <td th:text="${vehiculo.numeroTuc}">
+                    <td th:text="${turno.vehiculo.placa}">
                     </td>
 
-                    <td th:text="${vehiculo.fechaVencimientoTuc}">
-                    </td>
-
-
-                    <!-- ESTADO -->
                     <td>
-
-                        <span th:class="${vehiculo.activo
-                                ? 'status-badge status-active'
-                                : 'status-badge status-inactive'}"
-                              th:text="${vehiculo.activo
-                                ? 'Activo'
-                                : 'Inactivo'}">
+                        <span th:text="${turno.estado}">
                         </span>
+                    </td>
 
+                    <td th:text="${turno.observacion != null && !turno.observacion.isBlank()
+                            ? turno.observacion
+                            : '-'}">
                     </td>
 
 
@@ -181,30 +176,10 @@
 
                         <div class="action-buttons">
 
-                            <!-- EDITAR -->
-                            <a th:href="@{/vehiculos/editar/{id}(id=${vehiculo.id})}"
+                            <a th:href="@{/turnos/editar/{id}(id=${turno.id})}"
                                class="secondary-button">
                                 Editar
                             </a>
-
-
-                            <!-- ACTIVAR / INACTIVAR -->
-                            <form th:action="@{/vehiculos/estado/{id}(id=${vehiculo.id})}"
-                                  method="post">
-
-                                <button type="submit"
-                                        th:class="${vehiculo.activo
-                                                ? 'danger-button'
-                                                : 'success-button'}"
-                                        th:text="${vehiculo.activo
-                                                ? 'Inactivar'
-                                                : 'Activar'}">
-
-                                    Cambiar estado
-
-                                </button>
-
-                            </form>
 
                         </div>
 
@@ -213,11 +188,11 @@
                 </tr>
 
 
-                <!-- SI NO HAY VEHÍCULOS -->
-                <tr th:if="${#lists.isEmpty(vehiculos)}">
+                <!-- SI NO HAY TURNOS -->
+                <tr th:if="${#lists.isEmpty(turnos)}">
 
                     <td colspan="9">
-                        No hay vehículos registrados.
+                        No hay turnos registrados.
                     </td>
 
                 </tr>

@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title th:text="${turno.id == null
+            ? 'Registrar turno | StockFlow'
+            : 'Editar turno | StockFlow'}">
+
+        Turno | StockFlow
+
+    </title>
+
+    <link rel="stylesheet"
+          th:href="@{/css/dashboard.css}">
+</head>
+
+<body>
+
+<div class="layout">
+
+    <!-- =========================
+         MENÚ LATERAL
+         ========================= -->
+    <aside class="sidebar">
+
+        <div class="brand">
+            <h2>StockFlow</h2>
+            <span>Honoria Express S.A.C.</span>
+        </div>
+
+        <nav class="menu">
+
+            <a th:href="@{/}">
+                Dashboard
+            </a>
+
+            <a th:href="@{/conductores}">
+                Conductores
+            </a>
+
+            <a th:href="@{/vehiculos}">
+                Vehículos
+            </a>
+
+            <a th:href="@{/turnos}"
+               class="active">
+                Turnos
+            </a>
+
+            <a href="#">
+                Salidas
+            </a>
+
+            <a href="#">
+                Encomiendas
+            </a>
+
+            <a href="#">
+                Caja
+            </a>
+
+            <a href="#">
+                Reportes
+            </a>
+
+        </nav>
+
+    </aside>
+
+
+    <!-- =========================
+         CONTENIDO PRINCIPAL
+         ========================= -->
+    <main class="main-content">
+
+        <header class="topbar">
+
+            <div>
+
+                <h1 th:text="${turno.id == null
+                        ? 'Nuevo turno'
+                        : 'Editar turno'}">
+                    Turno
+                </h1>
+
+                <p th:text="${turno.id == null
+                        ? 'Programación de un nuevo turno operativo'
+                        : 'Actualización de la programación del turno'}">
+                    Gestión de turnos
+                </p>
+
+            </div>
+
+        </header>
+
+
+        <!-- =========================
+             FORMULARIO
+             ========================= -->
+        <section class="panel">
+
+            <form th:action="@{/turnos/guardar}"
+                  th:object="${turno}"
+                  method="post"
+                  class="form-grid">
+
+
+                <!-- ID OCULTO -->
+                <input type="hidden"
+                       th:field="*{id}">
+
+
+                <!-- =========================
+                     FECHA
+                     ========================= -->
+                <div>
+
+                    <label for="fecha">
+                        Fecha
+                    </label>
+
+                    <input id="fecha"
+                           type="date"
+                           th:field="*{fecha}">
+
+                    <div class="field-error"
+                         th:if="${#fields.hasErrors('fecha')}"
+                         th:errors="*{fecha}">
+                        Error fecha
+                    </div>
+
+                </div>
+
+
+                <!-- =========================
+                     NÚMERO DE TURNO
+                     ========================= -->
+                <div>
+
+                    <label for="numeroTurno">
+                        Número de turno
+                    </label>
+
+                    <input id="numeroTurno"
+                           type="number"
+                           min="1"
+                           th:field="*{numeroTurno}">
+
+                    <div class="field-error"
+                         th:if="${#fields.hasErrors('numeroTurno')}"
+                         th:errors="*{numeroTurno}">
+                        Error número de turno
+                    </div>
+
+                </div>
+
+
+                <!-- =========================
+                     SENTIDO DE RUTA
+                     ========================= -->
+                <div>
+
+                    <label for="sentidoRuta">
+                        Ruta
+                    </label>
+
+                    <select id="sentidoRuta"
+                            th:field="*{sentidoRuta}">
+
+                        <option value="">
+                            Seleccione una ruta
+                        </option>
+
+                        <option th:each="sentido : ${sentidosRuta}"
+                                th:value="${sentido}"
+                                th:text="${sentido == T(pe.com.honoriaexpress.stockflow.entity.SentidoRuta).PUCALLPA_HONORIA
+                                        ? 'Pucallpa → Honoria'
+                                        : 'Honoria → Pucallpa'}">
+                        </option>
+
+                    </select>
+
+                    <div class="field-error"
+                         th:if="${#fields.hasErrors('sentidoRuta')}"
+                         th:errors="*{sentidoRuta}">
+                        Error ruta
+                    </div>
+
+                </div>
+
+
+                <!-- =========================
+                     HORA PROGRAMADA
+                     ========================= -->
+                <div>
+
+                    <label for="horaProgramada">
+                        Hora programada
+                    </label>
+
+                    <input id="horaProgramada"
+                           type="time"
+                           th:field="*{horaProgramada}">
+
+                    <div class="field-error"
+                         th:if="${#fields.hasErrors('horaProgramada')}"
+                         th:errors="*{horaProgramada}">
+                        Error hora
+                    </div>
+
+                </div>
+
+
+                <!-- =========================
+                     CONDUCTOR
+                     ========================= -->
+                <div>
+
+                    <label for="conductor">
+                        Conductor
+                    </label>
+
+                    <select id="conductor"
+                            th:field="*{conductor.id}">
+
+                        <option value="">
+                            Seleccione un conductor
+                        </option>
+
+                        <option th:each="conductor : ${conductores}"
+                                th:value="${conductor.id}"
+                                th:text="${conductor.nombres + ' ' + conductor.apellidos + ' - ' + conductor.dni}">
+                        </option>
+
+                    </select>
+
+                    <div class="field-error"
+                         th:if="${#fields.hasErrors('conductor')}"
+                         th:errors="*{conductor}">
+                        Error conductor
+                    </div>
+
+                </div>
+
+
+                <!-- =========================
+                     VEHÍCULO
+                     ========================= -->
+                <div>
+
+                    <label for="vehiculo">
+                        Vehículo
+                    </label>
+
+                    <select id="vehiculo"
+                            th:field="*{vehiculo.id}">
+
+                        <option value="">
+                            Seleccione un vehículo
+                        </option>
+
+                        <option th:each="vehiculo : ${vehiculos}"
+                                th:value="${vehiculo.id}"
+                                th:text="${vehiculo.placa + ' - ' + vehiculo.marca + ' ' + vehiculo.modelo}">
+                        </option>
+
+                    </select>
+
+                    <div class="field-error"
+                         th:if="${#fields.hasErrors('vehiculo')}"
+                         th:errors="*{vehiculo}">
+                        Error vehículo
+                    </div>
+
+                </div>
+
+
+                <!-- =========================
+                     ESTADO
+                     ========================= -->
+                <div>
+
+                    <label for="estado">
+                        Estado
+                    </label>
+
+                    <select id="estado"
+                            th:field="*{estado}">
+
+                        <option th:each="estadoTurno : ${estadosTurno}"
+                                th:value="${estadoTurno}"
+                                th:text="${estadoTurno}">
+                        </option>
+
+                    </select>
+
+                    <div class="field-error"
+                         th:if="${#fields.hasErrors('estado')}"
+                         th:errors="*{estado}">
+                        Error estado
+                    </div>
+
+                </div>
+
+
+                <!-- =========================
+                     OBSERVACIÓN
+                     ========================= -->
+                <div>
+
+                    <label for="observacion">
+                        Observación
+                    </label>
+
+                    <textarea id="observacion"
+                              th:field="*{observacion}"
+                              maxlength="250"
+                              rows="4">
+                    </textarea>
+
+                    <div class="field-error"
+                         th:if="${#fields.hasErrors('observacion')}"
+                         th:errors="*{observacion}">
+                        Error observación
+                    </div>
+
+                </div>
+
+
+                <!-- =========================
+                     ACCIONES
+                     ========================= -->
+                <div class="form-actions">
+
+                    <a th:href="@{/turnos}"
+                       class="secondary-button">
+                        Cancelar
+                    </a>
+
+                    <button type="submit"
+                            class="primary-button"
+                            th:text="${turno.id == null
+                                    ? 'Guardar turno'
+                                    : 'Actualizar turno'}">
+
+                        Guardar turno
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </section>
+
+    </main>
+
+</div>
+
+</body>
+
+</html>
