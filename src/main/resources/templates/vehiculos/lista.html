@@ -8,7 +8,7 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
-    <title>Conductores | StockFlow</title>
+    <title>Vehículos | StockFlow</title>
 
     <link rel="stylesheet"
           th:href="@{/css/dashboard.css}">
@@ -34,12 +34,12 @@
                 Dashboard
             </a>
 
-            <a th:href="@{/conductores}"
-               class="active">
+            <a th:href="@{/conductores}">
                 Conductores
             </a>
 
-            <a th:href="@{/vehiculos}">
+            <a th:href="@{/vehiculos}"
+               class="active">
                 Vehículos
             </a>
 
@@ -78,18 +78,18 @@
             <div>
 
                 <h1>
-                    Conductores
+                    Vehículos
                 </h1>
 
                 <p>
-                    Gestión de conductores registrados
+                    Gestión de vehículos registrados
                 </p>
 
             </div>
 
-            <a th:href="@{/conductores/nuevo}"
+            <a th:href="@{/vehiculos/nuevo}"
                class="primary-button">
-                Nuevo conductor
+                Nuevo vehículo
             </a>
 
         </header>
@@ -100,35 +100,34 @@
              ========================= -->
         <section class="panel">
 
-
-            <!-- =========================
-                 MENSAJE DE ÉXITO
-                 ========================= -->
+            <!-- MENSAJE DE ÉXITO -->
             <div th:if="${mensajeExito}"
-                th:text="${mensajeExito}"
-                style="
+                 th:text="${mensajeExito}"
+                 style="
                     padding: 12px;
                     margin-bottom: 20px;
                     border: 1px solid green;
                     background-color: #e8f5e9;
                     font-weight: bold;
-                ">
+                 ">
             </div>
 
 
             <!-- =========================
-                 TABLA DE CONDUCTORES
+                 TABLA DE VEHÍCULOS
                  ========================= -->
             <table class="data-table">
 
                 <thead>
 
                 <tr>
-                    <th>DNI</th>
-                    <th>Conductor</th>
-                    <th>Licencia</th>
-                    <th>Teléfono</th>
-                    <th>Vencimiento</th>
+                    <th>Placa</th>
+                    <th>Marca / Modelo</th>
+                    <th>Año</th>
+                    <th>Color</th>
+                    <th>Capacidad</th>
+                    <th>TUC</th>
+                    <th>Vencimiento TUC</th>
                     <th>Estado</th>
                     <th>Acciones</th>
                 </tr>
@@ -138,40 +137,38 @@
 
                 <tbody>
 
-                <!-- =========================
-                     RECORRE LOS CONDUCTORES
-                     ========================= -->
-                <tr th:each="conductor : ${conductores}">
+                <!-- RECORRE TODOS LOS VEHÍCULOS -->
+                <tr th:each="vehiculo : ${vehiculos}">
 
-                    <td th:text="${conductor.dni}">
+                    <td th:text="${vehiculo.placa}">
+                    </td>
+
+                    <td th:text="${vehiculo.marca + ' ' + vehiculo.modelo}">
+                    </td>
+
+                    <td th:text="${vehiculo.anio}">
+                    </td>
+
+                    <td th:text="${vehiculo.color}">
+                    </td>
+
+                    <td th:text="${vehiculo.capacidadPasajeros}">
+                    </td>
+
+                    <td th:text="${vehiculo.numeroTuc}">
+                    </td>
+
+                    <td th:text="${vehiculo.fechaVencimientoTuc}">
                     </td>
 
 
-                    <td th:text="${conductor.nombres + ' ' + conductor.apellidos}">
-                    </td>
-
-
-                    <td th:text="${conductor.licencia}">
-                    </td>
-
-
-                    <td th:text="${conductor.telefono}">
-                    </td>
-
-
-                    <td th:text="${conductor.fechaVencimientoLicencia}">
-                    </td>
-
-
-                    <!-- =========================
-                         ESTADO
-                         ========================= -->
+                    <!-- ESTADO -->
                     <td>
 
-                        <span th:class="${conductor.activo
+                        <span th:class="${vehiculo.activo
                                 ? 'status-badge status-active'
                                 : 'status-badge status-inactive'}"
-                              th:text="${conductor.activo
+                              th:text="${vehiculo.activo
                                 ? 'Activo'
                                 : 'Inactivo'}">
                         </span>
@@ -179,32 +176,27 @@
                     </td>
 
 
-                    <!-- =========================
-                         ACCIONES
-                         ========================= -->
+                    <!-- ACCIONES -->
                     <td>
 
                         <div class="action-buttons">
 
-
                             <!-- EDITAR -->
-                            <a th:href="@{/conductores/editar/{id}(id=${conductor.id})}"
+                            <a th:href="@{/vehiculos/editar/{id}(id=${vehiculo.id})}"
                                class="secondary-button">
                                 Editar
                             </a>
 
 
-                            <!-- =========================
-                                 ACTIVAR / INACTIVAR
-                                 ========================= -->
-                            <form th:action="@{/conductores/estado/{id}(id=${conductor.id})}"
+                            <!-- ACTIVAR / INACTIVAR -->
+                            <form th:action="@{/vehiculos/estado/{id}(id=${vehiculo.id})}"
                                   method="post">
 
                                 <button type="submit"
-                                        th:class="${conductor.activo
+                                        th:class="${vehiculo.activo
                                                 ? 'danger-button'
                                                 : 'success-button'}"
-                                        th:text="${conductor.activo
+                                        th:text="${vehiculo.activo
                                                 ? 'Inactivar'
                                                 : 'Activar'}">
 
@@ -221,13 +213,11 @@
                 </tr>
 
 
-                <!-- =========================
-                     SI NO HAY CONDUCTORES
-                     ========================= -->
-                <tr th:if="${#lists.isEmpty(conductores)}">
+                <!-- SI NO HAY VEHÍCULOS -->
+                <tr th:if="${#lists.isEmpty(vehiculos)}">
 
-                    <td colspan="7">
-                        No hay conductores registrados.
+                    <td colspan="9">
+                        No hay vehículos registrados.
                     </td>
 
                 </tr>
