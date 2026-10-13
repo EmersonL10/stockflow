@@ -123,7 +123,7 @@ public class SalidaServiceImpl implements SalidaService {
         if (entityManager != null) {
             cola.forEach(entityManager::refresh);
         }
-        if (salida.getId() != null) {
+        if (original != null) {
             Salida anterior = original;
             if (!anterior.getTurno().getId().equals(turno.getId())) {
                 throw new SalidaValidationException("turno", "No se puede cambiar el turno de una salida registrada.");

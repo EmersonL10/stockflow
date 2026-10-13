@@ -42,7 +42,11 @@ public class SalidaController {
         if (fecha == null) fecha = java.time.LocalDate.now(java.time.ZoneId.of("America/Lima"));
         final var dia = fecha;
         var registros = salidaService.listarTodos();
-        model.addAttribute("rutas", registros.stream().map(Salida::getRutaMostrada).distinct().sorted().toList());
+        model.addAttribute("rutas", registros.stream()
+                .map(salida -> salida.getRutaMostrada())
+                .distinct()
+                .sorted()
+                .toList());
         model.addAttribute("salidas", registros.stream()
                 .filter(s -> todasFechas || dia.equals(s.getTurno().getFecha()))
                 .filter(s -> ruta.isBlank() || s.getRutaMostrada().equalsIgnoreCase(ruta.strip()))
