@@ -27,51 +27,7 @@
     <!-- =========================
          MENÚ LATERAL
          ========================= -->
-    <aside class="sidebar">
-
-        <div class="brand">
-            <h2>StockFlow</h2>
-            <span>Honoria Express S.A.C.</span>
-        </div>
-
-        <nav class="menu">
-
-            <a th:href="@{/}">
-                Dashboard
-            </a>
-
-            <a th:href="@{/conductores}">
-                Conductores
-            </a>
-
-            <a th:href="@{/vehiculos}">
-                Vehículos
-            </a>
-
-            <a th:href="@{/turnos}"
-               class="active">
-                Turnos
-            </a>
-
-            <a href="#">
-                Salidas
-            </a>
-
-            <a href="#">
-                Encomiendas
-            </a>
-
-            <a href="#">
-                Caja
-            </a>
-
-            <a href="#">
-                Reportes
-            </a>
-
-        </nav>
-
-    </aside>
+    <aside th:replace="~{fragments/sidebar :: sidebar('turnos')}"></aside>
 
 
     <!-- =========================
@@ -109,6 +65,7 @@
                   th:object="${turno}"
                   method="post"
                   class="form-grid">
+                <div class="error-message" th:if="${#fields.hasAnyErrors()}"><p th:each="error : ${#fields.allErrors()}" th:text="${error}"></p></div>
 
 
                 <!-- ID OCULTO -->

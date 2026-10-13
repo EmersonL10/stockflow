@@ -21,51 +21,7 @@
     <!-- =========================
          MENÚ LATERAL
          ========================= -->
-    <aside class="sidebar">
-
-        <div class="brand">
-            <h2>StockFlow</h2>
-            <span>Honoria Express S.A.C.</span>
-        </div>
-
-        <nav class="menu">
-
-            <a th:href="@{/}">
-                Dashboard
-            </a>
-
-            <a th:href="@{/conductores}">
-                Conductores
-            </a>
-
-            <a th:href="@{/vehiculos}">
-                Vehículos
-            </a>
-
-            <a th:href="@{/turnos}"
-               class="active">
-                Turnos
-            </a>
-
-            <a href="#">
-                Salidas
-            </a>
-
-            <a href="#">
-                Encomiendas
-            </a>
-
-            <a href="#">
-                Caja
-            </a>
-
-            <a href="#">
-                Reportes
-            </a>
-
-        </nav>
-
-    </aside>
+    <aside th:replace="~{fragments/sidebar :: sidebar('turnos')}"></aside>
 
 
     <!-- =========================
@@ -82,14 +38,14 @@
                 </h1>
 
                 <p>
-                    Programación y asignación de turnos operativos
+                    Cola de vehículos por fecha, ruta y orden de llegada
                 </p>
 
             </div>
 
             <a th:href="@{/turnos/nuevo}"
                class="primary-button">
-                Nuevo turno
+                Registrar llegada
             </a>
 
         </header>
@@ -99,6 +55,28 @@
              CONTENIDO DEL MÓDULO
              ========================= -->
         <section class="panel">
+            <h2>Vehículos en espera</h2>
+            <p>Vehículos ordenados por llegada. Puede registrar la salida de cualquiera de los pendientes. El historial conserva su orden original.</p>
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead><tr><th>Fecha</th><th>Orden</th><th>Ruta</th><th>Vehículo</th><th>Conductor</th><th>Acción</th></tr></thead>
+                    <tbody>
+                    <tr th:each="turno : ${cola}">
+                        <td data-label="Fecha" th:text="${turno.fecha}"></td>
+                        <td data-label="Orden" th:text="${turno.numeroTurno}"></td>
+                        <td data-label="Ruta" th:text="${turno.sentidoRuta}"></td>
+                        <td data-label="Vehículo" th:text="${turno.vehiculo.placa}"></td>
+                        <td data-label="Conductor" th:text="${turno.conductor.nombres + ' ' + turno.conductor.apellidos}"></td>
+                        <td data-label="Acción"><a th:href="@{/salidas/nuevo}" class="secondary-button">Registrar salida</a></td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(cola)}"><td colspan="6">No hay vehículos en espera. Registre una llegada.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="panel">
+            <h2>Historial de turnos</h2>
 
             <!-- MENSAJE DE ÉXITO -->
             <div th:if="${mensajeExito}"
@@ -140,39 +118,39 @@
                 <!-- RECORRE TODOS LOS TURNOS -->
                 <tr th:each="turno : ${turnos}">
 
-                    <td th:text="${turno.fecha}">
+                    <td data-label="Fecha" th:text="${turno.fecha}">
                     </td>
 
-                    <td th:text="${turno.numeroTurno}">
+                    <td data-label="Orden" th:text="${turno.numeroTurno}">
                     </td>
 
-                    <td th:text="${turno.sentidoRuta == T(pe.com.honoriaexpress.stockflow.entity.SentidoRuta).PUCALLPA_HONORIA
+                    <td data-label="Ruta" th:text="${turno.sentidoRuta == T(pe.com.honoriaexpress.stockflow.entity.SentidoRuta).PUCALLPA_HONORIA
                             ? 'Pucallpa → Honoria'
                             : 'Honoria → Pucallpa'}">
                     </td>
 
-                    <td th:text="${turno.horaProgramada}">
+                    <td data-label="Hora" th:text="${turno.horaProgramada}">
                     </td>
 
-                    <td th:text="${turno.conductor.nombres + ' ' + turno.conductor.apellidos}">
+                    <td data-label="Conductor" th:text="${turno.conductor.nombres + ' ' + turno.conductor.apellidos}">
                     </td>
 
-                    <td th:text="${turno.vehiculo.placa}">
+                    <td data-label="Vehículo" th:text="${turno.vehiculo.placa}">
                     </td>
 
-                    <td>
+                    <td data-label="Estado">
                         <span th:text="${turno.estado}">
                         </span>
                     </td>
 
-                    <td th:text="${turno.observacion != null && !turno.observacion.isBlank()
+                    <td data-label="Observación" th:text="${turno.observacion != null && !turno.observacion.isBlank()
                             ? turno.observacion
                             : '-'}">
                     </td>
 
 
                     <!-- ACCIONES -->
-                    <td>
+                    <td data-label="Acciones">
 
                         <div class="action-buttons">
 

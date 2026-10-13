@@ -21,51 +21,7 @@
     <!-- =========================
          MENÚ LATERAL
          ========================= -->
-    <aside class="sidebar">
-
-        <div class="brand">
-            <h2>StockFlow</h2>
-            <span>Honoria Express S.A.C.</span>
-        </div>
-
-        <nav class="menu">
-
-            <a th:href="@{/}">
-                Dashboard
-            </a>
-
-            <a th:href="@{/conductores}">
-                Conductores
-            </a>
-
-            <a th:href="@{/vehiculos}"
-               class="active">
-                Vehículos
-            </a>
-
-            <a th:href="@{/turnos}">
-                Turnos
-            </a>
-
-            <a href="#">
-                Salidas
-            </a>
-
-            <a href="#">
-                Encomiendas
-            </a>
-
-            <a href="#">
-                Caja
-            </a>
-
-            <a href="#">
-                Reportes
-            </a>
-
-        </nav>
-
-    </aside>
+    <aside th:replace="~{fragments/sidebar :: sidebar('vehiculos')}"></aside>
 
 
     <!-- =========================
@@ -140,30 +96,30 @@
                 <!-- RECORRE TODOS LOS VEHÍCULOS -->
                 <tr th:each="vehiculo : ${vehiculos}">
 
-                    <td th:text="${vehiculo.placa}">
+                    <td data-label="Placa" th:text="${vehiculo.placa}">
                     </td>
 
-                    <td th:text="${vehiculo.marca + ' ' + vehiculo.modelo}">
+                    <td data-label="Marca / Modelo" th:text="${vehiculo.marca + ' ' + vehiculo.modelo}">
                     </td>
 
-                    <td th:text="${vehiculo.anio}">
+                    <td data-label="Año" th:text="${vehiculo.anio}">
                     </td>
 
-                    <td th:text="${vehiculo.color}">
+                    <td data-label="Color" th:text="${vehiculo.color}">
                     </td>
 
-                    <td th:text="${vehiculo.capacidadPasajeros}">
+                    <td data-label="Capacidad" th:text="${vehiculo.capacidadPasajeros}">
                     </td>
 
-                    <td th:text="${vehiculo.numeroTuc}">
+                    <td data-label="TUC" th:text="${vehiculo.numeroTuc}">
                     </td>
 
-                    <td th:text="${vehiculo.fechaVencimientoTuc}">
+                    <td data-label="Vencimiento TUC" th:text="${vehiculo.fechaVencimientoTuc}">
                     </td>
 
 
                     <!-- ESTADO -->
-                    <td>
+                    <td data-label="Estado">
 
                         <span th:class="${vehiculo.activo
                                 ? 'status-badge status-active'
@@ -177,7 +133,7 @@
 
 
                     <!-- ACCIONES -->
-                    <td>
+                    <td data-label="Acciones">
 
                         <div class="action-buttons">
 

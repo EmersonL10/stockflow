@@ -22,51 +22,7 @@
     <!-- =========================
          MENÚ LATERAL
          ========================= -->
-    <aside class="sidebar">
-
-        <div class="brand">
-            <h2>StockFlow</h2>
-            <span>Honoria Express S.A.C.</span>
-        </div>
-
-        <nav class="menu">
-
-            <a th:href="@{/}"
-               class="active">
-                Dashboard
-            </a>
-
-            <a th:href="@{/conductores}">
-                Conductores
-            </a>
-
-            <a th:href="@{/vehiculos}">
-                Vehículos
-            </a>
-
-            <a th:href="@{/turnos}">
-                Turnos
-            </a>
-
-            <a href="#">
-                Salidas
-            </a>
-
-            <a href="#">
-                Encomiendas
-            </a>
-
-            <a href="#">
-                Caja
-            </a>
-
-            <a href="#">
-                Reportes
-            </a>
-
-        </nav>
-
-    </aside>
+    <aside th:replace="~{fragments/sidebar :: sidebar('dashboard')}"></aside>
 
 
     <!-- =========================

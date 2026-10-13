@@ -18,7 +18,7 @@
 
 <main class="login-container">
 
-    <section class="login-card">
+    <section class="login-card" aria-labelledby="login-title">
 
         <div class="login-header">
 
@@ -29,16 +29,21 @@
                 de Honoria Express S.A.C.
             </p>
 
+            <h2 id="login-title">Iniciar sesión</h2>
+            <p>Ingresa con tu cuenta para continuar.</p>
+
         </div>
 
 
         <div class="login-message error-message"
+             role="alert"
              th:if="${param.error}">
             Usuario o contraseña incorrectos.
         </div>
 
 
         <div class="login-message success-message"
+             role="status"
              th:if="${param.logout}">
             Sesión cerrada correctamente.
         </div>
@@ -57,6 +62,9 @@
                 <input id="username"
                        name="username"
                        type="text"
+                       autocomplete="username"
+                       autocapitalize="none"
+                       spellcheck="false"
                        required
                        autofocus>
 
@@ -72,6 +80,7 @@
                 <input id="password"
                        name="password"
                        type="password"
+                       autocomplete="current-password"
                        required>
 
             </div>
