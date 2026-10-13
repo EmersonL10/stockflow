@@ -17,6 +17,12 @@ import java.util.Optional;
 public class TurnoServiceImpl implements TurnoService {
 
     private final TurnoRepository turnoRepository;
+    private final pe.com.honoriaexpress.stockflow.repository.SalidaRepository salidaRepository;
+
+    @Override
+    public List<Turno> listarColaPendiente() {
+        return turnoRepository.findColaPendiente();
+    }
 
 
     @Override
@@ -35,8 +41,15 @@ public class TurnoServiceImpl implements TurnoService {
 
 
     @Override
+    @org.springframework.transaction.annotation.Transactional
     public Turno guardar(Turno turno) {
-
+        if (turno.getId() != null) {
+            turnoRepository.buscarParaActualizar(turno.getId()).orElseThrow(
+                    () -> new pe.com.honoriaexpress.stockflow.exception.SalidaValidationException("id", "El turno no existe."));
+            if (salidaRepository.existsByTurnoId(turno.getId())) {
+                throw new pe.com.honoriaexpress.stockflow.exception.SalidaValidationException("id", "El turno tiene una salida registrada y no se puede modificar. Consulte su historial en Salidas.");
+            }
+        }
         return turnoRepository.save(turno);
     }
 

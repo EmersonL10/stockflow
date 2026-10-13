@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org">
+
+<body>
+
+<aside class="sidebar"
+       th:fragment="sidebar(activePage)">
+
+    <div class="brand">
+
+        <h2>StockFlow</h2>
+
+        <span>
+            Honoria Express S.A.C.
+        </span>
+
+    </div>
+
+    <nav class="menu" aria-label="Navegación principal">
+
+        <a th:href="@{/}"
+           th:attr="aria-current=${activePage == 'dashboard' ? 'page' : null}"
+           th:classappend="${activePage == 'dashboard'} ? ' active' : ''">
+            Dashboard
+        </a>
+
+        <a th:href="@{/conductores}"
+           th:attr="aria-current=${activePage == 'conductores' ? 'page' : null}"
+           th:classappend="${activePage == 'conductores'} ? ' active' : ''">
+            Conductores
+        </a>
+
+        <a th:href="@{/vehiculos}"
+           th:attr="aria-current=${activePage == 'vehiculos' ? 'page' : null}"
+           th:classappend="${activePage == 'vehiculos'} ? ' active' : ''">
+            Vehículos
+        </a>
+
+        <a th:href="@{/turnos}"
+           th:attr="aria-current=${activePage == 'turnos' ? 'page' : null}"
+           th:classappend="${activePage == 'turnos'} ? ' active' : ''">
+            Turnos
+        </a>
+
+        <a th:href="@{/salidas}"
+           th:attr="aria-current=${activePage == 'salidas' ? 'page' : null}"
+           th:classappend="${activePage == 'salidas'} ? ' active' : ''">
+            Salidas
+        </a>
+
+    </nav>
+
+</aside>
+
+</body>
+</html>

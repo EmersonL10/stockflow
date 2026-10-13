@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Salidas - StockFlow</title>
+
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+</head>
+
+<body>
+
+<div class="layout">
+
+    <aside th:replace="~{fragments/sidebar :: sidebar('salidas')}"></aside>
+
+    <main class="main-content">
+
+        <header class="topbar">
+
+            <div>
+
+                <h1>Gestión de Salidas</h1>
+
+                <p>
+                    Registro y control de las salidas reales
+                    realizadas por Honoria Express S.A.C.
+                </p>
+
+            </div>
+
+            <a th:href="@{/salidas/nuevo}"
+               sec:authorize="hasAnyRole('ADMINISTRADOR','OPERATIVO')"
+               class="primary-button">
+                Registrar salida
+            </a>
+
+        </header>
+
+        <div th:if="${mensaje}"
+             class="success-message"
+             th:text="${mensaje}">
+        </div>
+
+        <div th:if="${error}"
+             class="error-message"
+             th:text="${error}">
+        </div>
+
+        <section class="panel">
+            <h2>Consultar salidas</h2>
+            <form th:action="@{/salidas}" method="get" class="form-grid">
+                <div><label for="fecha">Fecha de salida / resumen</label><input id="fecha" name="fecha" type="date" th:value="${fecha}" required></div>
+                <div><label for="ruta">Ruta</label><select id="ruta" name="ruta"><option value="">Todas</option><option th:each="opcion : ${rutas}" th:value="${opcion}" th:text="${opcion}" th:selected="${opcion == ruta}"></option></select></div>
+                <div><label for="placa">Placa</label><input id="placa" name="placa" th:value="${placa}" maxlength="10" placeholder="Buscar vehículo"></div>
+                <div><label for="pago">Pago</label><select id="pago" name="pago"><option value="">Todos</option><option value="PENDIENTE" th:selected="${pago != null and pago.name() == 'PENDIENTE'}">Pendiente de pago</option><option value="PAGADA" th:selected="${pago != null and pago.name() == 'PAGADA'}">Pagado</option><option value="ANULADA" th:selected="${pago != null and pago.name() == 'ANULADA'}">Anulada</option></select></div>
+                <div><label for="todasFechas">Período del listado</label><select id="todasFechas" name="todasFechas"><option value="false" th:selected="${!todasFechas}">Solo fecha seleccionada</option><option value="true" th:selected="${todasFechas}">Todas las fechas (buscar deudas anteriores)</option></select></div>
+                <div class="form-actions"><a class="secondary-button" th:href="@{/salidas}">Ver hoy</a><button class="primary-button" type="submit">Consultar</button></div>
+            </form>
+        </section>
+
+        <section class="panel">
+            <h2 th:text="${'Resumen del ' + #temporals.format(fecha, 'dd/MM/yyyy')}"></h2>
+            <p>Totales del día seleccionado, para todas las rutas y vehículos. Los filtros de la tabla no cambian este resumen.</p>
+            <div class="cards">
+                <article class="card"><span>Salidas realizadas</span><strong th:text="${resumen.realizadas}"></strong></article>
+                <article class="card"><span>Cuotas de esas salidas</span><strong th:text="${'S/ ' + resumen.generadas}"></strong></article>
+                <article class="card"><span>Pagado de esas cuotas</span><strong th:text="${'S/ ' + resumen.pagadas}"></strong><small>Incluye pagos registrados después de la salida</small></article>
+                <article class="card"><span>Pendiente de esas cuotas</span><strong th:text="${'S/ ' + resumen.pendientes}"></strong></article>
+                <article class="card"><span>Cobrado durante este día</span><strong th:text="${'S/ ' + resumen.cobradoHoy}"></strong><small>Incluye pagos de salidas anteriores · hora de Lima</small></article>
+            </div>
+            <p th:if="${resumen.sinCuota > 0}" th:text="${resumen.sinCuota + ' salida(s) histórica(s) sin cuota determinada: no se incluyen en los importes.'}"></p>
+        </section>
+
+        <section class="panel">
+
+            <div class="table-responsive">
+
+                <table class="data-table">
+
+                    <thead>
+
+                    <tr>
+                        <th>ID</th>
+                        <th>Fecha</th>
+                        <th>Ruta</th>
+                        <th>Turno</th>
+                        <th>Hora programada</th>
+                        <th>Hora real</th>
+                        <th>Conductor</th>
+                        <th>Vehículo</th>
+                        <th>Pasajeros</th>
+                        <th>Cuota de agencia</th>
+                        <th>Cobro</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                    <tr th:each="salida : ${salidas}">
+
+                        <td data-label="ID" th:text="${salida.id}"></td>
+
+                        <td data-label="Fecha" th:text="${salida.turno.fecha}"></td>
+
+                        <td data-label="Ruta" th:text="${salida.rutaMostrada}"></td>
+
+                        <td data-label="Turno" th:text="${salida.turno.numeroTurno}"></td>
+
+                        <td data-label="Hora programada" th:text="${salida.turno.horaProgramada}"></td>
+
+                        <td data-label="Hora real" th:text="${salida.horaSalidaReal}"></td>
+
+                        <td data-label="Conductor" th:text="${salida.turno.conductor.nombres
+                        + ' '
+                        + salida.turno.conductor.apellidos}">
+                        </td>
+
+                        <td data-label="Vehículo" th:text="${salida.turno.vehiculo.placa}"></td>
+
+                        <td data-label="Pasajeros" th:text="${salida.cantidadPasajeros}"></td>
+
+                        <td data-label="Cuota de agencia" th:text="${salida.cuotaAgencia != null ? 'S/ ' + salida.cuotaAgencia : 'Sin determinar'}"></td>
+                        <td data-label="Cobro">
+                            <span th:text="${salida.estadoCuota == null ? 'Histórico por revisar' : (salida.estadoCuota.name() == 'PAGADA' ? 'Pagado' : (salida.estadoCuota.name() == 'PENDIENTE' ? 'Pendiente de pago' : 'Anulada'))}"></span>
+                            <small th:if="${salida.fechaPago != null}" th:text="${#temporals.format(salida.fechaPago, 'dd/MM/yyyy HH:mm') + ' · ' + salida.pagoRegistradoPor}"></small>
+                        </td>
+
+                        <td data-label="Estado">
+
+                            <span class="status-badge"
+                                  th:text="${salida.estado}">
+                            </span>
+
+                        </td>
+
+                        <td data-label="Acciones">
+
+                            <div class="action-buttons">
+                                <form th:if="${salida.estadoCuota != null and salida.estadoCuota.name() == 'PENDIENTE' and salida.estado.name() != 'CANCELADA'}"
+                                      sec:authorize="hasAnyRole('ADMINISTRADOR','CAJA')"
+                                      th:action="@{/salidas/{id}/pago(id=${salida.id})}" method="post">
+                                    <button type="submit" class="success-button" th:text="${'Registrar pago S/ ' + salida.cuotaAgencia}">Registrar pago</button>
+                                </form>
+
+                                <a th:href="@{/salidas/editar/{id}(id=${salida.id})}"
+                                   sec:authorize="hasAnyRole('ADMINISTRADOR','OPERATIVO')"
+                                   class="secondary-button">
+                                    Editar
+                                </a>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    <tr th:if="${#lists.isEmpty(salidas)}">
+
+                        <td colspan="13"
+                            class="empty-row">
+                            No hay salidas que coincidan con los filtros.
+                        </td>
+
+                    </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script th:src="@{/js/salidas-lista.js}" defer></script>
+</body>
+</html>

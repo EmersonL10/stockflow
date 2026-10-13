@@ -21,51 +21,7 @@
     <!-- =========================
          MENÚ LATERAL
          ========================= -->
-    <aside class="sidebar">
-
-        <div class="brand">
-            <h2>StockFlow</h2>
-            <span>Honoria Express S.A.C.</span>
-        </div>
-
-        <nav class="menu">
-
-            <a th:href="@{/}">
-                Dashboard
-            </a>
-
-            <a th:href="@{/conductores}"
-               class="active">
-                Conductores
-            </a>
-
-            <a th:href="@{/vehiculos}">
-                Vehículos
-            </a>
-
-            <a th:href="@{/turnos}">
-                Turnos
-            </a>
-
-            <a href="#">
-                Salidas
-            </a>
-
-            <a href="#">
-                Encomiendas
-            </a>
-
-            <a href="#">
-                Caja
-            </a>
-
-            <a href="#">
-                Reportes
-            </a>
-
-        </nav>
-
-    </aside>
+    <aside th:replace="~{fragments/sidebar :: sidebar('conductores')}"></aside>
 
 
     <!-- =========================
@@ -143,30 +99,30 @@
                      ========================= -->
                 <tr th:each="conductor : ${conductores}">
 
-                    <td th:text="${conductor.dni}">
+                    <td data-label="DNI" th:text="${conductor.dni}">
                     </td>
 
 
-                    <td th:text="${conductor.nombres + ' ' + conductor.apellidos}">
+                    <td data-label="Conductor" th:text="${conductor.nombres + ' ' + conductor.apellidos}">
                     </td>
 
 
-                    <td th:text="${conductor.licencia}">
+                    <td data-label="Licencia" th:text="${conductor.licencia}">
                     </td>
 
 
-                    <td th:text="${conductor.telefono}">
+                    <td data-label="Teléfono" th:text="${conductor.telefono}">
                     </td>
 
 
-                    <td th:text="${conductor.fechaVencimientoLicencia}">
+                    <td data-label="Vencimiento" th:text="${conductor.fechaVencimientoLicencia}">
                     </td>
 
 
                     <!-- =========================
                          ESTADO
                          ========================= -->
-                    <td>
+                    <td data-label="Estado">
 
                         <span th:class="${conductor.activo
                                 ? 'status-badge status-active'
@@ -182,7 +138,7 @@
                     <!-- =========================
                          ACCIONES
                          ========================= -->
-                    <td>
+                    <td data-label="Acciones">
 
                         <div class="action-buttons">
 

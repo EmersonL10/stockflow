@@ -31,6 +31,7 @@ public class TurnoController {
      */
     @GetMapping
     public String listar(Model model) {
+        model.addAttribute("cola", turnoService.listarColaPendiente());
 
         model.addAttribute(
                 "turnos",
@@ -263,7 +264,13 @@ public class TurnoController {
         }
 
 
-        turnoService.guardar(turno);
+        try {
+            turnoService.guardar(turno);
+        } catch (pe.com.honoriaexpress.stockflow.exception.SalidaValidationException ex) {
+            result.reject(ex.getClass().getSimpleName(), ex.getMessage());
+            cargarCatalogos(model);
+            return "turnos/formulario";
+        }
 
 
         /*
