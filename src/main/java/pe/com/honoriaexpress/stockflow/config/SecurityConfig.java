@@ -55,6 +55,9 @@ public class SecurityConfig {
                         .requestMatchers("/admin/**")
                         .hasRole("ADMINISTRADOR")
 
+                        .requestMatchers("/caja", "/caja/**")
+                        .hasAnyRole("ADMINISTRADOR", "CAJA")
+
                         .requestMatchers(org.springframework.http.HttpMethod.POST, "/salidas/*/pago")
                         .hasAnyRole("ADMINISTRADOR", "CAJA")
                         .requestMatchers(org.springframework.http.HttpMethod.POST, "/salidas/**", "/turnos/**", "/conductores/**", "/vehiculos/**")

@@ -9,6 +9,7 @@ public interface SalidaService {
     ResumenSalidas resumirDia(java.time.LocalDate fecha);
     java.math.BigDecimal getTarifaAgencia();
     void registrarPago(Long id);
+    void registrarPago(Long id, pe.com.honoriaexpress.stockflow.entity.MedioPago medio);
 
     List<Salida> listarTodos();
 

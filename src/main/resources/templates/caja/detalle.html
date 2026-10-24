@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle de Caja | StockFlow</title><link rel="stylesheet" th:href="@{/css/dashboard.css}"></head>
+<body><div class="layout">
+<aside th:replace="~{fragments/sidebar :: sidebar('caja')}"></aside>
+<main class="main-content">
+    <header class="topbar"><div><h1 th:text="${'Caja #' + caja.id}"></h1>
+        <p th:text="${'Apertura: ' + #temporals.format(caja.apertura, 'dd/MM/yyyy HH:mm') + ' · ' + caja.abiertaPor}"></p>
+        <p th:text="${caja.abierta ? 'Abierta · importes en soles' : 'Cerrada · solo consulta'}"></p></div>
+        <a class="secondary-button" th:href="@{/caja}">Volver al historial</a></header>
+    <div th:if="${mensaje}" class="success-message" role="status" th:text="${mensaje}"></div>
+    <div th:if="${error}" class="error-message" role="alert" th:text="${error}"></div>
+    <section class="panel"><h2>Resumen de esta sesión</h2><div class="cards">
+        <article class="card"><span>Efectivo inicial</span><strong th:text="${'S/ ' + caja.saldoInicial}"></strong></article>
+        <article class="card"><span>Ingresos en efectivo</span><strong th:text="${'S/ ' + resumen.ingresosEfectivo}"></strong></article>
+        <article class="card"><span>Egresos en efectivo</span><strong th:text="${'S/ ' + resumen.egresosEfectivo}"></strong></article>
+        <article class="card"><span>Efectivo esperado</span><strong th:text="${'S/ ' + (caja.abierta ? resumen.efectivoEsperado : caja.efectivoEsperado)}"></strong></article>
+        <article class="card"><span>Ingresos digitales</span><strong th:text="${'S/ ' + resumen.ingresosDigitales}"></strong></article>
+        <article class="card"><span>Egresos digitales</span><strong th:text="${'S/ ' + resumen.egresosDigitales}"></strong></article>
+    </div><p>Los movimientos digitales no aumentan el efectivo físico. Estos importes no son utilidad ni reemplazan una conciliación bancaria.</p></section>
+    <section class="panel" th:if="${caja.abierta}"><h2>Ingreso o egreso manual</h2>
+        <p>Los pagos de Salidas se registran automáticamente al cobrarlos. No los vuelva a ingresar aquí. Use este formulario para otros conceptos.</p>
+        <form th:action="@{/caja/{id}/movimientos(id=${caja.id})}" method="post" class="form-grid">
+            <input type="hidden" name="solicitud" th:value="${solicitud}">
+            <div><label for="tipo">Tipo</label><select id="tipo" name="tipo" required><option value="INGRESO">Ingreso</option><option value="EGRESO">Egreso</option></select></div>
+            <div><label for="medio">Medio</label><select id="medio" name="medio" required><option value="EFECTIVO">Efectivo</option><option value="YAPE">Yape</option><option value="PLIN">Plin</option><option value="TRANSFERENCIA">Transferencia</option></select></div>
+            <div><label for="importe">Importe S/</label><input id="importe" name="importe" type="number" min="0.01" max="99999999.99" step="0.01" required></div>
+            <div><label for="concepto">Concepto</label><input id="concepto" name="concepto" maxlength="120" required placeholder="Ej.: compra de útiles"></div>
+            <div class="form-actions form-wide"><button class="primary-button" type="submit">Registrar movimiento</button></div>
+        </form></section>
+    <section class="panel"><h2>Movimientos</h2><p>Los registros confirmados no se editan ni eliminan desde la aplicación.</p>
+        <div class="table-responsive"><table class="data-table"><thead><tr><th>Fecha</th><th>Tipo</th><th>Medio</th><th>Concepto</th><th>Importe</th><th>Usuario</th><th>Origen</th></tr></thead><tbody>
+        <tr th:each="m : ${movimientos}">
+            <td data-label="Fecha" th:text="${#temporals.format(m.fecha, 'dd/MM/yyyy HH:mm')}"></td>
+            <td data-label="Tipo" th:text="${m.tipo}"></td><td data-label="Medio" th:text="${m.medio}"></td>
+            <td data-label="Concepto" th:text="${m.concepto}"></td><td data-label="Importe" th:text="${'S/ ' + m.importe}"></td>
+            <td data-label="Usuario" th:text="${m.registradoPor}"></td>
+            <td data-label="Origen"><span th:if="${m.salida == null}">Manual</span><a th:if="${m.salida != null}" th:href="@{/salidas(placa=${m.salida.turno.vehiculo.placa},todasFechas=true)}" th:text="${'Salida #' + m.salida.id}"></a></td>
+        </tr><tr th:if="${#lists.isEmpty(movimientos)}"><td colspan="7">Esta caja todavía no tiene movimientos.</td></tr>
+        </tbody></table></div></section>
+    <section class="panel" th:if="${caja.abierta}"><h2>Cierre de caja</h2>
+        <p>Cuente el efectivo físico. El sistema calculará la diferencia. El cierre es definitivo: confirme los movimientos antes de continuar.</p>
+        <form th:action="@{/caja/{id}/cerrar(id=${caja.id})}" method="post" class="form-grid" data-cierre-caja>
+            <div><label for="contado">Efectivo contado S/</label><input id="contado" name="contado" type="number" min="0" max="999999999999.99" step="0.01" required></div>
+            <div><label for="observacion">Motivo u observación</label><textarea id="observacion" name="observacion" maxlength="250" placeholder="Obligatorio si hay una diferencia de efectivo"></textarea></div>
+            <div class="form-actions form-wide"><button class="primary-button" type="submit">Cerrar caja definitivamente</button></div>
+        </form></section>
+    <section class="panel" th:unless="${caja.abierta}"><h2>Resultado del cierre</h2>
+        <p th:text="${'Cerrada el ' + #temporals.format(caja.cierre, 'dd/MM/yyyy HH:mm') + ' por ' + caja.cerradaPor}"></p>
+        <div class="cards"><article class="card"><span>Efectivo esperado</span><strong th:text="${'S/ ' + caja.efectivoEsperado}"></strong></article>
+            <article class="card"><span>Efectivo contado</span><strong th:text="${'S/ ' + caja.efectivoContado}"></strong></article>
+            <article class="card"><span>Diferencia</span><strong th:text="${'S/ ' + caja.diferencia}"></strong><small>Positivo: sobrante. Negativo: faltante.</small></article></div>
+        <p th:text="${#strings.isEmpty(caja.observacionCierre) ? 'Sin observaciones.' : caja.observacionCierre}"></p>
+    </section>
+</main></div><script th:src="@{/js/caja.js}"></script></body></html>

@@ -9,6 +9,8 @@
 5. Registrar pendiente de pago o pagado al salir, según permisos.
 6. Cobrar cuotas pendientes desde el listado cuando regrese el vehículo.
 
+Para cobrar debe existir una caja abierta de la fecha actual. Seleccionar el medio real de cobro. El ingreso se registra automáticamente junto con el pago; no volver a registrarlo como movimiento manual. Ver [operación de Caja](caja.md).
+
 Cada salida nueva queda EN_RUTA y genera la tarifa configurada en app.agencia.cuota (S/ 10.00 por defecto). El servidor fija el importe y lo conserva aunque cambie la tarifa.
 
 ## Resumen diario
@@ -52,4 +54,4 @@ Verificación con Chromium, puerto 18080 y base separada stockflow_qa_codex: alt
 
 La consulta dispone de Exportar a Excel con los mismos filtros y hasta 10000 salidas. Ver [librerías aplicadas y verificaciones](librerias-java.md). El archivo incluye detalle y resumen por ruta; el resumen por ruta no equivale a un cierre de Caja.
 
-El cobro es un registro operativo. Aún no hay libro de Caja, cierres, conciliación, comprobantes, devoluciones ni auditoría completa de cada edición. Para producción hace falta sustituir ddl-auto=update por migraciones versionadas, configurar respaldo/restauración y validar la política de documentos vencidos y vehículos inactivos.
+Existe Caja operativa con aperturas, movimientos y cierre por sesión. Aún no hay conciliación bancaria automática, comprobantes fiscales, devoluciones ni auditoría completa de cada edición. Para producción hace falta sustituir ddl-auto=update por migraciones versionadas, configurar respaldo/restauración y validar la política de documentos vencidos y vehículos inactivos.

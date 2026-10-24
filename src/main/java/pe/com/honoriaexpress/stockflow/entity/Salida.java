@@ -87,6 +87,10 @@ public class Salida {
     @Transient
     private boolean pagoAlSalir;
 
+    @Transient
+    @Builder.Default
+    private MedioPago medioPago = MedioPago.EFECTIVO;
+
     private java.time.LocalDateTime fechaPago;
 
     @Column(length = 60)

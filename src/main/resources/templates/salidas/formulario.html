@@ -154,6 +154,14 @@
                         <option value="false">Pendiente de pago — pagará al regreso</option>
                         <option value="true" sec:authorize="hasAnyRole('ADMINISTRADOR','CAJA')">Pagado — recibido al salir</option>
                     </select>
+                    <div th:if="${salida.id == null}" sec:authorize="hasAnyRole('ADMINISTRADOR','CAJA')">
+                        <label for="medioPago">Medio si paga al salir</label>
+                        <select id="medioPago" th:field="*{medioPago}">
+                            <option value="EFECTIVO">Efectivo</option><option value="YAPE">Yape</option>
+                            <option value="PLIN">Plin</option><option value="TRANSFERENCIA">Transferencia</option>
+                        </select>
+                        <small>Para marcar pagado debe existir una caja abierta de hoy. Si queda pendiente no se crea un movimiento.</small>
+                    </div>
                     <small th:if="${salida.id != null}" th:text="${salida.estadoCuota != null ? salida.estadoCuota : 'Histórico: cuota no determinada'}"></small>
                 </div>
                 <input th:if="${salida.id == null}" type="hidden" name="estado" value="EN_RUTA">

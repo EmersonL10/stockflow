@@ -28,4 +28,6 @@ Spring Security autentica y aplica roles. BCrypt se usa para contraseñas; los f
 
 ## Límites actuales
 
+Caja usa formularios DTO separados de las entidades. `CajaServiceImpl` controla apertura, movimientos y cierre; `CajaSesionRepository` bloquea la sesión antes de modificarla. Los cobros de `SalidaServiceImpl` y su movimiento de Caja se confirman o revierten juntos. Ver [reglas de Caja](caja.md).
+
 La consulta de Salidas todavía carga el historial antes de filtrar en memoria. El Excel limita la selección a 10000 filas antes de construir el libro, pero eso no limita la consulta inicial. Para volúmenes mayores se requiere filtrado y paginación en la base. El desarrollo usa `ddl-auto=update`; no reemplaza migraciones versionadas ni una estrategia de respaldos.
