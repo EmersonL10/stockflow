@@ -20,7 +20,7 @@
         <article class="card"><span>Egresos digitales</span><strong th:text="${'S/ ' + resumen.egresosDigitales}"></strong></article>
     </div><p>Los movimientos digitales no aumentan el efectivo físico. Estos importes no son utilidad ni reemplazan una conciliación bancaria.</p></section>
     <section class="panel" th:if="${caja.abierta}"><h2>Ingreso o egreso manual</h2>
-        <p>Los pagos de Salidas se registran automáticamente al cobrarlos. No los vuelva a ingresar aquí. Use este formulario para otros conceptos.</p>
+        <p>Los cobros de Salidas y Encomiendas se registran automáticamente. No los vuelva a ingresar aquí. Use este formulario para otros conceptos.</p>
         <form th:action="@{/caja/{id}/movimientos(id=${caja.id})}" method="post" class="form-grid">
             <input type="hidden" name="solicitud" th:value="${solicitud}">
             <div><label for="tipo">Tipo</label><select id="tipo" name="tipo" required><option value="INGRESO">Ingreso</option><option value="EGRESO">Egreso</option></select></div>
@@ -36,7 +36,9 @@
             <td data-label="Tipo" th:text="${m.tipo}"></td><td data-label="Medio" th:text="${m.medio}"></td>
             <td data-label="Concepto" th:text="${m.concepto}"></td><td data-label="Importe" th:text="${'S/ ' + m.importe}"></td>
             <td data-label="Usuario" th:text="${m.registradoPor}"></td>
-            <td data-label="Origen"><span th:if="${m.salida == null}">Manual</span><a th:if="${m.salida != null}" th:href="@{/salidas(placa=${m.salida.turno.vehiculo.placa},todasFechas=true)}" th:text="${'Salida #' + m.salida.id}"></a></td>
+            <td data-label="Origen"><span th:if="${m.salida == null and m.encomienda == null}">Manual</span>
+                <a th:if="${m.salida != null}" th:href="@{/salidas(placa=${m.salida.turno.vehiculo.placa},todasFechas=true)}" th:text="${'Salida #' + m.salida.id}"></a>
+                <a th:if="${m.encomienda != null}" th:href="@{/encomiendas/{id}(id=${m.encomienda.id})}" th:text="${m.encomienda.codigo}"></a></td>
         </tr><tr th:if="${#lists.isEmpty(movimientos)}"><td colspan="7">Esta caja todavía no tiene movimientos.</td></tr>
         </tbody></table></div></section>
     <section class="panel" th:if="${caja.abierta}"><h2>Cierre de caja</h2>

@@ -15,6 +15,7 @@ public interface SalidaRepository extends JpaRepository<Salida, Long> {
     java.util.Optional<Salida> buscarParaCobro(@org.springframework.data.repository.query.Param("id") Long id);
 
     List<Salida> findAllByOrderByIdDesc();
+    List<Salida> findByEstadoAndTurnoFechaOrderByIdDesc(pe.com.honoriaexpress.stockflow.entity.EstadoSalida estado, java.time.LocalDate fecha);
 
     boolean existsByTurnoId(Long turnoId);
 

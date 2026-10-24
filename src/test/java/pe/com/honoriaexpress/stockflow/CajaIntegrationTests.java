@@ -34,10 +34,12 @@ class CajaIntegrationTests {
     @Autowired VehiculoRepository vehiculos;
     @Autowired ConductorRepository conductores;
     @Autowired MockMvc mvc;
+    @Autowired EncomiendaRepository encomiendas;
+    @Autowired EncomiendaEventoRepository eventosEncomienda;
     Turno turno;
 
     @BeforeEach void preparar() {
-        movimientos.deleteAll(); sesiones.deleteAll(); salidaRepository.deleteAll(); turnos.deleteAll();
+        eventosEncomienda.deleteAll(); movimientos.deleteAll(); encomiendas.deleteAll(); sesiones.deleteAll(); salidaRepository.deleteAll(); turnos.deleteAll();
         vehiculos.deleteAll(); conductores.deleteAll();
         var conductor = conductores.saveAndFlush(Conductor.builder().dni("00000009").nombres("Prueba").apellidos("Caja").licencia("TEST-CAJA").build());
         var vehiculo = vehiculos.saveAndFlush(Vehiculo.builder().placa("QA-C01").marca("PRUEBA").modelo("CAJA").anio(2020)

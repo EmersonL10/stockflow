@@ -49,6 +49,9 @@
             Salidas
         </a>
 
+        <a th:href="@{/encomiendas}" sec:authorize="hasAnyRole('ADMINISTRADOR','OPERATIVO','CAJA')"
+           th:attr="aria-current=${activePage == 'encomiendas' ? 'page' : null}"
+           th:classappend="${activePage == 'encomiendas'} ? ' active' : ''">Encomiendas</a>
         <a th:href="@{/caja}" sec:authorize="hasAnyRole('ADMINISTRADOR','CAJA')"
            th:attr="aria-current=${activePage == 'caja' ? 'page' : null}"
            th:classappend="${activePage == 'caja'} ? ' active' : ''">Caja</a>

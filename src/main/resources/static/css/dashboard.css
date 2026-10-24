@@ -562,6 +562,14 @@ body {
     grid-column: 1 / -1;
 }
 
+@media print {
+    .detalle-encomienda .sidebar, .detalle-encomienda .sin-impresion,
+    .detalle-encomienda .success-message, .detalle-encomienda .error-message { display: none !important; }
+    .detalle-encomienda .layout { display: block; }
+    .detalle-encomienda .main-content { width: 100%; padding: 0; }
+    .detalle-encomienda .panel { box-shadow: none; break-inside: avoid; }
+}
+
 .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .form-grid > div, .topbar > div, .card { min-width: 0; }
 .form-grid input, .form-grid select, .form-grid textarea { width: 100%; min-width: 0; max-width: 100%; }
