@@ -77,8 +77,14 @@ public class ExportacionSalidasService {
     }
 
     private BigDecimal sumar(List<Salida> salidas, EstadoCuota estado) {
-        return salidas.stream().filter(s -> s.getEstadoCuota() == estado && s.getCuotaAgencia() != null)
-                .map(Salida::getCuotaAgencia).reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal total = BigDecimal.ZERO;
+        for (Salida salida : salidas) {
+            BigDecimal cuota = salida.getCuotaAgencia();
+            if (salida.getEstadoCuota() == estado && cuota != null) {
+                total = total.add(cuota);
+            }
+        }
+        return total;
     }
 
     private void texto(Row fila, int columna, String valor) {

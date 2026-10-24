@@ -71,7 +71,7 @@ public class SalidaController {
         if (fecha == null) fecha = java.time.LocalDate.now(java.time.ZoneId.of("America/Lima"));
         var seleccion = consultaSalidas.filtrar(salidaService.listarTodos(), fecha, ruta, placa, pago, todasFechas);
         if (seleccion.size() > pe.com.honoriaexpress.stockflow.service.ExportacionSalidasService.MAX_FILAS) {
-            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.UNPROCESSABLE_CONTENT,
                     "Reduzca el período o aplique filtros: máximo 10000 salidas por archivo.");
         }
         return org.springframework.http.ResponseEntity.ok()
