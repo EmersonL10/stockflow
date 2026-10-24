@@ -24,6 +24,7 @@ public class SalidaServiceImpl implements SalidaService {
     private final TurnoRepository turnoRepository;
     private final Validator validator;
     private final pe.com.honoriaexpress.stockflow.service.CajaService cajaService;
+    private final pe.com.honoriaexpress.stockflow.repository.EncomiendaRepository encomiendas;
 
     @Override
     @Transactional(readOnly = true)
@@ -180,6 +181,9 @@ public class SalidaServiceImpl implements SalidaService {
                 throw new SalidaValidationException("estado", "Una cuota pagada requiere regularización en Caja antes de cancelar.");
             }
             salida.setEstadoCuota(pe.com.honoriaexpress.stockflow.entity.EstadoCuota.ANULADA);
+        }
+        if (salida.getEstado() == EstadoSalida.CANCELADA && salida.getId() != null && encomiendas.existsBySalidaId(salida.getId())) {
+            throw new SalidaValidationException("estado", "La salida transporta encomiendas y no puede cancelarse desde este formulario.");
         }
         if (salida.getRutaReal() == null || salida.getRutaReal().isBlank()) {
             salida.setRutaReal(turno.getSentidoRuta() == pe.com.honoriaexpress.stockflow.entity.SentidoRuta.PUCALLPA_HONORIA

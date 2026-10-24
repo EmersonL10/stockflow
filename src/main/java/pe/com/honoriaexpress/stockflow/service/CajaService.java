@@ -15,5 +15,6 @@ public interface CajaService {
     void registrarManual(Long cajaId, TipoMovimientoCaja tipo, MedioPago medio,
                          BigDecimal importe, String concepto, String solicitud);
     void registrarCobroSalida(Salida salida, MedioPago medio);
+    void registrarCobroEncomienda(Encomienda encomienda, MedioPago medio);
     void cerrar(Long id, BigDecimal contado, String observacion);
 }

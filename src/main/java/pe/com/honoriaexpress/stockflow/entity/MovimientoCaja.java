@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "caja_movimientos", uniqueConstraints = {
         @UniqueConstraint(name = "uk_movimiento_salida", columnNames = "salida_id"),
+        @UniqueConstraint(name = "uk_movimiento_encomienda", columnNames = "encomienda_id"),
         @UniqueConstraint(name = "uk_movimiento_solicitud", columnNames = "solicitud")})
 @Getter @Setter @NoArgsConstructor
 public class MovimientoCaja {
@@ -19,6 +20,9 @@ public class MovimientoCaja {
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "salida_id", updatable = false)
     private Salida salida;
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "encomienda_id", updatable = false)
+    private Encomienda encomienda;
     @Column(nullable = false, length = 60, updatable = false)
     private String solicitud;
     @Enumerated(EnumType.STRING) @Column(nullable = false, updatable = false, length = 20)

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de encomienda | StockFlow</title><link rel="stylesheet" th:href="@{/css/dashboard.css}"></head>
+<body><div class="layout"><aside th:replace="~{fragments/sidebar :: sidebar('encomiendas')}"></aside>
+<main class="main-content">
+    <header class="topbar"><div><h1 th:text="${id == null ? 'Nueva encomienda' : 'Editar encomienda'}"></h1><p>Complete los datos del envío y verifique los documentos con el cliente.</p></div></header>
+    <section class="panel"><form class="form-grid" th:object="${form}" method="post" th:action="${id == null} ? @{/encomiendas/guardar} : @{/encomiendas/{id}/editar(id=${id})}">
+        <input type="hidden" th:field="*{solicitud}">
+        <div class="error-message form-wide" role="alert" th:if="${#fields.hasAnyErrors()}"><p th:each="error : ${#fields.allErrors()}" th:text="${error}"></p></div>
+        <h2 class="form-wide">Remitente</h2>
+        <div><label for="remitente">Nombre completo</label><input id="remitente" th:field="*{remitente}" maxlength="100" required></div>
+        <div><label for="documentoRemitente">Documento del remitente</label><input id="documentoRemitente" th:field="*{documentoRemitente}" minlength="6" maxlength="20" required placeholder="DNI, CE o pasaporte"></div>
+        <div><label for="telefonoRemitente">Teléfono del remitente</label><input id="telefonoRemitente" th:field="*{telefonoRemitente}" type="tel" minlength="7" maxlength="20" required></div>
+        <h2 class="form-wide">Destinatario</h2>
+        <div><label for="destinatario">Nombre completo del destinatario</label><input id="destinatario" th:field="*{destinatario}" maxlength="100" required></div>
+        <div><label for="documentoDestinatario">Documento del destinatario</label><input id="documentoDestinatario" th:field="*{documentoDestinatario}" minlength="6" maxlength="20" required></div>
+        <div><label for="telefonoDestinatario">Teléfono del destinatario</label><input id="telefonoDestinatario" th:field="*{telefonoDestinatario}" type="tel" minlength="7" maxlength="20" required></div>
+        <h2 class="form-wide">Datos del envío</h2>
+        <div><label for="ruta">Ruta</label><input id="ruta" th:field="*{ruta}" list="rutas" maxlength="120" required placeholder="Seleccione o escriba una ruta">
+            <datalist id="rutas"><option value="Pucallpa - Honoria"></option><option value="Honoria - Pucallpa"></option></datalist></div>
+        <div><label for="bultos">Cantidad de bultos</label><input id="bultos" th:field="*{bultos}" type="number" min="1" max="1000" required></div>
+        <div><label for="pesoKg">Peso total en kg (opcional)</label><input id="pesoKg" th:field="*{pesoKg}" type="number" min="0.001" max="99999.999" step="0.001"></div>
+        <div><label for="importe">Importe del servicio S/</label><input id="importe" th:field="*{importe}" type="number" min="0.01" max="99999999.99" step="0.01" required><small>Solo el importe que cobrará la agencia por este envío; no es el valor del contenido.</small></div>
+        <div class="form-wide"><label for="descripcion">Descripción del contenido y observaciones</label><textarea id="descripcion" th:field="*{descripcion}" maxlength="250" required placeholder="Describa el contenido y las condiciones del paquete"></textarea></div>
+        <p class="form-wide">Se registra pendiente de pago. Administrador o Caja podrá cobrar desde el detalle con una caja abierta de hoy. Registre la salida al despachar y luego asocie el envío a ese viaje.</p>
+        <div class="form-actions form-wide"><a class="secondary-button" th:href="${id == null} ? @{/encomiendas} : @{/encomiendas/{id}(id=${id})}">Cancelar</a><button type="submit" class="primary-button">Guardar encomienda</button></div>
+    </form></section>
+</main></div></body></html>

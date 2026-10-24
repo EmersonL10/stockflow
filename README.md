@@ -20,6 +20,10 @@ El listado permite exportar a Excel la selección de Salidas y su resumen por ru
 
 Administrador y Caja pueden abrir una sesión, registrar otros ingresos/egresos y cerrarla con arqueo. Los cobros nuevos de Salidas requieren caja abierta de hoy y crean su ingreso automáticamente, distinguiendo efectivo y medios digitales. Los pagos históricos no se importan automáticamente. Consultar [reglas y verificación de Caja](docs/caja.md).
 
+## Encomiendas
+
+Registro y consulta de envíos con código interno, remitente, destinatario, datos del paquete e importe del servicio. Incluye despacho en una salida, recepción en destino, entrega con documento coincidente e historial. Los cobros se vinculan a Caja en una misma transacción. Ver [operación, permisos y límites de Encomiendas](docs/encomiendas.md).
+
 Las pruebas usan stockflow_test_codex y recrean sus tablas. Crear esa base vacía antes de ejecutar .\mvnw.cmd test.
 
 Los SQL de scripts son manuales. Los archivos demo o sintéticos contienen datos ficticios, aunque su presentación no incluya la palabra demo. No son identidades ni documentos verificados. No cargarlos en bases operativas ni volver a ejecutarlos indiscriminadamente. La aplicación no los ejecuta automáticamente.

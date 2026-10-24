@@ -10,4 +10,5 @@ public interface MovimientoCajaRepository extends JpaRepository<MovimientoCaja, 
             + "and not exists (select m.id from MovimientoCaja m where m.salida = s)")
     long contarPagosSinCaja();
     boolean existsBySalidaId(Long id);
+    boolean existsByEncomiendaId(Long id);
 }

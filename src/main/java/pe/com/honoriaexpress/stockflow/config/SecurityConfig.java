@@ -58,6 +58,15 @@ public class SecurityConfig {
                         .requestMatchers("/caja", "/caja/**")
                         .hasAnyRole("ADMINISTRADOR", "CAJA")
 
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/encomiendas/*/pago")
+                        .hasAnyRole("ADMINISTRADOR", "CAJA")
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/encomiendas/**")
+                        .hasAnyRole("ADMINISTRADOR", "OPERATIVO")
+                        .requestMatchers("/encomiendas/nuevo", "/encomiendas/*/editar")
+                        .hasAnyRole("ADMINISTRADOR", "OPERATIVO")
+                        .requestMatchers("/encomiendas", "/encomiendas/**")
+                        .hasAnyRole("ADMINISTRADOR", "OPERATIVO", "CAJA")
+
                         .requestMatchers(org.springframework.http.HttpMethod.POST, "/salidas/*/pago")
                         .hasAnyRole("ADMINISTRADOR", "CAJA")
                         .requestMatchers(org.springframework.http.HttpMethod.POST, "/salidas/**", "/turnos/**", "/conductores/**", "/vehiculos/**")

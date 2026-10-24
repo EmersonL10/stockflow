@@ -71,7 +71,7 @@ public class CajaServiceImpl implements CajaService {
                 && monto.compareTo(resumir(caja, movimientos(cajaId)).efectivoEsperado()) > 0) {
             throw new CajaOperacionException("El egreso supera el efectivo disponible en esta caja.");
         }
-        guardarMovimiento(caja, null, tipo, medio, monto, descripcion, solicitud);
+        guardarMovimiento(caja, null, null, tipo, medio, monto, descripcion, solicitud);
     }
 
     @Transactional(propagation = Propagation.MANDATORY)
@@ -82,8 +82,20 @@ public class CajaServiceImpl implements CajaService {
             throw new CajaOperacionException("El cobro no tiene una salida pagada y un medio válidos.");
         }
         if (movimientos.existsBySalidaId(salida.getId())) throw new CajaOperacionException("La cuota de esta salida ya está registrada en Caja.");
-        guardarMovimiento(caja, salida, TipoMovimientoCaja.INGRESO, medio, dinero(salida.getCuotaAgencia(), false),
+        guardarMovimiento(caja, salida, null, TipoMovimientoCaja.INGRESO, medio, dinero(salida.getCuotaAgencia(), false),
                 "Cuota de agencia por salida #" + salida.getId(), "SALIDA:" + salida.getId());
+    }
+
+    @Transactional(propagation = Propagation.MANDATORY)
+    public void registrarCobroEncomienda(Encomienda encomienda, MedioPago medio) {
+        var caja = cajas.bloquearAbierta().orElseThrow(() -> new CajaOperacionException("Abra una caja antes de cobrar la encomienda."));
+        verificarHoy(caja);
+        if (medio == null || encomienda.getId() == null || encomienda.getEstadoPago() != EstadoPagoEncomienda.PAGADA) {
+            throw new CajaOperacionException("El cobro de encomienda no es válido.");
+        }
+        if (movimientos.existsByEncomiendaId(encomienda.getId())) throw new CajaOperacionException("La encomienda ya tiene un ingreso registrado.");
+        guardarMovimiento(caja, null, encomienda, TipoMovimientoCaja.INGRESO, medio, dinero(encomienda.getImporte(), false),
+                "Servicio de encomienda " + encomienda.getCodigo(), "ENCOMIENDA:" + encomienda.getId());
     }
 
     @Transactional
@@ -112,10 +124,10 @@ public class CajaServiceImpl implements CajaService {
             throw new CajaOperacionException("La caja abierta es de otra fecha. Ciérrela y abra la caja de hoy antes de registrar movimientos.");
         }
     }
-    private void guardarMovimiento(CajaSesion caja, Salida salida, TipoMovimientoCaja tipo, MedioPago medio,
+    private void guardarMovimiento(CajaSesion caja, Salida salida, Encomienda encomienda, TipoMovimientoCaja tipo, MedioPago medio,
                                    BigDecimal monto, String concepto, String solicitud) {
         var m = new MovimientoCaja();
-        m.setCaja(caja); m.setSalida(salida); m.setTipo(tipo); m.setMedio(medio); m.setImporte(monto);
+        m.setCaja(caja); m.setSalida(salida); m.setEncomienda(encomienda); m.setTipo(tipo); m.setMedio(medio); m.setImporte(monto);
         m.setConcepto(concepto); m.setSolicitud(solicitud); m.setFecha(LocalDateTime.now(LIMA)); m.setRegistradoPor(usuario());
         movimientos.saveAndFlush(m);
     }

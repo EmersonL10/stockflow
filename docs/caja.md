@@ -12,6 +12,7 @@ La configuración de desarrollo crea dos tablas adicionales al iniciar: `caja_se
 2. Registrar las salidas como pendientes o pagadas. Para cobrar se requiere una caja abierta de la fecha actual en Lima.
 3. Seleccionar el medio: Efectivo, Yape, Plin o Transferencia. La aplicación registra el medio declarado; no verifica operaciones en esos proveedores.
 4. Los pagos de Salidas generan automáticamente un ingreso vinculado a la salida y a la caja. No volver a ingresarlos manualmente.
+   Los cobros completos de Encomiendas también generan un ingreso automático con su propio origen, código y medio de pago; no volver a ingresarlos manualmente.
 5. Usar movimientos manuales para otros ingresos o egresos y especificar concepto e importe.
 6. Revisar el resumen, contar el efectivo y registrar el cierre. Si hay diferencia, el motivo es obligatorio.
 7. Consultar el cierre en el historial. No se reabre ni se modifican movimientos confirmados mediante la aplicación. Después puede abrirse otra sesión, incluso el mismo día.
@@ -61,3 +62,5 @@ Suite final del 24/10/2026: 49 pruebas aprobadas, sin fallos, errores ni omision
 ## Límites
 
 Esta es Caja operativa por sesión, no un sistema contable completo. No implementa comprobantes fiscales, conciliación bancaria automática, devoluciones, anulación o reversión de movimientos, cuentas por sede, conciliación con proveedores ni auditoría de cambios directos en MySQL. No debe interpretarse el ingreso total como utilidad. Los movimientos de una sesión se cargan completos para consulta; el historial se pagina de 20 en 20.
+
+La integración con Encomiendas se describe en [su documentación](encomiendas.md). El cobro de la encomienda y el de la cuota de Salida son conceptos distintos; cada uno tiene su referencia única y se registra solo al cobrarlo efectivamente.

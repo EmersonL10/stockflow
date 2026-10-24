@@ -36,10 +36,12 @@ class SalidasIntegrationTests {
     @Autowired CajaService cajaService;
     @Autowired CajaSesionRepository cajas;
     @Autowired MovimientoCajaRepository movimientosCaja;
+    @Autowired EncomiendaRepository encomiendas;
+    @Autowired EncomiendaEventoRepository eventosEncomienda;
     Turno turno;
 
     @BeforeEach void preparar() {
-        movimientosCaja.deleteAll(); cajas.deleteAll();
+        eventosEncomienda.deleteAll(); movimientosCaja.deleteAll(); encomiendas.deleteAll(); cajas.deleteAll();
         salidas.deleteAll(); turnos.deleteAll(); vehiculos.deleteAll(); conductores.deleteAll();
         cajaService.abrir(java.math.BigDecimal.ZERO);
         var conductor=conductores.saveAndFlush(Conductor.builder().dni("00000001").nombres("Prueba")
