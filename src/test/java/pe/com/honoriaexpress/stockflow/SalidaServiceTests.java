@@ -30,7 +30,8 @@ class SalidaServiceTests {
     void preparar() {
         salidas = mock(SalidaRepository.class);
         turnos = mock(TurnoRepository.class);
-        service = new SalidaServiceImpl(salidas, turnos, factory.getValidator());
+        service = new SalidaServiceImpl(salidas, turnos, factory.getValidator(),
+                mock(pe.com.honoriaexpress.stockflow.service.CajaService.class));
         turno = Turno.builder().id(1L).fecha(java.time.LocalDate.of(2026,10,10))
                 .sentidoRuta(SentidoRuta.PUCALLPA_HONORIA).numeroTurno(1)
                 .vehiculo(Vehiculo.builder().capacidadPasajeros(10).build()).build();

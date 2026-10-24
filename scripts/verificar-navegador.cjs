@@ -1,4 +1,4 @@
-// Ejecutar únicamente con la instancia y los datos aislados de QA.
+// Ejecutar únicamente con la instancia y los datos aislados de QA. Abrir previamente la caja de hoy.
 const { chromium } = require('playwright');
 const fs = require('node:fs');
 const assert = require('node:assert/strict');
@@ -15,6 +15,8 @@ const assert = require('node:assert/strict');
     await page.locator('#username').fill(process.env.APP_ADMIN_USERNAME || 'admin');
     await page.locator('#password').fill(process.env.APP_ADMIN_PASSWORD);
     await Promise.all([page.waitForURL(url => !url.pathname.includes('login')), page.getByRole('button', { name: 'Iniciar sesión' }).click()]);
+    await page.goto(base + '/caja');
+    assert.equal(await page.locator('#saldoInicial').count(), 0, 'Abra primero una caja de hoy en la instancia de QA');
     for (const [plate, paid] of [['QA-001', 'true'], ['QA-002', 'false']]) {
       await page.goto(base + '/salidas/nuevo');
       const option = page.locator('#turno option').filter({ hasText: plate });

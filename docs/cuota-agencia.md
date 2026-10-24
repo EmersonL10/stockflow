@@ -6,6 +6,8 @@ La tarifa se copia a la salida y no cambia retroactivamente. Cancelar una salida
 
 monto_recaudado conserva importes históricos del transporte y admite NULL para salidas nuevas. No se suma a la cuota ni al ingreso de agencia. Las salidas antiguas sin cuota quedan para revisión, sin crear deuda automática.
 
-El registro de cobro todavía no crea movimiento de Caja, comprobante ni cierre. La futura integración debe referenciar el pago existente para evitar duplicar ingresos.
+Los cobros nuevos crean un ingreso vinculado en la caja abierta de hoy, en la misma transacción. El operador declara el medio (efectivo, Yape, Plin o transferencia). Una cuota pendiente puede registrarse sin caja abierta; cobrarla requiere abrir caja. Los pagos históricos anteriores a esta integración conservan su estado y no se importan automáticamente.
+
+El cierre operativo se describe en [Caja](caja.md). No se generan comprobantes fiscales ni conciliación bancaria automática.
 
 Consultar [operación, permisos y pruebas](salidas.md). El script manual scripts/separar-cuota-agencia.sql permite NULL en recaudación histórica; no constituye un sistema completo de migraciones.

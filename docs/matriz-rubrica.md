@@ -7,13 +7,13 @@ La rúbrica suma 20 puntos. Esta matriz identifica evidencia y trabajo pendiente
 | Diseño | 3 | MVC, repositorios como DAO, ejemplos SOLID y seguridad en arquitectura.md | Sustentar con código y recorrido funcional |
 | Recursos Java | 2 | POI, Guava, Commons y Logback aplicados, pruebas y librerias-java.md | Capturas y demostración del estudiante |
 | Git | 3 | PR anteriores #4 y #5; modificaciones y archivos nuevos locales para esta funcionalidad | El estudiante debe crear rama, commits y PR de este trabajo y documentos; no se ha ejecutado Git automáticamente |
-| Interfaces | 6 | Conductores, Vehículos, Turnos, Salidas y exportación | Confirmar el alcance aprobado, mapear cada requisito y completar módulos comprometidos |
+| Interfaces | 6 | Conductores, Vehículos, Turnos, Salidas, exportación y Caja operativa | Confirmar el alcance aprobado, mapear cada requisito y completar módulos comprometidos |
 | Producto final | 4 | Código organizado, pruebas y documentación técnica | Alcance completo, documentos académicos alineados, datos de prueba identificados y dominio del estudiante |
 | Sustentación | 2 | Guía de preguntas y recorrido | Ensayo individual y demostración |
 
 ## Alcance que debe confirmarse
 
-No se dispone aquí de una lista validada de requisitos comprometidos al docente. Caja completa, Encomiendas y demás funciones no se declaran terminadas. El registro de cuotas y pagos de Salidas no equivale a apertura, ingresos/egresos, cierre o conciliación de Caja.
+No se dispone aquí de una lista validada de requisitos comprometidos al docente. Caja incluye apertura, ingresos y egresos, vínculo con cobros y cierre por sesión; no incluye conciliación bancaria automática, comprobantes ni devoluciones. Encomiendas y demás funciones no se declaran terminadas.
 
 Agregar cada requisito aprobado con su ID, descripción, pantalla, clase responsable, prueba, estado y evidencia. No asignar porcentajes de cobertura hasta completar ese inventario.
 

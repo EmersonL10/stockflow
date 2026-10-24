@@ -30,7 +30,7 @@ public class SalidaController {
     @InitBinder("salida")
     public void protegerDatosFinancieros(org.springframework.web.bind.WebDataBinder binder) {
         // Solo el identificador del turno se recibe, nunca sus datos persistidos.
-        binder.setAllowedFields("id", "turno.id", "rutaReal", "horaSalidaReal", "cantidadPasajeros", "estado", "observacion", "pagoAlSalir");
+        binder.setAllowedFields("id", "turno.id", "rutaReal", "horaSalidaReal", "cantidadPasajeros", "estado", "observacion", "pagoAlSalir", "medioPago");
         binder.setDisallowedFields("cuotaAgencia", "estadoCuota", "montoRecaudado");
     }
 
@@ -82,11 +82,15 @@ public class SalidaController {
     }
 
     @PostMapping("/{id}/pago")
-    public String registrarPago(@PathVariable Long id, RedirectAttributes flash) {
+    public String registrarPago(@PathVariable Long id,
+                               @RequestParam(defaultValue = "EFECTIVO") pe.com.honoriaexpress.stockflow.entity.MedioPago medioPago,
+                               RedirectAttributes flash) {
         try {
-            salidaService.registrarPago(id);
+            salidaService.registrarPago(id, medioPago);
             flash.addFlashAttribute("mensaje", "Pago de cuota registrado correctamente.");
         } catch (SalidaValidationException ex) {
+            flash.addFlashAttribute("error", ex.getMessage());
+        } catch (pe.com.honoriaexpress.stockflow.exception.CajaOperacionException ex) {
             flash.addFlashAttribute("error", ex.getMessage());
         }
         return "redirect:/salidas";
@@ -154,8 +158,15 @@ public class SalidaController {
             cargarDatosFormulario(model);
             return "salidas/formulario";
         } catch (DataIntegrityViolationException ex) {
+            if (esNuevo) salida.setId(null);
             log.warn("Conflicto de integridad al guardar una salida");
             bindingResult.reject("salida.conflicto", "No se pudo guardar. Otro usuario pudo modificar el turno o registrar su salida. Recargue y revise los datos.");
+            cargarDatosFormulario(model);
+            return "salidas/formulario";
+        } catch (pe.com.honoriaexpress.stockflow.exception.CajaOperacionException ex) {
+            // Un flush puede asignar ID antes de que Caja provoque rollback. El formulario debe seguir siendo un alta.
+            if (esNuevo) salida.setId(null);
+            bindingResult.reject("salida.caja", ex.getMessage());
             cargarDatosFormulario(model);
             return "salidas/formulario";
         }

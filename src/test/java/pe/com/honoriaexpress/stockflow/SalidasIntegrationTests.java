@@ -33,10 +33,15 @@ class SalidasIntegrationTests {
     @Autowired VehiculoRepository vehiculos;
     @Autowired ConductorRepository conductores;
     @Autowired MockMvc mvc;
+    @Autowired CajaService cajaService;
+    @Autowired CajaSesionRepository cajas;
+    @Autowired MovimientoCajaRepository movimientosCaja;
     Turno turno;
 
     @BeforeEach void preparar() {
+        movimientosCaja.deleteAll(); cajas.deleteAll();
         salidas.deleteAll(); turnos.deleteAll(); vehiculos.deleteAll(); conductores.deleteAll();
+        cajaService.abrir(java.math.BigDecimal.ZERO);
         var conductor=conductores.saveAndFlush(Conductor.builder().dni("00000001").nombres("Prueba")
                 .apellidos("Integracion").licencia("TEST-LIC").build());
         var vehiculo=vehiculos.saveAndFlush(Vehiculo.builder().placa("TEST-001").marca("PRUEBA")

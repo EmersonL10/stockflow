@@ -23,6 +23,7 @@ public class SalidaServiceImpl implements SalidaService {
     private final SalidaRepository salidaRepository;
     private final TurnoRepository turnoRepository;
     private final Validator validator;
+    private final pe.com.honoriaexpress.stockflow.service.CajaService cajaService;
 
     @Override
     @Transactional(readOnly = true)
@@ -70,6 +71,13 @@ public class SalidaServiceImpl implements SalidaService {
     @Transactional
     @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('ADMINISTRADOR','CAJA')")
     public void registrarPago(Long id) {
+        registrarPago(id, pe.com.honoriaexpress.stockflow.entity.MedioPago.EFECTIVO);
+    }
+
+    @Override
+    @Transactional
+    @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('ADMINISTRADOR','CAJA')")
+    public void registrarPago(Long id, pe.com.honoriaexpress.stockflow.entity.MedioPago medio) {
         Salida salida = salidaRepository.buscarParaCobro(id).orElseThrow(
                 () -> new SalidaValidationException("id", "La salida no existe."));
         if (salida.getEstadoCuota() != pe.com.honoriaexpress.stockflow.entity.EstadoCuota.PENDIENTE
@@ -78,6 +86,7 @@ public class SalidaServiceImpl implements SalidaService {
         }
         sellarPago(salida);
         salidaRepository.saveAndFlush(salida);
+        cajaService.registrarCobroSalida(salida, medio);
     }
 
     @jakarta.persistence.PersistenceContext
@@ -97,6 +106,7 @@ public class SalidaServiceImpl implements SalidaService {
     @Transactional
     @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('ADMINISTRADOR','OPERATIVO') and (!#salida.pagoAlSalir or hasAnyRole('ADMINISTRADOR','CAJA'))")
     public Salida guardar(Salida salida) {
+        boolean nuevoCobro = false;
         Salida original = salida.getId() == null ? null : salidaRepository.buscarParaCobro(salida.getId())
                 .orElseThrow(() -> new SalidaValidationException("id", "La salida solicitada no existe."));
         if (original == null) {
@@ -158,7 +168,7 @@ public class SalidaServiceImpl implements SalidaService {
             salida.setEstadoCuota(pe.com.honoriaexpress.stockflow.entity.EstadoCuota.PENDIENTE);
             salida.setFechaPago(null);
             salida.setPagoRegistradoPor(null);
-            if (salida.isPagoAlSalir()) sellarPago(salida);
+            if (salida.isPagoAlSalir()) { sellarPago(salida); nuevoCobro = true; }
         } else {
             salida.setCuotaAgencia(original.getCuotaAgencia());
             salida.setEstadoCuota(original.getEstadoCuota());
@@ -182,7 +192,9 @@ public class SalidaServiceImpl implements SalidaService {
         } else if (salida.getEstado() == EstadoSalida.CANCELADA) {
             turno.setEstado(EstadoTurno.CANCELADO);
         }
-        return salidaRepository.saveAndFlush(salida);
+        Salida guardada = salidaRepository.saveAndFlush(salida);
+        if (nuevoCobro) cajaService.registrarCobroSalida(guardada, salida.getMedioPago());
+        return guardada;
     }
 
     @Override
