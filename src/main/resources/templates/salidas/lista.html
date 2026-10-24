@@ -57,8 +57,12 @@
                 <div><label for="placa">Placa</label><input id="placa" name="placa" th:value="${placa}" maxlength="10" placeholder="Buscar vehículo"></div>
                 <div><label for="pago">Pago</label><select id="pago" name="pago"><option value="">Todos</option><option value="PENDIENTE" th:selected="${pago != null and pago.name() == 'PENDIENTE'}">Pendiente de pago</option><option value="PAGADA" th:selected="${pago != null and pago.name() == 'PAGADA'}">Pagado</option><option value="ANULADA" th:selected="${pago != null and pago.name() == 'ANULADA'}">Anulada</option></select></div>
                 <div><label for="todasFechas">Período del listado</label><select id="todasFechas" name="todasFechas"><option value="false" th:selected="${!todasFechas}">Solo fecha seleccionada</option><option value="true" th:selected="${todasFechas}">Todas las fechas (buscar deudas anteriores)</option></select></div>
-                <div class="form-actions"><a class="secondary-button" th:href="@{/salidas}">Ver hoy</a><button class="primary-button" type="submit">Consultar</button></div>
+                <div class="form-actions"><a class="secondary-button" th:href="@{/salidas}">Ver hoy</a><button class="primary-button" type="submit">Consultar</button>
+                    <button class="secondary-button" type="submit" th:formaction="@{/salidas/exportar}"
+                            sec:authorize="hasAnyRole('ADMINISTRADOR','OPERATIVO','CAJA')">Exportar a Excel</button>
+                </div>
             </form>
+            <p>El Excel respeta estos filtros e incluye un resumen por ruta. Máximo 10000 salidas por descarga.</p>
         </section>
 
         <section class="panel">
@@ -78,7 +82,7 @@
 
             <div class="table-responsive">
 
-                <table class="data-table">
+                <table class="data-table salidas-table">
 
                     <thead>
 

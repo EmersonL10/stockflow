@@ -44,10 +44,12 @@ Los permisos se aplican en servidor y los formularios mantienen protección CSRF
 
 Ejecutar .\mvnw.cmd test. El perfil test usa exclusivamente stockflow_test_codex y RECREA SUS TABLAS. Crear previamente esa base vacía y configurar DB_PASSWORD y APP_ADMIN_PASSWORD por entorno. Nunca apuntar el perfil test a una base operativa.
 
-10/10/2026: 32 pruebas aprobadas, incluyendo integración real con MySQL, permisos, CSRF, renderizado Thymeleaf y concurrencia de altas y cobros.
+10/10/2026: 32 pruebas aprobadas, incluyendo integración real con MySQL, permisos, CSRF, renderizado Thymeleaf y concurrencia de altas y cobros. El 24/10/2026 se amplió la suite a 37 pruebas aprobadas para incluir filtros, exportación a Excel y seguridad de la descarga.
 
 Verificación con Chromium, puerto 18080 y base separada stockflow_qa_codex: alta pagada, alta pendiente, cobro posterior y 54 comprobaciones de ancho en nueve pantallas (1920, 1366, 1024, 768, 390 y 320 píxeles). Capturas locales en target/qa-results. El script scripts/verificar-navegador.cjs requiere Playwright, credenciales por entorno y vehículos QA-001 y QA-002; escribe contra localhost:18080. Reservar ese puerto para QA, nunca para una instancia operativa.
 
 ## Alcance futuro
+
+La consulta dispone de Exportar a Excel con los mismos filtros y hasta 10000 salidas. Ver [librerías aplicadas y verificaciones](librerias-java.md). El archivo incluye detalle y resumen por ruta; el resumen por ruta no equivale a un cierre de Caja.
 
 El cobro es un registro operativo. Aún no hay libro de Caja, cierres, conciliación, comprobantes, devoluciones ni auditoría completa de cada edición. Para producción hace falta sustituir ddl-auto=update por migraciones versionadas, configurar respaldo/restauración y validar la política de documentos vencidos y vehículos inactivos.

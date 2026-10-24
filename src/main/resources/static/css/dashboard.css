@@ -569,6 +569,16 @@ body {
 .data-table td, .data-table th, .card { overflow-wrap: anywhere; }
 .data-table td small { display: block; margin-top: 6px; }
 .cards { grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr)); }
+/* Salidas tiene trece columnas: usar fichas antes de comprimir los textos. */
+@media (min-width: 1101px) and (max-width: 1600px) {
+    .salidas-table, .salidas-table tbody { display: block; width: 100%; }
+    .salidas-table thead { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); }
+    .salidas-table tbody tr { display: block; border: 1px solid #e5e7eb; border-radius: 10px; margin: 16px 0; padding: 8px; }
+    .salidas-table tbody td { display: grid; grid-template-columns: minmax(150px, 30%) minmax(0, 1fr); gap: 12px; padding: 10px; }
+    .salidas-table tbody td::before { content: attr(data-label); font-weight: 600; color: #6b7280; }
+    .salidas-table tbody td[colspan] { display: block; }
+    .salidas-table tbody td[colspan]::before { content: none; }
+}
 @media (max-width: 1100px) {
     .layout { flex-direction: column; }
     .sidebar { width: 100%; }
