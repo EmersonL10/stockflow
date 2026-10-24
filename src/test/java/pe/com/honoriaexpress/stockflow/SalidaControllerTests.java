@@ -16,7 +16,9 @@ import static org.mockito.Mockito.*;
 class SalidaControllerTests {
     @Test void creacionConservaMensajeAunqueSaveAsigneId() {
         var service = mock(SalidaService.class);
-        var controller = new SalidaController(service, mock(TurnoService.class));
+        var controller = new SalidaController(service, mock(TurnoService.class),
+                mock(pe.com.honoriaexpress.stockflow.service.ConsultaSalidasService.class),
+                mock(pe.com.honoriaexpress.stockflow.service.ExportacionSalidasService.class));
         var salida = new Salida();
         when(service.guardar(salida)).thenAnswer(invocation -> { salida.setId(1L); return salida; });
         var flash = new RedirectAttributesModelMap();
@@ -27,7 +29,9 @@ class SalidaControllerTests {
 
     @Test void conflictoDePersistenciaVuelveAlFormularioSinMensajeTecnico() {
         var service = mock(SalidaService.class);
-        var controller = new SalidaController(service, mock(TurnoService.class));
+        var controller = new SalidaController(service, mock(TurnoService.class),
+                mock(pe.com.honoriaexpress.stockflow.service.ConsultaSalidasService.class),
+                mock(pe.com.honoriaexpress.stockflow.service.ExportacionSalidasService.class));
         var salida = new Salida();
         when(service.guardar(salida)).thenThrow(new DataIntegrityViolationException("SQL interno"));
         var errors = new BeanPropertyBindingResult(salida, "salida");

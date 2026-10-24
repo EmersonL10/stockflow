@@ -85,6 +85,29 @@ class SalidasIntegrationTests {
         mvc.perform(get("/login")).andExpect(status().isOk());
     }
 
+    @Test void excelHttpRespetaFiltrosPermisosYDatosNumericos() throws Exception {
+        service.guardar(nueva(false));
+        var resultado = mvc.perform(get("/salidas/exportar").param("fecha", turno.getFecha().toString())
+                        .param("placa", " test-001 ").param("pago", "PENDIENTE")
+                        .with(user("cajero").roles("CAJA")))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Cache-Control", "no-store"))
+                .andExpect(header().string("Content-Disposition", org.hamcrest.Matchers.containsString(".xlsx")))
+                .andExpect(content().contentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .andReturn();
+        try (var libro = new org.apache.poi.xssf.usermodel.XSSFWorkbook(
+                new java.io.ByteArrayInputStream(resultado.getResponse().getContentAsByteArray()))) {
+            assertEquals(2, libro.getSheet("Salidas").getPhysicalNumberOfRows());
+            assertEquals(10.0, libro.getSheet("Salidas").getRow(1).getCell(7).getNumericCellValue());
+        }
+        mvc.perform(get("/salidas/exportar").with(user("sinpermiso").roles("INVITADO")))
+                .andExpect(status().isForbidden());
+        mvc.perform(get("/salidas/exportar").with(anonymous())).andExpect(status().is3xxRedirection());
+        mvc.perform(get("/salidas/exportar").param("pago", "INVALIDO")).andExpect(status().isBadRequest());
+        mvc.perform(get("/salidas"))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Exportar a Excel")));
+    }
+
     @Test void dosAltasSimultaneasSoloCreanUnaSalida() throws Exception {
         int exitos=simultaneos(()->service.guardar(nueva(false)));
         assertEquals(1,exitos);

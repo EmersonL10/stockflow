@@ -24,6 +24,8 @@ public class SalidaController {
 
     private final SalidaService salidaService;
     private final TurnoService turnoService;
+    private final pe.com.honoriaexpress.stockflow.service.ConsultaSalidasService consultaSalidas;
+    private final pe.com.honoriaexpress.stockflow.service.ExportacionSalidasService exportacionSalidas;
 
     @InitBinder("salida")
     public void protegerDatosFinancieros(org.springframework.web.bind.WebDataBinder binder) {
@@ -47,11 +49,7 @@ public class SalidaController {
                 .distinct()
                 .sorted()
                 .toList());
-        model.addAttribute("salidas", registros.stream()
-                .filter(s -> todasFechas || dia.equals(s.getTurno().getFecha()))
-                .filter(s -> ruta.isBlank() || s.getRutaMostrada().equalsIgnoreCase(ruta.strip()))
-                .filter(s -> placa.isBlank() || s.getTurno().getVehiculo().getPlaca().toUpperCase(java.util.Locale.ROOT).contains(placa.strip().toUpperCase(java.util.Locale.ROOT)))
-                .filter(s -> pago == null || s.getEstadoCuota() == pago).toList());
+        model.addAttribute("salidas", consultaSalidas.filtrar(registros, dia, ruta, placa, pago, todasFechas));
         model.addAttribute("resumen", salidaService.resumirDia(fecha));
         model.addAttribute("fecha", fecha);
         model.addAttribute("ruta", ruta);
@@ -60,6 +58,27 @@ public class SalidaController {
         model.addAttribute("todasFechas", todasFechas);
 
         return "salidas/lista";
+    }
+
+    @GetMapping("/exportar")
+    @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('ADMINISTRADOR','OPERATIVO','CAJA')")
+    public org.springframework.http.ResponseEntity<byte[]> exportar(
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate fecha,
+            @RequestParam(defaultValue = "") String ruta,
+            @RequestParam(defaultValue = "") String placa,
+            @RequestParam(required = false) pe.com.honoriaexpress.stockflow.entity.EstadoCuota pago,
+            @RequestParam(defaultValue = "false") boolean todasFechas) throws java.io.IOException {
+        if (fecha == null) fecha = java.time.LocalDate.now(java.time.ZoneId.of("America/Lima"));
+        var seleccion = consultaSalidas.filtrar(salidaService.listarTodos(), fecha, ruta, placa, pago, todasFechas);
+        if (seleccion.size() > pe.com.honoriaexpress.stockflow.service.ExportacionSalidasService.MAX_FILAS) {
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY,
+                    "Reduzca el período o aplique filtros: máximo 10000 salidas por archivo.");
+        }
+        return org.springframework.http.ResponseEntity.ok()
+                .header("Content-Disposition", "attachment; filename=\"salidas-" + fecha + ".xlsx\"")
+                .header("Cache-Control", "no-store")
+                .contentType(org.springframework.http.MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(exportacionSalidas.exportar(seleccion));
     }
 
     @PostMapping("/{id}/pago")
