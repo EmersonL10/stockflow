@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle de Caja | StockFlow</title><link rel="stylesheet" th:href="@{/css/dashboard.css}"></head>
+<body><div class="layout">
+<aside th:replace="~{fragments/sidebar :: sidebar('caja')}"></aside>
+<main class="main-content">
+    <header class="topbar"><div><h1 th:text="${'Caja #' + caja.id}"></h1>
+        <p th:text="${'Abierta: ' + #temporals.format(caja.apertura, 'dd/MM/yyyy HH:mm') + ' · ' + caja.abiertaPor}"></p>
+        <p data-estado-caja th:text="${caja.estadoMostrado + ' · importes en soles'}"></p></div>
+        <a class="secondary-button" th:href="@{/caja}">Volver a Caja</a></header>
+    <div th:if="${mensaje}" class="success-message" role="status" th:text="${mensaje}"></div>
+    <div th:if="${error}" class="error-message" role="alert" th:text="${error}"></div>
+    <div th:if="${caja.pendienteArqueo}" class="error-message" role="status">Terminó el día de esta caja. Ya no recibe movimientos. Cuente el efectivo y confirme el cierre para abrir la caja de hoy. <a href="#cierre">Ir al cierre</a></div>
+    <section class="panel caja-saldo"><span th:text="${caja.abierta ? 'Total registrado en esta caja' : 'Total al cierre según el conteo'}"></span>
+        <strong class="caja-total" th:text="${'S/ ' + (caja.abierta ? resumen.totalRegistrado() : resumen.netoDigital().add(caja.efectivoContado))}"></strong>
+        <p th:text="${'S/ ' + (caja.abierta ? resumen.efectivoEsperado : caja.efectivoContado) + ' en efectivo + S/ ' + resumen.netoDigital() + ' en movimientos digitales.'}"></p>
+        <div class="cards">
+            <article class="card"><span th:text="${caja.abierta ? 'Efectivo que debes contar' : 'Efectivo contado al cerrar'}"></span><strong th:text="${'S/ ' + (caja.abierta ? resumen.efectivoEsperado : caja.efectivoContado)}"></strong><small>Dinero físico, incluido el fondo inicial</small></article>
+            <article class="card"><span>Digital registrado</span><strong th:text="${'S/ ' + resumen.netoDigital()}"></strong><small>Entradas menos salidas de Yape, Plin y transferencias</small></article>
+        </div><p class="muted">Es el saldo de esta sesión, incluido el fondo inicial; el digital no confirma el saldo real de tu banco o billetera.</p>
+        <a th:if="${caja.abierta}" class="primary-button" href="#cierre">Contar efectivo y cerrar caja</a>
+        <details class="help-details"><summary>Ver cómo se calculó</summary><div class="readonly-grid">
+            <div><span>Efectivo inicial</span><strong th:text="${'S/ ' + caja.saldoInicial}"></strong></div>
+            <div><span>Ingresos totales</span><strong th:text="${'S/ ' + resumen.ingresos}"></strong></div>
+            <div><span>Egresos totales</span><strong th:text="${'S/ ' + resumen.egresos}"></strong></div>
+            <div><span>Saldo neto de movimientos</span><strong th:text="${'S/ ' + resumen.neto()}"></strong></div>
+            <div><span>Ingresos en efectivo</span><strong th:text="${'S/ ' + resumen.ingresosEfectivo}"></strong></div>
+            <div><span>Egresos en efectivo</span><strong th:text="${'S/ ' + resumen.egresosEfectivo}"></strong></div>
+            <div><span>Ingresos digitales</span><strong th:text="${'S/ ' + resumen.ingresosDigitales}"></strong></div>
+            <div><span>Egresos digitales</span><strong th:text="${'S/ ' + resumen.egresosDigitales}"></strong></div>
+            <div><span>Efectivo esperado</span><strong th:text="${'S/ ' + resumen.efectivoEsperado}"></strong></div>
+        </div><p>Total registrado = fondo inicial + ingresos − egresos. El resultado no equivale a utilidad.</p></details>
+    </section>
+    <section class="panel" th:unless="${caja.abierta}"><h2>Efectivo confirmado al cerrar</h2>
+        <p th:text="${'Cerrada el ' + #temporals.format(caja.cierre, 'dd/MM/yyyy HH:mm') + ' por ' + caja.cerradaPor}"></p>
+        <div class="cards"><article class="card"><span>Efectivo esperado</span><strong th:text="${'S/ ' + caja.efectivoEsperado}"></strong></article>
+            <article class="card"><span>Efectivo contado</span><strong th:text="${'S/ ' + caja.efectivoContado}"></strong></article>
+            <article class="card"><span>Diferencia</span><strong th:text="${'S/ ' + caja.diferencia}"></strong><small>Positivo: sobrante. Negativo: faltante.</small></article></div>
+        <a class="primary-button" th:href="@{/caja}">Volver para abrir o consultar caja</a>
+        <p th:text="${#strings.isEmpty(caja.observacionCierre) ? 'Sin observaciones.' : caja.observacionCierre}"></p>
+    </section>
+    <details id="cierre" class="panel cierre-panel" th:if="${caja.abierta}" th:open="${caja.pendienteArqueo or mostrarCierre == true}"><summary>Cerrar caja</summary>
+        <p>Cuenta únicamente los billetes y monedas de esta caja. No sumes Yape ni transferencias.</p>
+        <p>Debes tener <strong th:text="${'S/ ' + resumen.efectivoEsperado}"></strong> en efectivo.</p>
+        <form th:action="@{/caja/{id}/cerrar(id=${caja.id})}" method="post" class="form-grid" data-cierre-caja th:attr="data-esperado=${resumen.efectivoEsperado}">
+            <div><label for="contado">¿Cuánto efectivo contaste? S/</label><input id="contado" name="contado" th:value="${contadoCierre}" type="number" min="0" max="999999999999.99" step="0.01" required></div>
+            <p id="resultadoConteo" class="form-wide" role="status" aria-live="polite">Escribe tu conteo para compararlo.</p>
+            <div id="campoMotivo" class="form-wide"><label for="observacion">Motivo de la diferencia</label><textarea id="observacion" name="observacion" th:text="${observacionCierreEntrada}" maxlength="250" placeholder="Ej.: faltante detectado al contar"></textarea><small>Solo es obligatorio si sobra o falta efectivo.</small></div>
+            <div class="form-actions form-wide"><button class="primary-button" type="submit">Cerrar caja definitivamente</button></div>
+        </form></details>
+    <details class="panel" th:if="${caja.operativaHoy}" data-movimientos-diarios th:attr="data-fecha=${#temporals.format(caja.apertura, 'yyyy-MM-dd')}"><summary>Registrar otro ingreso o gasto</summary>
+        <p>Los cobros de viajes y envíos ya se registran solos. Use este formulario para otros conceptos.</p>
+        <form th:action="@{/caja/{id}/movimientos(id=${caja.id})}" method="post" class="form-grid">
+            <input type="hidden" name="solicitud" th:value="${solicitud}">
+            <div><label for="tipo">Tipo</label><select id="tipo" name="tipo" required><option value="INGRESO">Ingreso</option><option value="EGRESO">Gasto</option></select></div>
+            <div><label for="medio">Medio</label><select id="medio" name="medio" required><option value="EFECTIVO">Efectivo</option><option value="YAPE">Yape</option><option value="PLIN">Plin</option><option value="TRANSFERENCIA">Transferencia</option></select></div>
+            <div><label for="importe">Importe S/</label><input id="importe" name="importe" type="number" min="0.01" max="99999999.99" step="0.01" required></div>
+            <div><label for="concepto">Concepto</label><input id="concepto" name="concepto" maxlength="120" required placeholder="Ej.: compra de útiles"></div>
+            <div class="form-actions form-wide"><button class="primary-button" type="submit">Registrar movimiento</button></div>
+        </form></details>
+    <details class="panel movimientos-caja"><summary th:text="${'Ver movimientos (' + #lists.size(movimientos) + ')'}"></summary>
+        <div class="table-responsive"><table class="data-table"><thead><tr><th>Fecha</th><th>Tipo</th><th>Medio</th><th>Concepto</th><th>Importe</th><th>Usuario</th><th>Origen</th></tr></thead><tbody>
+        <tr th:each="m : ${movimientos}">
+            <td data-label="Fecha" th:text="${#temporals.format(m.fecha, 'dd/MM/yyyy HH:mm')}"></td>
+            <td data-label="Tipo" th:text="${m.tipo.name() == 'INGRESO' ? 'Ingreso' : 'Gasto'}"></td><td data-label="Medio" th:text="${m.medio}"></td>
+            <td data-label="Concepto" th:text="${m.concepto}"></td><td data-label="Importe" th:text="${'S/ ' + m.importe}"></td>
+            <td data-label="Usuario" th:text="${m.registradoPor}"></td>
+            <td data-label="Origen"><span th:if="${m.salida == null and m.encomienda == null}">Manual</span>
+                <a th:if="${m.salida != null}" th:href="@{/salidas(placa=${m.salida.turno.vehiculo.placa},todasFechas=true)}" th:text="${'Salida #' + m.salida.id}"></a>
+                <a th:if="${m.encomienda != null}" th:href="@{/encomiendas/{id}(id=${m.encomienda.id})}" th:text="${m.encomienda.codigo}"></a></td>
+        </tr><tr th:if="${#lists.isEmpty(movimientos)}"><td colspan="7">Esta caja todavía no tiene movimientos.</td></tr>
+        </tbody></table></div></details>
+
+</main></div><script th:src="@{/js/caja.js}"></script></body></html>

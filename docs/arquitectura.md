@@ -1,0 +1,38 @@
+# Arquitectura de StockFlow
+
+StockFlow usa Java 21, Spring Boot, MVC, Thymeleaf y MySQL. La base operativa configurada es `stockflow_db`; las pruebas automatizadas usan `stockflow_test_codex` y las verificaciones de navegador `stockflow_qa_codex`.
+
+## MVC y separación en capas
+
+- Vista: `resources/templates`, `static/css` y `static/js`. Recibe datos del controlador y presenta formularios, listados y resultados. No decide el importe de las cuotas.
+- Controlador: `controller`. Recibe solicitudes, controla errores de formulario y selecciona vistas o respuestas de descarga.
+- Modelo: entidades, servicios y repositorios. Representa datos, aplica reglas y persiste las operaciones.
+
+Ejemplo: `salidas/formulario.html` → `SalidaController.guardar` → `SalidaServiceImpl.guardar` → `SalidaRepository.saveAndFlush` → MySQL → redirección → consulta y renderizado del listado.
+
+## DAO mediante repositorios
+
+`SalidaRepository` y los demás repositorios encapsulan el acceso a los datos mediante Spring Data JPA. Cumplen la responsabilidad de DAO sin duplicar una clase DAO adicional. Hibernate traduce las operaciones al motor MySQL. `buscarParaCobro` incorpora un bloqueo pesimista dentro de una transacción para proteger cobros y ediciones concurrentes.
+
+## Principios SOLID demostrables
+
+- Responsabilidad única: `ConsultaSalidasService` selecciona registros, `ExportacionSalidasService` construye el Excel y `SalidaServiceImpl` administra reglas operativas y transacciones.
+- Inversión de dependencias: los controladores dependen de contratos `SalidaService` y `TurnoService`, que se inyectan por constructor. Los repositorios son interfaces. Las pruebas sustituyen esas dependencias por mocks.
+
+Estas son evidencias específicas; no se afirma cumplimiento automático de todos los principios SOLID. La existencia de pruebas tampoco acredita por sí sola un proceso TDD histórico.
+
+## Presentación compartida
+
+`InicioService` consulta indicadores agregados para el inicio; `HomeController` los entrega a la vista. La navegación se comparte mediante el fragmento de sidebar. La presentación adapta tablas y formularios sin cambiar las reglas de cobro. Ver [interfaz operativa](interfaz.md).
+
+## Seguridad
+
+Spring Security autentica y aplica roles. BCrypt se usa para contraseñas; los formularios conservan CSRF. `@InitBinder` limita campos aceptados; el servidor decide cuota, estado y usuario del cobro. La descarga requiere Administrador, Operativo o Caja y responde `Cache-Control: no-store`. Los textos exportados se escriben como celdas STRING, nunca como fórmulas. Los logs no incluyen contraseñas, DNI ni contenido libre de formularios.
+
+## Límites actuales
+
+Caja usa formularios DTO separados de las entidades. `CajaServiceImpl` controla apertura, movimientos y cierre; `CajaSesionRepository` bloquea la sesión antes de modificarla. Los cobros de `SalidaServiceImpl` y su movimiento de Caja se confirman o revierten juntos. Ver [reglas de Caja](caja.md).
+
+Encomiendas usa DTOs en `dto`, controlador, servicio y repositorios propios. El envío tiene estados separados del pago, eventos de seguimiento y consultas paginadas en base de datos. Su cobro se confirma junto con el movimiento de Caja; el despacho se coordina con Salida mediante bloqueo. Ver [reglas de Encomiendas](encomiendas.md).
+
+La consulta de Salidas todavía carga el historial antes de filtrar en memoria. El Excel limita la selección a 10000 filas antes de construir el libro, pero eso no limita la consulta inicial. Para volúmenes mayores se requiere filtrado y paginación en la base. El desarrollo usa `ddl-auto=update`; no reemplaza migraciones versionadas ni una estrategia de respaldos.

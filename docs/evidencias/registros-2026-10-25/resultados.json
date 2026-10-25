@@ -1,0 +1,46 @@
+{
+  "fecha": "2026-10-25T15:36:21.978Z",
+  "entorno": "stockflow_qa_codex",
+  "resultados": [
+    {
+      "modulo": "conductores",
+      "caso": "registro",
+      "resultado": "aprobado"
+    },
+    {
+      "modulo": "conductores",
+      "caso": "edicion",
+      "resultado": "aprobado"
+    },
+    {
+      "modulo": "conductores",
+      "caso": "duplicado_rechazado",
+      "resultado": "aprobado"
+    },
+    {
+      "modulo": "conductores",
+      "caso": "inactivacion",
+      "resultado": "aprobado"
+    },
+    {
+      "modulo": "vehiculos",
+      "caso": "registro",
+      "resultado": "aprobado"
+    },
+    {
+      "modulo": "vehiculos",
+      "caso": "edicion",
+      "resultado": "aprobado"
+    },
+    {
+      "modulo": "vehiculos",
+      "caso": "duplicado_rechazado",
+      "resultado": "aprobado"
+    },
+    {
+      "modulo": "vehiculos",
+      "caso": "inactivacion",
+      "resultado": "aprobado"
+    }
+  ]
+}

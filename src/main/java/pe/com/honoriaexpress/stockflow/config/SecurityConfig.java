@@ -12,6 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
+@org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -53,6 +54,25 @@ public class SecurityConfig {
 
                         .requestMatchers("/admin/**")
                         .hasRole("ADMINISTRADOR")
+
+                        .requestMatchers("/caja", "/caja/**")
+                        .hasAnyRole("ADMINISTRADOR", "CAJA")
+
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/encomiendas/*/pago")
+                        .hasAnyRole("ADMINISTRADOR", "CAJA")
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/encomiendas/**")
+                        .hasAnyRole("ADMINISTRADOR", "OPERATIVO")
+                        .requestMatchers("/encomiendas/nuevo", "/encomiendas/*/editar")
+                        .hasAnyRole("ADMINISTRADOR", "OPERATIVO")
+                        .requestMatchers("/encomiendas", "/encomiendas/**")
+                        .hasAnyRole("ADMINISTRADOR", "OPERATIVO", "CAJA")
+
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/salidas/*/pago")
+                        .hasAnyRole("ADMINISTRADOR", "CAJA")
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/salidas/**", "/turnos/**", "/conductores/**", "/vehiculos/**")
+                        .hasAnyRole("ADMINISTRADOR", "OPERATIVO")
+                        .requestMatchers("/salidas/nuevo", "/salidas/editar/**", "/turnos/nuevo", "/turnos/editar/**")
+                        .hasAnyRole("ADMINISTRADOR", "OPERATIVO")
 
                         .anyRequest()
                         .authenticated()

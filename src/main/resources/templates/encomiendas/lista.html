@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encomiendas | StockFlow</title><link rel="stylesheet" th:href="@{/css/dashboard.css}"></head>
+<body><div class="layout"><aside th:replace="~{fragments/sidebar :: sidebar('encomiendas')}"></aside>
+<main class="main-content">
+    <header class="topbar"><div><h1>Encomiendas</h1><p>Registro, cobro y seguimiento de los envíos</p></div>
+        <a class="primary-button" sec:authorize="hasAnyRole('ADMINISTRADOR','OPERATIVO')" th:href="@{/encomiendas/nuevo}">Nueva encomienda</a></header>
+    <div th:if="${mensaje}" class="success-message" role="status" th:text="${mensaje}"></div>
+    <div th:if="${error}" class="error-message" role="alert" th:text="${error}"></div>
+    <section class="panel"><h2>Consultar envíos</h2>
+        <form th:action="@{/encomiendas}" method="get" class="form-grid">
+            <div><label for="codigo">Código interno</label><input id="codigo" name="codigo" th:value="${codigo}" maxlength="30" placeholder="ENC-00000001"></div>
+            <div><label for="estado">Estado del envío</label><select id="estado" name="estado"><option value="">Todos</option>
+                <option value="RECIBIDA" th:selected="${estado != null and estado.name() == 'RECIBIDA'}">Recibida</option>
+                <option value="ASIGNADA" th:selected="${estado != null and estado.name() == 'ASIGNADA'}">Asignada</option>
+                <option value="EN_TRANSITO" th:selected="${estado != null and estado.name() == 'EN_TRANSITO'}">En tránsito</option>
+                <option value="DISPONIBLE" th:selected="${estado != null and estado.name() == 'DISPONIBLE'}">Disponible en destino</option>
+                <option value="ENTREGADA" th:selected="${estado != null and estado.name() == 'ENTREGADA'}">Entregada</option>
+                <option value="CANCELADA" th:selected="${estado != null and estado.name() == 'CANCELADA'}">Cancelada</option>
+            </select></div>
+            <div><label for="pago">Estado del pago</label><select id="pago" name="pago"><option value="">Todos</option>
+                <option value="PENDIENTE" th:selected="${pago != null and pago.name() == 'PENDIENTE'}">Pendiente</option>
+                <option value="PAGADA" th:selected="${pago != null and pago.name() == 'PAGADA'}">Pagado</option>
+                <option value="ANULADA" th:selected="${pago != null and pago.name() == 'ANULADA'}">Anulado</option>
+            </select></div>
+            <div class="form-actions"><a class="secondary-button" th:href="@{/encomiendas}">Limpiar</a><button type="submit" class="primary-button">Consultar</button></div>
+        </form></section>
+    <section class="panel"><h2>Envíos registrados</h2><p th:text="${resultado.totalElements + ' envío(s) que coinciden con los filtros'}"></p>
+        <div class="table-responsive"><table class="data-table"><thead><tr><th>Código</th><th>Ruta</th><th>Remitente</th><th>Destinatario</th><th>Envío</th><th>Servicio</th><th>Pago</th><th>Acción</th></tr></thead><tbody>
+        <tr th:each="e : ${resultado.content}">
+            <td data-label="Código" th:text="${e.codigo}"></td><td data-label="Ruta" th:text="${e.ruta}"></td>
+            <td data-label="Remitente" th:text="${e.remitente}"></td><td data-label="Destinatario" th:text="${e.destinatario}"></td>
+            <td data-label="Envío" th:text="${e.estado.etiqueta}"></td>
+            <td data-label="Servicio" th:text="${'S/ ' + e.importe}"></td><td data-label="Pago" th:text="${e.estadoPago.etiqueta}"></td>
+            <td data-label="Acción"><a class="secondary-button" th:href="@{/encomiendas/{id}(id=${e.id})}">Ver detalle</a></td>
+        </tr><tr th:if="${resultado.empty}"><td colspan="8">No hay encomiendas que coincidan con la consulta.</td></tr>
+        </tbody></table></div>
+        <div class="form-actions"><a class="secondary-button" th:if="${resultado.hasPrevious()}" th:href="@{/encomiendas(codigo=${codigo},estado=${estado},pago=${pago},pagina=${resultado.number - 1})}">Anterior</a>
+            <span th:text="${'Página ' + (resultado.number + 1)}"></span>
+            <a class="secondary-button" th:if="${resultado.hasNext()}" th:href="@{/encomiendas(codigo=${codigo},estado=${estado},pago=${pago},pagina=${resultado.number + 1})}">Siguiente</a></div>
+    </section>
+</main></div></body></html>

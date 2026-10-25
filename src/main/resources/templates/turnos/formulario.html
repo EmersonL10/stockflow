@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Llegada | StockFlow</title><link rel="stylesheet" th:href="@{/css/dashboard.css}"></head>
+<body><div class="layout"><aside th:replace="~{fragments/sidebar :: sidebar('turnos')}"></aside><main class="main-content form-page">
+<header class="topbar"><div><span class="eyebrow">Operación / Turnos</span><h1 th:text="${turno.id == null ? 'Registrar llegada' : 'Editar turno'}"></h1></div><a class="text-link" th:href="@{/turnos}">Volver a turnos</a></header>
+<section class="panel"><form class="stack-form" th:action="@{/turnos/guardar}" th:object="${turno}" method="post"><input type="hidden" th:field="*{id}">
+<div class="error-message" role="alert" th:if="${#fields.hasAnyErrors()}"><p th:each="error : ${#fields.allErrors()}" th:text="${error}"></p></div>
+<fieldset class="form-section"><legend><span class="step-number">1</span>Vehículo y conductor</legend><div class="field-grid">
+<div><label for="vehiculo">Vehículo</label><select id="vehiculo" th:field="*{vehiculo.id}" required><option value="">Seleccione la placa</option><option th:each="vehiculo : ${vehiculos}" th:value="${vehiculo.id}" th:text="${vehiculo.placa + ' · ' + vehiculo.marca + ' ' + vehiculo.modelo}"></option></select><span class="field-error" th:errors="*{vehiculo}"></span></div>
+<div><label for="conductor">Conductor</label><select id="conductor" th:field="*{conductor.id}" required><option value="">Seleccione al conductor</option><option th:each="conductor : ${conductores}" th:value="${conductor.id}" th:text="${conductor.nombres + ' ' + conductor.apellidos}"></option></select><span class="field-error" th:errors="*{conductor}"></span></div>
+</div></fieldset>
+<fieldset class="form-section"><legend><span class="step-number">2</span>Lugar en la fila</legend><div class="field-grid">
+<div><label for="fecha">Fecha</label><input id="fecha" th:field="*{fecha}" type="date" readonly required><span class="field-error" th:errors="*{fecha}"></span></div>
+<div><label for="rutaOperativa">Ruta</label><input id="rutaOperativa" th:field="*{rutaOperativa}" list="rutasTurno" maxlength="120" required><input type="hidden" th:field="*{sentidoRuta}"><datalist id="rutasTurno"><option value="Pucallpa - Honoria"></option><option value="Honoria - Pucallpa"></option></datalist><small>Seleccione un sentido o escriba otro destino.</small><span class="field-error" th:errors="*{rutaOperativa}"></span></div>
+<div><label for="numeroTurno">Orden de llegada</label><input id="numeroTurno" th:field="*{numeroTurno}" type="number" min="1" required><span class="field-error" th:errors="*{numeroTurno}"></span></div>
+<div><label for="horaProgramada">Hora de llegada</label><input id="horaProgramada" th:field="*{horaProgramada}" type="time" required><span class="field-error" th:errors="*{horaProgramada}"></span></div>
+<div><label for="estado">Estado</label><select id="estado" th:field="*{estado}"><option th:each="opcion : ${estadosTurno}" th:value="${opcion}" th:text="${opcion.etiqueta}"></option></select><span class="field-error" th:errors="*{estado}"></span></div>
+</div></fieldset>
+<details class="optional-fields" th:open="${!#strings.isEmpty(turno.observacion)}"><summary>Observación (opcional)</summary><label for="observacion">Observación</label><textarea id="observacion" th:field="*{observacion}" maxlength="250"></textarea><span class="field-error" th:errors="*{observacion}"></span></details>
+<p class="muted" th:if="${turno.fecha != hoyOperativo}">Registro histórico: se conserva su fecha original. Registre una llegada nueva para operar hoy.</p><div class="form-actions"><a class="secondary-button" th:href="@{/turnos}">Cancelar</a><button th:if="${turno.fecha == hoyOperativo}" class="primary-button" type="submit" th:text="${turno.id == null ? 'Guardar llegada' : 'Guardar cambios'}"></button></div>
+</form></section></main></div></body></html>

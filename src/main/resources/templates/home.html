@@ -1,165 +1,26 @@
 <!DOCTYPE html>
-<html lang="es"
-      xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-
-    <title>Dashboard | StockFlow</title>
-
-    <link rel="stylesheet"
-          th:href="@{/css/dashboard.css}">
-</head>
-
-<body>
-
-<div class="layout">
-
-    <aside class="sidebar">
-
-        <div class="brand">
-            <h2>StockFlow</h2>
-            <span>Honoria Express S.A.C.</span>
-        </div>
-
-        <nav class="menu">
-
-            <a th:href="@{/}" class="active">
-                Dashboard
-            </a>
-
-            <a href="#">
-                Conductores
-            </a>
-
-            <a href="#">
-                Vehículos
-            </a>
-
-            <a href="#">
-                Turnos
-            </a>
-
-            <a href="#">
-                Salidas
-            </a>
-
-            <a href="#">
-                Encomiendas
-            </a>
-
-            <a href="#">
-                Caja
-            </a>
-
-            <a href="#">
-                Reportes
-            </a>
-
-        </nav>
-
-    </aside>
-
-
-    <main class="main-content">
-
-        <header class="topbar">
-
-            <div>
-                <h1>Dashboard</h1>
-                <p>
-                    Gestión Operativa y Administrativa
-                </p>
-            </div>
-
-            <div class="user-area">
-
-                <div class="user-info">
-
-                    <span>Usuario</span>
-
-                    <strong sec:authentication="name">
-                        admin
-                    </strong>
-
-                </div>
-
-                <form th:action="@{/logout}"
-                      method="post">
-
-                    <button type="submit"
-                            class="logout-button">
-                        Cerrar sesión
-                    </button>
-
-                </form>
-
-            </div>
-
-        </header>
-
-
-        <section class="welcome">
-
-            <h2>
-                Bienvenido a StockFlow
-            </h2>
-
-            <p>
-                Panel central para controlar las operaciones
-                de Honoria Express S.A.C.
-            </p>
-
-        </section>
-
-
-        <section class="cards">
-
-            <article class="card">
-                <span>Conductores</span>
-                <strong>0</strong>
-                <small>Registrados</small>
-            </article>
-
-            <article class="card">
-                <span>Vehículos</span>
-                <strong>0</strong>
-                <small>Registrados</small>
-            </article>
-
-            <article class="card">
-                <span>Salidas de hoy</span>
-                <strong>0</strong>
-                <small>Operaciones</small>
-            </article>
-
-            <article class="card">
-                <span>Encomiendas</span>
-                <strong>0</strong>
-                <small>Pendientes</small>
-            </article>
-
-        </section>
-
-
-        <section class="panel">
-
-            <h3>Resumen operativo</h3>
-
-            <p>
-                Todavía no existen operaciones registradas.
-                Los indicadores se actualizarán automáticamente
-                cuando implementemos los módulos del sistema.
-            </p>
-
-        </section>
-
-    </main>
-
-</div>
-
-</body>
-</html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Inicio | StockFlow</title><link rel="stylesheet" th:href="@{/css/dashboard.css}"></head>
+<body><div class="layout"><aside th:replace="~{fragments/sidebar :: sidebar('dashboard')}"></aside>
+<main class="main-content">
+    <header class="topbar"><div><span class="eyebrow">Tu agencia, en un vistazo</span><h1>Inicio</h1></div>
+        <span class="date-chip" th:text="${#temporals.format(resumen.fecha, 'dd/MM/yyyy') + ' · Pucallpa'}"></span></header>
+    <section class="welcome"><h2>¿Qué necesitas hacer?</h2>
+        <div class="quick-actions">
+            <a class="quick-action" sec:authorize="hasAnyRole('ADMINISTRADOR','OPERATIVO')" th:href="@{/turnos/nuevo}"><span class="action-symbol" aria-hidden="true">01</span><strong>Registrar llegada</strong><span>Agregar un vehículo a la fila</span></a>
+            <a class="quick-action" sec:authorize="hasAnyRole('ADMINISTRADOR','OPERATIVO')" th:href="@{/salidas/nuevo}"><span class="action-symbol" aria-hidden="true">02</span><strong>Registrar salida</strong><span>Despachar un vehículo</span></a>
+            <a class="quick-action" sec:authorize="hasAnyRole('ADMINISTRADOR','OPERATIVO')" th:href="@{/encomiendas/nuevo}"><span class="action-symbol" aria-hidden="true">03</span><strong>Recibir encomienda</strong><span>Registrar un nuevo envío</span></a>
+            <a class="quick-action" sec:authorize="hasAnyRole('ADMINISTRADOR','CAJA')" th:href="@{/caja}"><span class="action-symbol" aria-hidden="true">S/</span><strong>Ir a Caja</strong><span>Apertura, movimientos y cierre</span></a>
+            <a class="quick-action" sec:authorize="hasRole('CAJA') and !hasRole('ADMINISTRADOR')" th:href="@{/salidas(pago='PENDIENTE',todasFechas=true)}"><span class="action-symbol" aria-hidden="true">→</span><strong>Cobrar salida</strong><span>Ver cuotas pendientes</span></a>
+            <a class="quick-action" sec:authorize="hasRole('CAJA') and !hasRole('ADMINISTRADOR')" th:href="@{/encomiendas(pago='PENDIENTE')}"><span class="action-symbol" aria-hidden="true">→</span><strong>Cobrar encomienda</strong><span>Ver envíos pendientes de pago</span></a>
+        </div><a class="text-link" th:href="@{/salidas(todasFechas=true)}">Consultar viajes registrados</a></section>
+    <section class="panel"><div class="section-heading"><h2>Resumen de la agencia</h2><span class="muted">Datos actualizados al abrir esta página</span></div>
+        <div class="cards">
+            <a class="card metric-link" th:href="@{/turnos}"><span>En espera hoy</span><strong th:text="${resumen.enEspera}"></strong><small>Vehículos por salir</small></a>
+            <a class="card metric-link" th:href="@{/salidas}"><span>Salidas de hoy</span><strong th:text="${resumen.salidasHoy}"></strong><small>En ruta o finalizadas</small></a>
+            <a class="card metric-link" th:href="@{/encomiendas}"><span>Encomiendas activas</span><strong th:text="${resumen.enviosActivos}"></strong><small>Aún no entregadas</small></a>
+            <a class="card metric-link" th:href="@{/salidas(pago='PENDIENTE',todasFechas=true)}"><span>Cuotas por cobrar</span><strong th:text="${'S/ ' + resumen.cuotasPendientes}"></strong><small>Salidas de todas las fechas</small></a>
+        </div></section>
+    <section class="panel getting-started" sec:authorize="hasAnyRole('ADMINISTRADOR','OPERATIVO')"><h2>El recorrido de un vehículo</h2>
+        <ol class="simple-steps"><li><b>1</b><span><strong>Turnos</strong>Registra su llegada.</span></li><li><b>2</b><span><strong>Salidas</strong>Registra cuándo sale.</span></li><li><b>3</b><span><strong>Caja</strong>Confirma el cobro cuando pague.</span></li></ol></section>
+</main></div></body></html>

@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Turnos | StockFlow</title><link rel="stylesheet" th:href="@{/css/dashboard.css}"></head>
+<body><div class="layout"><aside th:replace="~{fragments/sidebar :: sidebar('turnos')}"></aside><main class="main-content">
+<header class="topbar"><div><h1>Turnos</h1><p>La fila de vehículos por orden de llegada.</p></div><a class="primary-button" sec:authorize="hasAnyRole('ADMINISTRADOR','OPERATIVO')" th:href="@{/turnos/nuevo}">Registrar llegada</a></header>
+<div th:if="${mensajeExito}" class="success-message" role="status" th:text="${mensajeExito}"></div>
+<section class="panel"><div class="section-heading"><h2 th:text="${'Vehículos en espera · ' + #temporals.format(fechaCola, 'dd/MM/yyyy')}">Vehículos en espera hoy</h2><span class="muted" th:text="${#lists.size(cola) + ' en la fila'}"></span></div><p class="muted">Puede elegir cualquier vehículo de la fila.</p>
+<div class="table-responsive"><table class="data-table"><thead><tr><th>Orden</th><th>Vehículo y conductor</th><th>Ruta</th><th>Fecha</th><th>Acción</th></tr></thead><tbody>
+<tr th:each="turno : ${cola}"><td data-label="Orden" th:text="${turno.numeroTurno}"></td><td data-label="Vehículo"><span class="vehicle-plate" th:text="${turno.vehiculo.placa}"></span><small th:text="${turno.conductor.nombres + ' ' + turno.conductor.apellidos}"></small></td>
+<td data-label="Ruta" th:text="${turno.rutaMostrada}"></td><td data-label="Fecha" th:text="${#temporals.format(turno.fecha, 'dd/MM/yyyy')}"></td>
+<td data-label="Acción"><a class="primary-button" sec:authorize="hasAnyRole('ADMINISTRADOR','OPERATIVO')" th:href="@{/salidas/nuevo(turnoId=${turno.id})}">Registrar salida</a></td></tr>
+<tr th:if="${#lists.isEmpty(cola)}"><td colspan="5">No hay llegadas pendientes de hoy. Los registros anteriores están en el historial.</td></tr></tbody></table></div></section>
+<details class="panel"><summary>Historial de turnos</summary><div class="table-responsive"><table class="data-table"><thead><tr><th>Fecha</th><th>Orden</th><th>Vehículo</th><th>Ruta</th><th>Estado</th><th>Acción</th></tr></thead><tbody>
+<tr th:each="turno : ${turnos}"><td data-label="Fecha" th:text="${#temporals.format(turno.fecha, 'dd/MM/yyyy')}"></td><td data-label="Orden" th:text="${turno.numeroTurno}"></td><td data-label="Vehículo"><span class="vehicle-plate" th:text="${turno.vehiculo.placa}"></span><small th:text="${turno.conductor.nombres + ' ' + turno.conductor.apellidos}"></small></td><td data-label="Ruta" th:text="${turno.rutaMostrada}"></td><td data-label="Estado"><span class="status-badge" th:text="${turno.estado.etiqueta}"></span></td><td data-label="Acción"><a class="text-link" sec:authorize="hasAnyRole('ADMINISTRADOR','OPERATIVO')" th:href="@{/turnos/editar/{id}(id=${turno.id})}">Ver / editar</a></td></tr>
+<tr th:if="${#lists.isEmpty(turnos)}"><td colspan="6">No hay turnos registrados.</td></tr></tbody></table></div></details>
+</main></div></body></html>

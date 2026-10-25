@@ -1,0 +1,59 @@
+{
+  "revision": "cc264aa",
+  "fecha_informe": "25/10/2026",
+  "resultado": [
+    {
+      "suite": "CajaIntegrationTests",
+      "tests": 15,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "EncomiendasIntegrationTests",
+      "tests": 22,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "ReporteSalidasTests",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "SalidaControllerTests",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "SalidaServiceTests",
+      "tests": 24,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "SalidasIntegrationTests",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "StockflowApplicationTests",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "base_operativa": "stockflow_db",
+  "pruebas": "stockflow_test_codex",
+  "navegador": "stockflow_qa_codex",
+  "origen_git": "PR #10 fusionado y develop sincronizado según las salidas compartidas por el estudiante"
+}

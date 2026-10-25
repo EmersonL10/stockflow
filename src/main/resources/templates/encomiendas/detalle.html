@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle de encomienda | StockFlow</title><link rel="stylesheet" th:href="@{/css/dashboard.css}"></head>
+<body class="detalle-encomienda"><div class="layout"><aside th:replace="~{fragments/sidebar :: sidebar('encomiendas')}"></aside>
+<main class="main-content">
+    <header class="topbar"><div><h1 th:text="${e.codigo}"></h1><p>Seguimiento de encomienda</p></div>
+        <div class="action-buttons sin-impresion"><a class="secondary-button" th:href="@{/encomiendas}">Volver al listado</a><button type="button" class="secondary-button" data-imprimir>Imprimir constancia</button></div></header>
+    <div th:if="${mensaje}" class="success-message" role="status" th:text="${mensaje}"></div>
+    <div th:if="${error}" class="error-message" role="alert" th:text="${error}"></div>
+    <section class="panel"><h2 th:text="${e.ruta}"></h2><div class="cards">
+        <article class="card"><span>Envío</span><strong th:text="${e.estado.etiqueta}"></strong></article>
+        <article class="card"><span>Importe del servicio</span><strong th:text="${'S/ ' + e.importe}"></strong></article>
+        <article class="card"><span>Pago</span><strong th:text="${e.estadoPago.etiqueta}"></strong></article>
+    </div><ol class="progress-track" th:if="${e.estado.name() != 'CANCELADA'}"><li class="is-complete">Recibida</li><li th:classappend="${e.turnoAsignado != null or e.salida != null} ? 'is-complete' : ''">Asignada</li><li th:classappend="${e.salida != null} ? 'is-complete' : ''">En tránsito</li><li th:classappend="${e.estado.name() == 'DISPONIBLE' or e.estado.name() == 'ENTREGADA'} ? 'is-complete' : ''">En destino</li><li th:classappend="${e.estado.name() == 'ENTREGADA'} ? 'is-complete' : ''">Entregada</li></ol><p th:text="${'Registro: ' + #temporals.format(e.registradaEn, 'dd/MM/yyyy HH:mm') + ' · hora de Lima'}"></p>
+        <p th:if="${e.fechaPago != null}" th:text="${'Pago: ' + #temporals.format(e.fechaPago, 'dd/MM/yyyy HH:mm') + ' · ' + e.pagoRegistradoPor}"></p></section>
+
+    <section class="panel sin-impresion" th:if="${e.estadoPago.name() == 'PENDIENTE'}" sec:authorize="hasAnyRole('ADMINISTRADOR','CAJA')">
+        <h2>Cobrar el servicio</h2><p>El cobro se registrará en la caja abierta de hoy.</p>
+        <form method="post" th:action="@{/encomiendas/{id}/pago(id=${e.id})}" class="form-grid" th:attr="data-confirmar=${'¿Confirma que recibió S/ ' + e.importe + ' por ' + e.codigo + '?'}">
+            <div><label for="medio">Medio de pago</label><select id="medio" name="medio" required><option value="EFECTIVO">Efectivo</option><option value="YAPE">Yape</option><option value="PLIN">Plin</option><option value="TRANSFERENCIA">Transferencia</option></select></div>
+            <div class="form-actions"><button class="primary-button" type="submit">Registrar cobro</button></div>
+        </form></section>
+    <section class="panel" th:if="${e.turnoAsignado != null or e.salida != null}"><h2>Quién lleva la encomienda</h2>
+        <div th:with="transporte=${e.salida != null ? e.salida.turno : e.turnoAsignado}" class="readonly-grid">
+            <div><h3>Vehículo</h3><p class="vehicle-plate" th:text="${transporte.vehiculo.placa}"></p></div>
+            <div><h3>Conductor</h3><p th:text="${transporte.conductor.nombres + ' ' + transporte.conductor.apellidos}"></p></div>
+            <div><h3>Fecha y orden</h3><p th:text="${#temporals.format(transporte.fecha, 'dd/MM/yyyy') + ' · Orden ' + transporte.numeroTurno}"></p></div>
+            <div><h3>Viaje</h3><p th:text="${e.salida != null ? 'Salida #' + e.salida.id : 'Pendiente de salida'}"></p></div>
+        </div>
+        <div th:if="${e.estado.name() == 'ASIGNADA'}" sec:authorize="hasAnyRole('ADMINISTRADOR','OPERATIVO')" class="sin-impresion action-buttons">
+            <a class="primary-button" th:if="${e.turnoAsignado.fecha == hoyOperativo}" th:href="@{/salidas/nuevo(turnoId=${e.turnoAsignado.id})}">Revisar carga y registrar salida</a>
+            <p th:if="${e.turnoAsignado.fecha != hoyOperativo}">El turno asignado es de otro día. Retire la asignación y registre una llegada de hoy.</p>
+            <form method="post" th:action="@{/encomiendas/{id}/retirar-asignacion(id=${e.id})}" data-confirmar="¿Retirar el transporte antes de salir?"><button class="secondary-button" type="submit">Retirar asignación</button></form>
+        </div>
+    </section>
+    <section class="panel sin-impresion" th:if="${e.estado.name() == 'RECIBIDA'}" sec:authorize="hasAnyRole('ADMINISTRADOR','OPERATIVO')">
+        <h2>Asignar vehículo y conductor</h2><p>Elija quién llevará el paquete. Se confirma la carga al registrar la salida.</p>
+        <form th:if="${!#lists.isEmpty(turnos)}" method="post" th:action="@{/encomiendas/{id}/asignar(id=${e.id})}" class="form-grid" data-confirmar="¿Asignar este vehículo y conductor a la encomienda?">
+            <div><label for="turnoId">Transporte en espera · misma ruta y fecha de hoy</label><select id="turnoId" name="turnoId" required><option value="">Seleccione vehículo y conductor</option>
+                <option th:each="t : ${turnos}" th:value="${t.id}" th:text="${t.vehiculo.placa + ' · ' + t.conductor.nombres + ' ' + t.conductor.apellidos + ' · Orden ' + t.numeroTurno}"></option></select></div>
+            <div class="form-actions"><button class="primary-button" type="submit">Asignar transporte</button></div>
+        </form><p th:if="${#lists.isEmpty(turnos)}">No hay vehículos en espera hoy para esta ruta. <a th:href="@{/turnos/nuevo}">Registrar llegada</a></p></section>
+    <section class="panel sin-impresion" th:if="${e.estado.name() == 'EN_TRANSITO'}" sec:authorize="hasAnyRole('ADMINISTRADOR','OPERATIVO')">
+        <h2>Recepción en destino</h2><p>Confirme cuando el paquete llegue.</p>
+        <form method="post" th:action="@{/encomiendas/{id}/disponible(id=${e.id})}" data-confirmar="¿Confirma que la encomienda llegó y está disponible en destino?"><button class="primary-button" type="submit">Confirmar llegada a destino</button></form></section>
+    <section class="panel sin-impresion" th:if="${e.estado.name() == 'DISPONIBLE'}" sec:authorize="hasAnyRole('ADMINISTRADOR','OPERATIVO')">
+        <h2>Entregar al destinatario</h2><p th:if="${e.estadoPago.name() != 'PAGADA'}">Primero debe registrarse el pago.</p>
+        <form th:if="${e.estadoPago.name() == 'PAGADA'}" method="post" th:action="@{/encomiendas/{id}/entregar(id=${e.id})}" class="form-grid" data-confirmar="¿Verificó el documento y confirma la entrega al destinatario?">
+            <div><label for="receptor">Nombre de quien recibe</label><input id="receptor" name="receptor" maxlength="100" required></div>
+            <div><label for="documento">Documento de quien recibe</label><input id="documento" name="documento" minlength="6" maxlength="20" required><small>Verifique el documento físico del destinatario.</small></div>
+            <div class="form-actions form-wide"><button class="primary-button" type="submit">Confirmar entrega</button></div>
+        </form></section>
+
+<details class="panel print-expand"><summary>Datos del envío</summary><div class="readonly-grid">
+        <div><h3>Remitente</h3><p th:text="${e.remitente}"></p><p th:text="${'Documento: ' + e.documentoRemitente}"></p><p th:text="${'Teléfono: ' + e.telefonoRemitente}"></p></div>
+        <div><h3>Destinatario</h3><p th:text="${e.destinatario}"></p><p th:text="${'Documento: ' + e.documentoDestinatario}"></p><p th:text="${'Teléfono: ' + e.telefonoDestinatario}"></p></div>
+        <div><h3>Ruta</h3><p th:text="${e.ruta}"></p></div>
+        <div><h3>Bultos y peso</h3><p th:text="${e.bultos + ' bulto(s) · ' + (e.pesoKg != null ? e.pesoKg + ' kg' : 'Peso no registrado')}"></p></div>
+        <div class="form-wide"><h3>Descripción</h3><p th:text="${e.descripcion}"></p></div>
+        <div class="form-wide" th:if="${e.salida != null}"><h3>Viaje asignado</h3><p th:text="${'Salida #' + e.salida.id + ' · ' + e.salida.turno.vehiculo.placa + ' · ' + e.salida.turno.conductor.nombres + ' ' + e.salida.turno.conductor.apellidos}"></p></div>
+        <div class="form-wide" th:if="${e.entregadaEn != null}"><h3>Entrega</h3><p th:text="${#temporals.format(e.entregadaEn, 'dd/MM/yyyy HH:mm') + ' · Recibió: ' + e.recibidaPor + ' · Documento: ' + e.documentoReceptor}"></p></div>
+    </div><a class="secondary-button sin-impresion" sec:authorize="hasAnyRole('ADMINISTRADOR','OPERATIVO')" th:if="${e.estado.name() == 'RECIBIDA' and e.estadoPago.name() == 'PENDIENTE'}" th:href="@{/encomiendas/{id}/editar(id=${e.id})}">Editar datos</a></details>
+    <details class="panel print-expand"><summary>Historial de seguimiento</summary><div class="table-responsive"><table class="data-table"><thead><tr><th>Fecha</th><th>Acción</th><th>Usuario</th><th>Detalle</th></tr></thead><tbody>
+        <tr th:each="evento : ${eventos}"><td data-label="Fecha" th:text="${#temporals.format(evento.fecha, 'dd/MM/yyyy HH:mm')}"></td>
+            <td data-label="Acción" th:text="${evento.accion}"></td><td data-label="Usuario" th:text="${evento.usuario}"></td><td data-label="Detalle" th:text="${evento.detalle}"></td></tr>
+    </tbody></table></div></details>
+<details class="panel sin-impresion cancelacion-panel" th:if="${e.estado.name() == 'RECIBIDA' and e.estadoPago.name() == 'PENDIENTE'}" sec:authorize="hasAnyRole('ADMINISTRADOR','OPERATIVO')"><summary>Opciones de cancelación</summary><p>Solo antes de cobrar y despachar.</p>
+        <form method="post" th:action="@{/encomiendas/{id}/cancelar(id=${e.id})}" class="form-grid" data-confirmar="¿Confirma la cancelación de este envío?">
+            <div><label for="motivo">Motivo</label><textarea id="motivo" name="motivo" maxlength="250" required></textarea></div>
+            <div class="form-actions"><button class="secondary-button" type="submit">Cancelar encomienda</button></div>
+        </form></details>
+<p class="muted">Constancia interna. No es un comprobante fiscal.</p></main></div><script th:src="@{/js/encomiendas.js}"></script></body></html>
