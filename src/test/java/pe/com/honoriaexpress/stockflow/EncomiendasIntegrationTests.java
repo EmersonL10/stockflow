@@ -38,6 +38,7 @@ class EncomiendasIntegrationTests {
     @Autowired VehiculoRepository vehiculos;
     @Autowired ConductorRepository conductores;
     @Autowired MockMvc mvc;
+    @Autowired TurnoService turnoService;
     Salida salida;
 
     @BeforeEach void preparar() {
@@ -59,6 +60,17 @@ class EncomiendasIntegrationTests {
     }
     Encomienda nueva() { return service.registrar(datos()); }
 
+    Turno espera() {
+        var original = salida.getTurno();
+        return turnos.saveAndFlush(Turno.builder().fecha(FechaOperativa.hoy()).numeroTurno(100 + (int)turnos.count())
+                .sentidoRuta(SentidoRuta.PUCALLPA_HONORIA).horaProgramada(LocalTime.of(14, 0))
+                .vehiculo(original.getVehiculo()).conductor(original.getConductor()).build());
+    }
+    void cargarYSalir(Encomienda e) {
+        var turno = espera(); service.asignar(e.getId(), turno.getId());
+        salida = salidaService.guardar(Salida.builder().turno(turno).horaSalidaReal(LocalTime.of(14, 0)).cantidadPasajeros(4).cargaConfirmada(true).cargaIds(e.getId().toString()).build());
+    }
+
     @Test void flujoCompletoConPagoDigitalEntregaYSeguimiento() throws Exception {
         var e = nueva();
         assertTrue(e.getCodigo().matches("ENC-\\d{8,}"));
@@ -66,12 +78,12 @@ class EncomiendasIntegrationTests {
         assertEquals(EstadoPagoEncomienda.PENDIENTE, e.getEstadoPago());
         var c = caja.abrir(BigDecimal.ZERO);
         service.cobrar(e.getId(), MedioPago.YAPE);
-        service.despachar(e.getId(), salida.getId()); service.recibirDestino(e.getId());
+        cargarYSalir(e); service.recibirDestino(e.getId());
         service.entregar(e.getId(), new EntregaEncomiendaFormulario("Destinatario de prueba", "00000002"));
         var entregada = service.buscar(e.getId());
         assertEquals(EstadoEncomienda.ENTREGADA, entregada.getEstado());
         assertNotNull(entregada.getEntregadaEn()); assertEquals("00000002", entregada.getDocumentoReceptor());
-        assertEquals(5, service.eventos(e.getId()).size());
+        assertEquals(6, service.eventos(e.getId()).size());
         assertEquals(1, movimientos.count());
         var m = movimientos.findAll().getFirst(); assertEquals(e.getId(), m.getEncomienda().getId()); assertNull(m.getSalida());
         assertEquals(new BigDecimal("25.00"), caja.resumir(c, caja.movimientos(c.getId())).ingresosDigitales());
@@ -135,7 +147,7 @@ class EncomiendasIntegrationTests {
     }
 
     @Test void noCancelaSalidaQueTransportaEncomiendaNiEditaEnvioEnTransito() {
-        var e = nueva(); service.despachar(e.getId(), salida.getId());
+        var e = nueva(); cargarYSalir(e);
         var cancelar = Salida.builder().id(salida.getId()).turno(salida.getTurno()).estado(EstadoSalida.CANCELADA)
                 .horaSalidaReal(LocalTime.NOON).cantidadPasajeros(4).build();
         assertThrows(SalidaValidationException.class, () -> salidaService.guardar(cancelar));
@@ -148,7 +160,7 @@ class EncomiendasIntegrationTests {
         var e = nueva(); var receptor = new EntregaEncomiendaFormulario("Destinatario", "00000002");
         assertThrows(EncomiendaOperacionException.class, () -> service.entregar(e.getId(), receptor));
         assertThrows(EncomiendaOperacionException.class, () -> service.recibirDestino(e.getId()));
-        service.despachar(e.getId(), salida.getId()); service.recibirDestino(e.getId());
+        cargarYSalir(e); service.recibirDestino(e.getId());
         assertThrows(EncomiendaOperacionException.class, () -> service.entregar(e.getId(), receptor));
         caja.abrir(BigDecimal.ZERO); service.cobrar(e.getId(), MedioPago.EFECTIVO);
         assertThrows(EncomiendaOperacionException.class, () -> service.entregar(e.getId(), new EntregaEncomiendaFormulario("Otra persona", "00000999")));
@@ -221,13 +233,108 @@ class EncomiendasIntegrationTests {
         assertEquals(new BigDecimal(pagada ? "25.00" : "0.00"), caja.buscar(c.getId()).getEfectivoEsperado());
     }
 
-    @Test void despachoConcurrenteConCancelacionDeSalidaEsConsistente() throws Exception {
-        var e = nueva();
-        var cancelar = Salida.builder().id(salida.getId()).turno(salida.getTurno()).estado(EstadoSalida.CANCELADA)
-                .horaSalidaReal(LocalTime.NOON).cantidadPasajeros(4).build();
-        assertEquals(1, paralelos(() -> { service.despachar(e.getId(), salida.getId()); return null; }, () -> salidaService.guardar(cancelar)));
-        boolean despachada = service.buscar(e.getId()).getEstado() == EstadoEncomienda.EN_TRANSITO;
-        assertEquals(despachada ? EstadoSalida.EN_RUTA : EstadoSalida.CANCELADA, salidas.findById(salida.getId()).orElseThrow().getEstado());
+    @Test void asignacionConcurrenteConSalidaNoAgregaPaquetesDespuesDeSalir() throws Exception {
+        var e = nueva(); var t = espera();
+        var viaje = Salida.builder().turno(t).horaSalidaReal(LocalTime.NOON).cantidadPasajeros(1).build();
+        assertEquals(1, paralelos(() -> { service.asignar(e.getId(), t.getId()); return null; }, () -> salidaService.guardar(viaje)));
+        var estado = service.buscar(e.getId()).getEstado();
+        assertTrue(estado == EstadoEncomienda.ASIGNADA || estado == EstadoEncomienda.RECIBIDA);
+        assertEquals(estado == EstadoEncomienda.ASIGNADA ? 0 : 1, salidas.existsByTurnoId(t.getId()) ? 1 : 0);
+    }
+
+    @Test void asignacionValidaRutaFechaYPermiteRetirarAntesDeSalir() throws Exception {
+        var e = nueva(); var t = espera();
+        var otra = datos(); otra.setRuta("Honoria - Pucallpa"); var contrario = service.registrar(otra);
+        assertThrows(EncomiendaOperacionException.class, () -> service.asignar(contrario.getId(), t.getId()));
+        t.setFecha(FechaOperativa.hoy().minusDays(1)); turnos.saveAndFlush(t);
+        assertThrows(EncomiendaOperacionException.class, () -> service.asignar(e.getId(), t.getId()));
+        t.setFecha(FechaOperativa.hoy()); turnos.saveAndFlush(t);
+        service.asignar(e.getId(), t.getId());
+        assertEquals(EstadoEncomienda.ASIGNADA, service.buscar(e.getId()).getEstado());
+        mvc.perform(get("/encomiendas/" + e.getId())).andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Quién lleva la encomienda")));
+        SecurityContextHolder.getContext().setAuthentication(UsernamePasswordAuthenticationToken.authenticated("prueba", "", List.of(new SimpleGrantedAuthority("ROLE_ADMINISTRADOR"))));
+        service.retirarAsignacion(e.getId());
+        assertEquals(EstadoEncomienda.RECIBIDA, service.buscar(e.getId()).getEstado());
+        assertNull(service.buscar(e.getId()).getTurnoAsignado());
+    }
+
+    @Test void salidaExigeCargaConfirmadaYDespachaTodosLosPaquetesAtomicamente() throws Exception {
+        var e = nueva(); var otro = nueva(); var t = espera();
+        service.asignar(e.getId(), t.getId()); service.asignar(otro.getId(), t.getId());
+        var viaje = Salida.builder().turno(t).horaSalidaReal(LocalTime.NOON).cantidadPasajeros(1).build();
+        assertThrows(SalidaValidationException.class, () -> salidaService.guardar(viaje));
+        assertFalse(salidas.existsByTurnoId(t.getId()));
+        viaje.setCargaConfirmada(true); viaje.setCargaIds(e.getId() + "," + otro.getId()); viaje.setRutaReal("Honoria - Pucallpa");
+        assertThrows(SalidaValidationException.class, () -> salidaService.guardar(viaje));
+        viaje.setRutaReal("Pucallpa-Honoria"); var registrada = salidaService.guardar(viaje);
+        for (var paquete : List.of(e, otro)) {
+            var guardado = service.buscar(paquete.getId());
+            assertEquals(EstadoEncomienda.EN_TRANSITO, guardado.getEstado());
+            assertEquals(registrada.getId(), guardado.getSalida().getId());
+            assertEquals(EstadoPagoEncomienda.PENDIENTE, guardado.getEstadoPago());
+            assertThrows(EncomiendaOperacionException.class, () -> service.retirarAsignacion(paquete.getId()));
+        }
+    }
+
+    @Test void colaDiariaNoMezclaPendientesAntiguosNiReescribeSuFecha() throws Exception {
+        var antiguo = espera(); antiguo.setFecha(FechaOperativa.hoy().minusDays(1)); turnos.saveAndFlush(antiguo);
+        var actual = espera();
+        assertEquals(List.of(actual.getId()), turnoService.listarColaPendiente().stream().map(Turno::getId).toList());
+        assertThrows(SalidaValidationException.class, () -> salidaService.guardar(Salida.builder().turno(antiguo).horaSalidaReal(LocalTime.NOON).cantidadPasajeros(1).build()));
+        assertThrows(SalidaValidationException.class, () -> turnoService.guardar(antiguo));
+        var cambiar = Turno.builder().id(antiguo.getId()).fecha(FechaOperativa.hoy()).numeroTurno(antiguo.getNumeroTurno())
+                .sentidoRuta(antiguo.getSentidoRuta()).horaProgramada(LocalTime.NOON).vehiculo(antiguo.getVehiculo()).conductor(antiguo.getConductor()).build();
+        assertThrows(SalidaValidationException.class, () -> turnoService.guardar(cambiar));
+        assertEquals(FechaOperativa.hoy().minusDays(1), turnos.findById(antiguo.getId()).orElseThrow().getFecha());
+        mvc.perform(get("/turnos/nuevo")).andExpect(status().isOk())
+                .andExpect(model().attribute("turno", org.hamcrest.Matchers.hasProperty("fecha", org.hamcrest.Matchers.is(FechaOperativa.hoy()))));
+    }
+
+    @Test void viajesDeHoyPorFechaYTodosNoOcultanElHistorial() throws Exception {
+        var t = salida.getTurno(); t.setFecha(FechaOperativa.hoy().minusDays(2)); turnos.saveAndFlush(t);
+        mvc.perform(get("/salidas")).andExpect(status().isOk())
+                .andExpect(model().attribute("salidas", org.hamcrest.Matchers.empty()))
+                .andExpect(model().attribute("totalHistorico", 1))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Ver todos los viajes")));
+        mvc.perform(get("/salidas").param("todasFechas", "true")).andExpect(status().isOk())
+                .andExpect(model().attribute("salidas", org.hamcrest.Matchers.hasSize(1)));
+        mvc.perform(get("/salidas").param("fecha", t.getFecha().toString())).andExpect(status().isOk())
+                .andExpect(model().attribute("salidas", org.hamcrest.Matchers.hasSize(1)));
+    }
+
+    @Test void cambioDeCargaDesdeQueSeAbreFormularioExigeNuevaRevision() throws Exception {
+        var t = espera(); var primero = nueva(); service.asignar(primero.getId(), t.getId());
+        mvc.perform(get("/salidas/nuevo").param("turnoId", t.getId().toString())).andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString(primero.getCodigo())));
+        SecurityContextHolder.getContext().setAuthentication(UsernamePasswordAuthenticationToken.authenticated("prueba", "", List.of(new SimpleGrantedAuthority("ROLE_ADMINISTRADOR"))));
+        var segundo = nueva(); service.asignar(segundo.getId(), t.getId());
+        var viaje = Salida.builder().turno(t).horaSalidaReal(LocalTime.NOON).cantidadPasajeros(1).cargaConfirmada(true).cargaIds(primero.getId().toString()).build();
+        assertThrows(SalidaValidationException.class, () -> salidaService.guardar(viaje));
+        assertFalse(salidas.existsByTurnoId(t.getId()));
+        assertEquals(EstadoEncomienda.ASIGNADA, service.buscar(segundo.getId()).getEstado());
+    }
+
+    @Test void rutaLibreAsignaAntesDeSalirYCobroFallidoRevierteDespacho() {
+        var t = espera(); t.setRutaOperativa("Pucallpa - Aguaytía"); turnos.saveAndFlush(t);
+        var f = datos(); f.setRuta("Pucallpa - Aguaytía"); var e = service.registrar(f);
+        assertEquals(1, service.turnosDisponibles(f.getRuta()).size()); service.asignar(e.getId(), t.getId());
+        var viaje = Salida.builder().turno(t).horaSalidaReal(LocalTime.NOON).cantidadPasajeros(1)
+                .cargaConfirmada(true).cargaIds(e.getId().toString()).pagoAlSalir(true).build();
+        assertThrows(CajaOperacionException.class, () -> salidaService.guardar(viaje));
+        assertFalse(salidas.existsByTurnoId(t.getId()));
+        assertEquals(EstadoEncomienda.ASIGNADA, service.buscar(e.getId()).getEstado());
+        assertNull(service.buscar(e.getId()).getSalida());
+        assertEquals(2, service.eventos(e.getId()).size());
+    }
+
+    @Test void asignarTransporteExigeRolOperativoYProteccionCsrf() throws Exception {
+        var e = nueva(); var t = espera();
+        mvc.perform(post("/encomiendas/" + e.getId() + "/asignar").param("turnoId", t.getId().toString())).andExpect(status().isForbidden());
+        mvc.perform(post("/encomiendas/" + e.getId() + "/asignar").with(csrf()).with(user("cajero").roles("CAJA"))
+                .param("turnoId", t.getId().toString())).andExpect(status().isForbidden());
+        mvc.perform(post("/encomiendas/" + e.getId() + "/asignar").with(csrf()).with(user("operador").roles("OPERATIVO"))
+                .param("turnoId", t.getId().toString())).andExpect(status().is3xxRedirection());
     }
 
     int paralelos(Callable<?> primero, Callable<?> segundo) throws Exception {

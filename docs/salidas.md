@@ -55,3 +55,9 @@ Verificación con Chromium, puerto 18080 y base separada stockflow_qa_codex: alt
 La consulta dispone de Exportar a Excel con los mismos filtros y hasta 10000 salidas. Ver [librerías aplicadas y verificaciones](librerias-java.md). El archivo incluye detalle y resumen por ruta; el resumen por ruta no equivale a un cierre de Caja.
 
 Existe Caja operativa con aperturas, movimientos y cierre por sesión. Aún no hay conciliación bancaria automática, comprobantes fiscales, devoluciones ni auditoría completa de cada edición. Para producción hace falta sustituir ddl-auto=update por migraciones versionadas, configurar respaldo/restauración y validar la política de documentos vencidos y vehículos inactivos.
+
+## Operación del día y encomiendas asignadas
+
+Las salidas nuevas requieren un turno de hoy en Lima. Los viajes antiguos se consultan con Por fecha o Todos los viajes; sus pagos pendientes pueden cobrarse hoy según las reglas de Caja. No se actualizan fechas históricas para llenar la cola actual.
+
+Antes de salir se revisan las encomiendas asignadas al turno, se confirma que están cargadas y se valida que la lista no cambió. El registro vincula todos esos paquetes a la salida y los pasa a En tránsito en la misma transacción. La ruta debe coincidir; para cambiarla hay que retirar antes las asignaciones. No se agregan paquetes después de la partida.

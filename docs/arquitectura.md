@@ -24,6 +24,8 @@ Estas son evidencias específicas; no se afirma cumplimiento automático de todo
 
 ## Seguridad
 
+`InicioService` consulta indicadores agregados para el inicio; `HomeController` los entrega a la vista. La navegación se comparte mediante el fragmento de sidebar. La presentación adapta tablas y formularios sin cambiar las reglas de cobro. Ver [interfaz operativa](interfaz.md).
+
 Spring Security autentica y aplica roles. BCrypt se usa para contraseñas; los formularios conservan CSRF. `@InitBinder` limita campos aceptados; el servidor decide cuota, estado y usuario del cobro. La descarga requiere Administrador, Operativo o Caja y responde `Cache-Control: no-store`. Los textos exportados se escriben como celdas STRING, nunca como fórmulas. Los logs no incluyen contraseñas, DNI ni contenido libre de formularios.
 
 ## Límites actuales

@@ -30,11 +30,12 @@ const assert = require('node:assert/strict');
     await page.goto(base + '/salidas');
     const pending = page.locator('form[action$="/pago"] button');
     if (await pending.count()) {
+      await pending.first().locator('..').locator('..').locator('summary').click();
       page.once('dialog', dialog => dialog.accept());
       await Promise.all([page.waitForURL(url => url.pathname === '/salidas'), pending.first().click()]);
     }
     assert.equal(await page.locator('form[action$="/pago"]').count(), 0);
-    assert.match(await page.locator('.cards-grid, .cards').allTextContents().then(a => a.join(' ')), /20/);
+    assert.match(await page.locator('.cards').innerText(), /Cobrado durante este día/);
     let checks = 0;
     for (const route of ['/', '/salidas', '/salidas/nuevo', '/turnos', '/turnos/nuevo', '/conductores', '/conductores/nuevo', '/vehiculos', '/vehiculos/nuevo']) {
       for (const width of [1920, 1366, 1024, 768, 390, 320]) {

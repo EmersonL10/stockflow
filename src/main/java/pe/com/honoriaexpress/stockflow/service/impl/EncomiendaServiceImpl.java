@@ -24,8 +24,11 @@ public class EncomiendaServiceImpl implements EncomiendaService {
     private final EncomiendaRepository encomiendas;
     private final EncomiendaEventoRepository eventos;
     private final SalidaRepository salidas;
+    private final TurnoRepository turnos;
     private final CajaService caja;
     private final Validator validator;
+    @jakarta.persistence.PersistenceContext
+    private jakarta.persistence.EntityManager entityManager;
 
     public Page<Encomienda> consultar(String codigo, EstadoEncomienda estado, EstadoPagoEncomienda pago, int pagina) {
         String busqueda = texto(codigo).toUpperCase(Locale.ROOT);
@@ -88,19 +91,42 @@ public class EncomiendaServiceImpl implements EncomiendaService {
         evento(e, "PAGO", "Pago completo registrado por " + medio + " y vinculado a Caja.");
     }
 
+    public List<Turno> turnosDisponibles(String ruta) {
+        return turnos.findColaPendienteDelDia(FechaOperativa.hoy()).stream()
+                .filter(t -> Rutas.coinciden(t.getRutaMostrada(), ruta)).toList();
+    }
+
+    @Transactional @PreAuthorize("hasAnyRole('ADMINISTRADOR','OPERATIVO')")
+    public void asignar(Long id, Long turnoId) {
+        if (turnoId == null) throw new EncomiendaOperacionException("Seleccione un vehículo y conductor en espera.");
+        // Turno antes que encomienda: mismo orden que el registro de salida.
+        var turno = turnos.buscarParaActualizar(turnoId).orElseThrow(() -> new EncomiendaOperacionException("El turno no existe."));
+        var e = bloquear(id);
+        if (e.getEstado() != EstadoEncomienda.RECIBIDA) throw new EncomiendaOperacionException("Retire la asignación anterior antes de elegir otro transporte.");
+        if (!FechaOperativa.hoy().equals(turno.getFecha()) || salidas.existsByTurnoId(turnoId)
+                || (turno.getEstado() != EstadoTurno.PROGRAMADO && turno.getEstado() != EstadoTurno.EN_ESPERA)
+                || !Rutas.coinciden(turno.getRutaMostrada(), e.getRuta())) {
+            throw new EncomiendaOperacionException("Elija un turno en espera de hoy y de la misma ruta.");
+        }
+        e.setTurnoAsignado(turno); e.setEstado(EstadoEncomienda.ASIGNADA); encomiendas.saveAndFlush(e);
+        evento(e, "ASIGNACION", "Transporte asignado: " + turno.getVehiculo().getPlaca() + " · "
+                + turno.getConductor().getNombres() + " " + turno.getConductor().getApellidos() + ". Pendiente de salida.");
+    }
+
+    @Transactional @PreAuthorize("hasAnyRole('ADMINISTRADOR','OPERATIVO')")
+    public void retirarAsignacion(Long id) {
+        var referencia = buscar(id);
+        if (referencia.getTurnoAsignado() == null) throw new EncomiendaOperacionException("El envío no tiene transporte asignado.");
+        turnos.buscarParaActualizar(referencia.getTurnoAsignado().getId());
+        var e = bloquear(id);
+        if (e.getEstado() != EstadoEncomienda.ASIGNADA) throw new EncomiendaOperacionException("Solo se retira la asignación antes de salir.");
+        e.setTurnoAsignado(null); e.setEstado(EstadoEncomienda.RECIBIDA); encomiendas.saveAndFlush(e);
+        evento(e, "RETIRO_ASIGNACION", "Se retiró el transporte antes de salir; pendiente de nueva asignación.");
+    }
+
     @Transactional @PreAuthorize("hasAnyRole('ADMINISTRADOR','OPERATIVO')")
     public void despachar(Long id, Long salidaId) {
-        if (salidaId == null) throw new EncomiendaOperacionException("Seleccione una salida de la misma ruta.");
-        // El orden salida -> encomienda coordina el despacho con una posible cancelación de la salida.
-        var salida = salidas.buscarParaCobro(salidaId).orElseThrow(() -> new EncomiendaOperacionException("La salida no existe."));
-        var e = bloquear(id);
-        if (e.getEstado() != EstadoEncomienda.RECIBIDA) throw new EncomiendaOperacionException("Solo puede despachar un envío recibido y sin salida asignada.");
-        if (salida.getEstado() != EstadoSalida.EN_RUTA || !salida.getTurno().getFecha().equals(LocalDate.now(LIMA))
-                || !texto(salida.getRutaMostrada()).equalsIgnoreCase(texto(e.getRuta()))) {
-            throw new EncomiendaOperacionException("Seleccione una salida en ruta de hoy que coincida con la ruta del envío.");
-        }
-        e.setSalida(salida); e.setEstado(EstadoEncomienda.EN_TRANSITO); encomiendas.saveAndFlush(e);
-        evento(e, "DESPACHO", "Encomienda despachada en la salida #" + salida.getId() + ".");
+        throw new EncomiendaOperacionException("Asigne vehículo y conductor antes de registrar la salida. No se agregan paquetes a un viaje que ya salió.");
     }
 
     @Transactional @PreAuthorize("hasAnyRole('ADMINISTRADOR','OPERATIVO')")
@@ -139,7 +165,11 @@ public class EncomiendaServiceImpl implements EncomiendaService {
         encomiendas.saveAndFlush(e); evento(e, "CANCELACION", detalle);
     }
 
-    private Encomienda bloquear(Long id) { return encomiendas.bloquear(id).orElseThrow(() -> new EncomiendaOperacionException("La encomienda no existe.")); }
+    private Encomienda bloquear(Long id) {
+        var e = encomiendas.bloquear(id).orElseThrow(() -> new EncomiendaOperacionException("La encomienda no existe."));
+        entityManager.refresh(e);
+        return e;
+    }
     private String texto(String valor) { return StringUtils.normalizeSpace(StringUtils.defaultString(valor)); }
     private String usuario() { return SecurityContextHolder.getContext().getAuthentication().getName(); }
     private void evento(Encomienda e, String accion, String detalle) {

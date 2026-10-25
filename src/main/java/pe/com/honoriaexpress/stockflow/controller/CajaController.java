@@ -65,8 +65,17 @@ public class CajaController {
     @PostMapping("/{id}/cerrar")
     public String cerrar(@PathVariable Long id, @Valid @ModelAttribute CajaFormularios.Cierre form,
                          BindingResult errores, RedirectAttributes flash) {
+        // Conservar el conteo y abrir el arqueo si hay un error, para corregir sin empezar otra vez.
+        flash.addFlashAttribute("mostrarCierre", true);
+        flash.addFlashAttribute("contadoCierre", form.contado());
+        flash.addFlashAttribute("observacionCierreEntrada", form.observacion());
         if (invalido(errores, flash)) return "redirect:/caja/" + id;
-        return ejecutar(id, flash, () -> cajas.cerrar(id, form.contado(), form.observacion()), "Caja cerrada. El cierre queda disponible para consulta.");
+        try {
+            cajas.cerrar(id, form.contado(), form.observacion());
+            flash.addFlashAttribute("mensaje", "Caja cerrada. Ya puede abrir la siguiente con el efectivo inicial que corresponda.");
+        } catch (CajaOperacionException ex) { flash.addFlashAttribute("error", ex.getMessage()); }
+        catch (DataIntegrityViolationException ex) { flash.addFlashAttribute("error", "La caja cambió mientras cerraba. Revise el saldo actualizado antes de confirmar."); }
+        return "redirect:/caja/" + id;
     }
 
     private boolean invalido(BindingResult errores, RedirectAttributes flash) {

@@ -1,4 +1,4 @@
-// Solo QA: localhost:18080, sin caja abierta y con una salida en ruta de hoy Pucallpa - Honoria.
+// Solo QA: localhost:18080, sin caja abierta y con un turno en espera de hoy Pucallpa - Honoria.
 const { chromium } = require('playwright');
 const fs = require('node:fs');
 const assert = require('node:assert/strict');
@@ -32,21 +32,43 @@ const assert = require('node:assert/strict');
       page.once('dialog', d => d.accept());
       await Promise.all([page.waitForNavigation(), page.getByRole('button', { name: nombre, exact: true }).click()]);
     }
+    let comprobaciones = 0;
     const envioUrl = await crear('Pucallpa - Honoria');
     const codigo = await page.locator('h1').innerText();
+    await page.locator('details.print-expand > summary').filter({ hasText: 'Datos del envío' }).click();
     await page.getByRole('link', { name: 'Editar datos' }).click();
     await page.locator('#descripcion').fill('Libros revisados antes del pago QA');
     await Promise.all([page.waitForURL(envioUrl), page.getByRole('button', { name: 'Guardar encomienda' }).click()]);
     await page.locator('#medio').selectOption('PLIN'); await confirmar('Registrar cobro');
     assert.match(await page.locator('.success-message').innerText(), /Caja/);
     await page.goto(cajaUrl);
+    await page.locator('details.movimientos-caja > summary').click();
     assert.match(await page.locator('main').innerText(), /S\/ 25\.00/);
     assert.equal(await page.getByRole('link', { name: codigo, exact: true }).count(), 1);
     await page.goto(envioUrl);
-    const opciones = page.locator('#salidaId option:not([value=""])');
-    assert((await opciones.count()) > 0, 'Falta salida en ruta de hoy coincidente en QA');
-    await page.locator('#salidaId').selectOption(await opciones.first().getAttribute('value'));
-    await confirmar('Confirmar despacho'); await confirmar('Confirmar llegada a destino');
+    const opciones = page.locator('#turnoId option:not([value=""])');
+    assert((await opciones.count()) > 0, 'Falta turno en espera de hoy coincidente en QA');
+    const turnoId = await opciones.first().getAttribute('value');
+    await page.locator('#turnoId').selectOption(turnoId);
+    await confirmar('Asignar transporte');
+    assert.match(await page.locator('main').innerText(), /Quién lleva la encomienda/);
+    await page.getByRole('link', { name: 'Revisar carga y registrar salida' }).click();
+    assert.equal(await page.locator('#turno').inputValue(), turnoId);
+    assert.match(await page.locator('#cargaPaquetes').innerText(), new RegExp(codigo));
+    await page.locator('#cantidadPasajeros').fill('3');
+    for (const width of [1366, 390]) {
+      await page.setViewportSize({ width, height: 1000 });
+      await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+      const size = await page.evaluate(() => ({ content: document.documentElement.scrollWidth, width: innerWidth }));
+      assert(size.content <= size.width + 1, `Desborde del manifiesto a ${width}px`); comprobaciones++;
+      await page.screenshot({ path: `${output}/carga-${width}.png`, fullPage: true });
+    }
+    await page.locator('#cargaConfirmada').check();
+    await Promise.all([page.waitForURL(u => u.pathname === '/salidas'), page.getByRole('button', { name: 'Registrar salida', exact: true }).click()]);
+    assert.equal(await page.locator('.error-message').count(), 0);
+    await page.goto(envioUrl);
+    assert.match(await page.locator('main').innerText(), /En tránsito/);
+    await confirmar('Confirmar llegada a destino');
     await page.locator('#receptor').fill('Destinatario QA'); await page.locator('#documento').fill('00000999');
     await confirmar('Confirmar entrega'); assert.match(await page.locator('.error-message').innerText(), /coincidir/);
     await page.locator('#receptor').fill('Destinatario QA'); await page.locator('#documento').fill('00000002');
@@ -60,9 +82,9 @@ const assert = require('node:assert/strict');
     await page.screenshot({ path: `${output}/constancia-impresion.png`, fullPage: true });
     await page.emulateMedia({ media: 'screen' });
     const canceladaUrl = await crear('Honoria - Pucallpa');
+    await page.locator('details.cancelacion-panel > summary').click();
     await page.locator('#motivo').fill('Cancelación de prueba antes del cobro y despacho');
     await confirmar('Cancelar encomienda'); assert.match(await page.locator('main').innerText(), /Cancelada/);
-    let comprobaciones = 0;
     for (const route of [base + '/encomiendas', base + '/encomiendas/nuevo', envioUrl, canceladaUrl]) {
       await page.goto(route);
       for (const width of [1920, 1366, 1024, 768, 390, 320]) {
@@ -73,8 +95,8 @@ const assert = require('node:assert/strict');
         if (width === 1366 && route.endsWith('/encomiendas')) await page.screenshot({ path: `${output}/listado.png`, fullPage: true });
       }
     }
-    await page.goto(cajaUrl); await page.locator('#contado').fill('0.00');
-    await page.locator('#observacion').fill('Cierre QA: solo cobro digital de encomienda');
+    await page.goto(cajaUrl); await page.locator('details.cierre-panel > summary').click(); await page.locator('#contado').fill('0.00');
+    if (await page.locator('#observacion').isVisible()) await page.locator('#observacion').fill('Cierre QA: solo cobro digital de encomienda');
     await confirmar('Cerrar caja definitivamente');
     assert.equal(await page.locator('.error-message').count(), 0);
     console.log(`Encomiendas: registro, edición, cobro PLIN, despacho, destino, entrega, cancelación, impresión y ${comprobaciones} verificaciones responsive correctas.`);

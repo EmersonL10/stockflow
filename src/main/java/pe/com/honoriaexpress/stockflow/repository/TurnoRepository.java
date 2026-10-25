@@ -8,11 +8,16 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface TurnoRepository extends JpaRepository<Turno, Long> {
+    @org.springframework.data.jpa.repository.Query("select count(t) from Turno t where t.fecha = :fecha and t.estado in (pe.com.honoriaexpress.stockflow.entity.EstadoTurno.PROGRAMADO, pe.com.honoriaexpress.stockflow.entity.EstadoTurno.EN_ESPERA) and not exists (select s.id from Salida s where s.turno = t)")
+    long contarEsperaDelDia(@org.springframework.data.repository.query.Param("fecha") LocalDate fecha);
     @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
     @org.springframework.data.jpa.repository.Query("select t from Turno t where t.id = :id")
     java.util.Optional<Turno> buscarParaActualizar(@org.springframework.data.repository.query.Param("id") Long id);
     @org.springframework.data.jpa.repository.Query("select t from Turno t where t.estado in (pe.com.honoriaexpress.stockflow.entity.EstadoTurno.PROGRAMADO, pe.com.honoriaexpress.stockflow.entity.EstadoTurno.EN_ESPERA) and not exists (select s.id from Salida s where s.turno = t) order by t.fecha, t.sentidoRuta, t.numeroTurno")
     List<Turno> findColaPendiente();
+
+    @org.springframework.data.jpa.repository.Query("select t from Turno t where t.fecha = :fecha and t.estado in (pe.com.honoriaexpress.stockflow.entity.EstadoTurno.PROGRAMADO, pe.com.honoriaexpress.stockflow.entity.EstadoTurno.EN_ESPERA) and not exists (select s.id from Salida s where s.turno = t) order by t.fecha, t.sentidoRuta, t.numeroTurno")
+    List<Turno> findColaPendienteDelDia(@org.springframework.data.repository.query.Param("fecha") LocalDate fecha);
 
     @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
     @org.springframework.data.jpa.repository.Query("select t from Turno t where t.fecha = :fecha and t.sentidoRuta = :ruta order by t.numeroTurno")

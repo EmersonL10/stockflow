@@ -51,6 +51,9 @@ public class Encomienda {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "salida_id")
     private Salida salida;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "turno_asignado_id")
+    private Turno turnoAsignado;
     private LocalDateTime entregadaEn;
     @Column(length = 100)
     private String recibidaPor;

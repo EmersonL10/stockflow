@@ -5,33 +5,32 @@
 <body><div class="layout">
 <aside th:replace="~{fragments/sidebar :: sidebar('caja')}"></aside>
 <main class="main-content">
-    <header class="topbar"><div><h1>Caja de la agencia</h1><p>Apertura, movimientos y cierre en soles · hora de Lima</p></div></header>
+    <header class="topbar"><div><h1>Caja</h1><p>Control del dinero que entra y sale.</p></div></header>
     <div th:if="${mensaje}" class="success-message" role="status" th:text="${mensaje}"></div>
     <div th:if="${error}" class="error-message" role="alert" th:text="${error}"></div>
     <section class="panel" th:if="${actual != null}">
-        <h2>Caja abierta</h2>
+        <h2 th:text="${actual.estadoMostrado}"></h2><p th:if="${actual.pendienteArqueo}">La caja del día anterior necesita el conteo final. Ciérrela para abrir la de hoy.</p>
         <p th:text="${'Caja #' + actual.id + ' · Apertura: ' + #temporals.format(actual.apertura, 'dd/MM/yyyy HH:mm') + ' · Responsable: ' + actual.abiertaPor}"></p>
-        <a class="primary-button" th:href="@{/caja/{id}(id=${actual.id})}">Ver movimientos y cerrar</a>
+        <a class="primary-button" th:href="@{/caja/{id}(id=${actual.id})}">Entrar a caja</a>
     </section>
     <section class="panel" th:if="${actual == null}">
-        <h2>Abrir caja</h2><p>Indique solo el efectivo con el que comienza. No incluya saldos de Yape, Plin o cuentas bancarias.</p>
+        <h2>Abrir caja</h2><p>Registre solo el efectivo físico inicial.</p>
         <form th:action="@{/caja/abrir}" method="post" class="form-grid">
             <div><label for="saldoInicial">Efectivo inicial S/</label><input id="saldoInicial" name="saldoInicial" type="number" min="0" max="99999999.99" step="0.01" required></div>
             <div class="form-actions"><button class="primary-button" type="submit">Abrir caja</button></div>
         </form>
     </section>
-    <section class="panel" th:if="${pagosSinCaja > 0}">
-        <h2>Pagos anteriores sin vínculo a Caja</h2>
+    <details class="panel" th:if="${pagosSinCaja > 0}"><summary>Pagos históricos sin vínculo a Caja</summary>
         <p th:text="${pagosSinCaja + ' pago(s) de Salidas no tienen movimiento asociado. Se conservan como históricos y no se agregan automáticamente al saldo de una nueva caja.'}"></p>
         <p>No vuelva a cobrarlos ni los registre como ingreso manual sin una revisión previa.</p>
-    </section>
-    <section class="panel"><h2>Historial de cajas</h2><p>Puede abrir otra sesión después del cierre, incluso el mismo día. Cada cierre conserva sus importes y responsables.</p>
+    </details>
+    <section class="panel"><h2>Cajas anteriores</h2>
         <div class="table-responsive"><table class="data-table"><thead><tr><th>Caja</th><th>Apertura</th><th>Abierta por</th><th>Estado</th><th>Acción</th></tr></thead><tbody>
         <tr th:each="item : ${historial}">
             <td data-label="Caja" th:text="${item.id}"></td>
             <td data-label="Apertura" th:text="${#temporals.format(item.apertura, 'dd/MM/yyyy HH:mm')}"></td>
             <td data-label="Abierta por" th:text="${item.abiertaPor}"></td>
-            <td data-label="Estado" th:text="${item.abierta ? 'Abierta' : 'Cerrada'}"></td>
+            <td data-label="Estado" th:text="${item.estadoMostrado}"></td>
             <td data-label="Acción"><a class="secondary-button" th:href="@{/caja/{id}(id=${item.id})}">Consultar</a></td>
         </tr><tr th:if="${#lists.isEmpty(historial)}"><td colspan="5">Todavía no hay aperturas registradas.</td></tr>
         </tbody></table></div>

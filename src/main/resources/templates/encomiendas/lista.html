@@ -13,6 +13,7 @@
             <div><label for="codigo">Código interno</label><input id="codigo" name="codigo" th:value="${codigo}" maxlength="30" placeholder="ENC-00000001"></div>
             <div><label for="estado">Estado del envío</label><select id="estado" name="estado"><option value="">Todos</option>
                 <option value="RECIBIDA" th:selected="${estado != null and estado.name() == 'RECIBIDA'}">Recibida</option>
+                <option value="ASIGNADA" th:selected="${estado != null and estado.name() == 'ASIGNADA'}">Asignada</option>
                 <option value="EN_TRANSITO" th:selected="${estado != null and estado.name() == 'EN_TRANSITO'}">En tránsito</option>
                 <option value="DISPONIBLE" th:selected="${estado != null and estado.name() == 'DISPONIBLE'}">Disponible en destino</option>
                 <option value="ENTREGADA" th:selected="${estado != null and estado.name() == 'ENTREGADA'}">Entregada</option>

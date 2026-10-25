@@ -64,3 +64,25 @@ Suite final del 24/10/2026: 49 pruebas aprobadas, sin fallos, errores ni omision
 Esta es Caja operativa por sesión, no un sistema contable completo. No implementa comprobantes fiscales, conciliación bancaria automática, devoluciones, anulación o reversión de movimientos, cuentas por sede, conciliación con proveedores ni auditoría de cambios directos en MySQL. No debe interpretarse el ingreso total como utilidad. Los movimientos de una sesión se cargan completos para consulta; el historial se pagina de 20 en 20.
 
 La integración con Encomiendas se describe en [su documentación](encomiendas.md). El cobro de la encomienda y el de la cuota de Salida son conceptos distintos; cada uno tiene su referencia única y se registra solo al cobrarlo efectivamente.
+
+## Desglose de movimientos
+
+Ingresos totales y egresos totales incluyen efectivo y digital. Saldo neto de movimientos = ingresos totales − egresos totales; no incluye el efectivo inicial y no representa utilidad contable. Para el arqueo se conserva efectivo esperado = inicial + ingresos en efectivo − egresos en efectivo. El saldo digital mostrado corresponde únicamente a los movimientos de esta sesión, no al saldo real de una cuenta bancaria o billetera.
+
+Ejemplo: inicial S/ 10, ingreso efectivo S/ 30, egreso efectivo S/ 30, ingreso digital S/ 70 y egreso digital S/ 10. Totales: ingresos S/ 100, egresos S/ 40, neto S/ 60. Efectivo esperado S/ 10; saldo digital de movimientos S/ 60.
+
+## Caja diaria y cierre guiado
+
+La vista principal destaca **Total registrado = efectivo esperado + resultado digital de la sesión**, incluyendo el fondo inicial. Debajo separa el efectivo físico a contar del digital registrado. Al cerrar usa el efectivo realmente contado más el resultado digital; la diferencia queda registrada por separado. Estos importes no certifican saldos bancarios ni equivalen a utilidad.
+
+Ejemplo: fondo S/ 10, ingresos S/ 100 y egresos S/ 40: total registrado S/ 70, formado por efectivo S/ 10 y digital S/ 60 según el desglose del ejemplo anterior. Si realmente se cuentan S/ 9, el cierre registra un faltante de S/ 1 y un total al cierre de S/ 69.
+
+El día termina a las 00:00 de America/Lima, no 24 horas después de abrir. La caja anterior pasa a mostrarse como **Pendiente de arqueo** por su fecha, sin recibir movimientos ni cobros; la validación del servidor ya protege cada escritura. No requiere un proceso programado ni que la aplicación permanezca encendida: al volver a consultarla se deriva ese estado de la fecha. La pantalla abierta revisa el cambio de día cada 30 segundos y al recuperar foco; el navegador puede suspender pestañas, pero el servidor mantiene el bloqueo.
+
+Se permite confirmar el cierre de ayer durante el día siguiente y luego abrir la caja de hoy. El cierre financiero no es automático: contar el dinero físico requiere al responsable. El sistema no inventa un conteo ni confirma por sí solo que el efectivo coincide. Se conserva una sola sesión sin arqueo final a la vez.
+
+El botón Contar efectivo y cerrar caja abre el formulario cercano al resumen. Se muestra al escribir si el conteo coincide o cuánto sobra/falta. El motivo es obligatorio únicamente con diferencia; el servidor conserva esa regla aunque se omita JavaScript. Si hay error, se conservan conteo y motivo y el formulario permanece abierto para corregir.
+
+Verificación: suite Java de 77 pruebas; `scripts/verificar-caja-diaria.cjs` reproduce el ejemplo S/ 70, recuperación de cierre rechazado, cambio de día simulado sin pérdida del conteo, cierre con diferencia y revisión responsive en QA aislada.
+
+Los formularios de otros movimientos y el historial de movimientos están en desplegables; la vista inicial prioriza total y cierre. Si se abren varias sesiones el mismo día, cada total corresponde a su propia sesión, no a la suma automática de todas las cajas de la fecha.

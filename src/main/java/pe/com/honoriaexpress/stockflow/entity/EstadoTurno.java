@@ -2,8 +2,12 @@ package pe.com.honoriaexpress.stockflow.entity;
 
 public enum EstadoTurno {
 
-    PROGRAMADO,
-    EN_ESPERA,
-    COMPLETADO,
-    CANCELADO
+    PROGRAMADO("Programado"),
+    EN_ESPERA("En espera"),
+    COMPLETADO("Completado"),
+    CANCELADO("Cancelado");
+
+    private final String etiqueta;
+    EstadoTurno(String etiqueta) { this.etiqueta = etiqueta; }
+    public String getEtiqueta() { return etiqueta; }
 }

@@ -1,7 +1,7 @@
 document.querySelectorAll('form[action$="/pago"]').forEach(form => {
     form.addEventListener('submit', event => {
         const fila = form.closest('tr');
-        const placa = fila.querySelector('[data-label="Vehículo"]').textContent.trim();
+        const placa = fila.querySelector('.vehicle-plate').textContent.trim();
         const importe = fila.querySelector('[data-label="Cuota de agencia"]').textContent.trim();
         const medio = form.querySelector('[name="medioPago"]');
         const descripcion = medio ? medio.selectedOptions[0].textContent : 'Efectivo';

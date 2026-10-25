@@ -32,8 +32,9 @@ class SalidaServiceTests {
         turnos = mock(TurnoRepository.class);
         service = new SalidaServiceImpl(salidas, turnos, factory.getValidator(),
                 mock(pe.com.honoriaexpress.stockflow.service.CajaService.class),
-                mock(pe.com.honoriaexpress.stockflow.repository.EncomiendaRepository.class));
-        turno = Turno.builder().id(1L).fecha(java.time.LocalDate.of(2026,10,10))
+                mock(pe.com.honoriaexpress.stockflow.repository.EncomiendaRepository.class),
+                mock(pe.com.honoriaexpress.stockflow.repository.EncomiendaEventoRepository.class));
+        turno = Turno.builder().id(1L).fecha(pe.com.honoriaexpress.stockflow.service.FechaOperativa.hoy())
                 .sentidoRuta(SentidoRuta.PUCALLPA_HONORIA).numeroTurno(1)
                 .vehiculo(Vehiculo.builder().capacidadPasajeros(10).build()).build();
         when(turnos.bloquearCola(turno.getFecha(), turno.getSentidoRuta())).thenReturn(java.util.List.of(turno));

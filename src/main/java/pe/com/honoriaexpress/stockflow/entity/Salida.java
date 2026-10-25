@@ -52,8 +52,7 @@ public class Salida {
 
     public String getRutaMostrada() {
         if (rutaReal != null && !rutaReal.isBlank()) return rutaReal;
-        return turno.getSentidoRuta() == SentidoRuta.PUCALLPA_HONORIA
-                ? "Pucallpa - Honoria" : "Honoria - Pucallpa";
+        return turno.getRutaMostrada();
     }
 
     @NotNull(message = "La hora real de salida es obligatoria")
@@ -86,6 +85,11 @@ public class Salida {
 
     @Transient
     private boolean pagoAlSalir;
+
+    @Transient
+    private boolean cargaConfirmada;
+    @Transient
+    private String cargaIds;
 
     @Transient
     @Builder.Default

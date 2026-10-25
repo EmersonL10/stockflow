@@ -32,5 +32,14 @@ public class CajaSesion {
     @Column(length = 250)
     private String observacionCierre;
 
+    public boolean isPendienteArqueo() {
+        return isAbierta() && apertura.toLocalDate().isBefore(pe.com.honoriaexpress.stockflow.service.FechaOperativa.hoy());
+    }
+    public boolean isOperativaHoy() {
+        return isAbierta() && apertura.toLocalDate().equals(pe.com.honoriaexpress.stockflow.service.FechaOperativa.hoy());
+    }
+    public String getEstadoMostrado() {
+        return !isAbierta() ? "Cerrada" : isPendienteArqueo() ? "Pendiente de arqueo" : "Abierta hoy";
+    }
     public boolean isAbierta() { return cierre == null && Integer.valueOf(1).equals(claveActiva); }
 }

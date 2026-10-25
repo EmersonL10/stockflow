@@ -6,6 +6,8 @@ Java 21, Spring Boot, Spring MVC, Spring Data JPA, Hibernate, MySQL, Thymeleaf, 
 
 ## Ejecución local
 
+Ver [navegación e interfaz operativa](docs/interfaz.md) para el recorrido de las pantallas y su verificación responsive.
+
 Crear stockflow_db en MySQL y configurar DB_PASSWORD y APP_ADMIN_PASSWORD por entorno. Opcionalmente APP_ADMIN_USERNAME y APP_ADMIN_EMAIL para la cuenta inicial. No guardar credenciales en el repositorio.
 
 Ejecutar .\mvnw.cmd spring-boot:run y abrir http://localhost:8080. Revisar application.properties antes de usar otra base; desarrollo usa actualización automática del esquema.
