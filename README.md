@@ -29,3 +29,9 @@ Registro y consulta de envíos con código interno, remitente, destinatario, dat
 Las pruebas usan stockflow_test_codex y recrean sus tablas. Crear esa base vacía antes de ejecutar .\mvnw.cmd test.
 
 Los SQL de scripts son manuales. Los archivos demo o sintéticos contienen datos ficticios, aunque su presentación no incluya la palabra demo. No son identidades ni documentos verificados. No cargarlos en bases operativas ni volver a ejecutarlos indiscriminadamente. La aplicación no los ejecuta automáticamente.
+
+## Entrega académica
+
+La [delimitación y trazabilidad](docs/alcance-trazabilidad.md) relaciona 18 requisitos con clases y evidencias. La [matriz de la rúbrica](docs/matriz-rubrica.md) distingue evidencia disponible de publicación y sustentación pendientes. Consultar la [guía de sustentación](docs/guia-sustentacion.md) y las [evidencias QA](docs/evidencias/README.md).
+
+El informe se encuentra en [Word](docs/entregables/StockFlow_Informe_Proyecto.docx) y [PDF](docs/entregables/StockFlow_Informe_Proyecto.pdf). La portada incluye los datos académicos proporcionados para Curso Integrador I Sistemas Software. El alcance se delimita para esta entrega; no se atribuye una aprobación previa ni se garantiza una calificación.

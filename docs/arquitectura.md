@@ -18,13 +18,14 @@ Ejemplo: `salidas/formulario.html` → `SalidaController.guardar` → `SalidaSer
 
 - Responsabilidad única: `ConsultaSalidasService` selecciona registros, `ExportacionSalidasService` construye el Excel y `SalidaServiceImpl` administra reglas operativas y transacciones.
 - Inversión de dependencias: los controladores dependen de contratos `SalidaService` y `TurnoService`, que se inyectan por constructor. Los repositorios son interfaces. Las pruebas sustituyen esas dependencias por mocks.
-- Segregación de responsabilidades: exportar no modifica una cuota ni hace cobros; guardar no construye una hoja de cálculo.
 
 Estas son evidencias específicas; no se afirma cumplimiento automático de todos los principios SOLID. La existencia de pruebas tampoco acredita por sí sola un proceso TDD histórico.
 
-## Seguridad
+## Presentación compartida
 
 `InicioService` consulta indicadores agregados para el inicio; `HomeController` los entrega a la vista. La navegación se comparte mediante el fragmento de sidebar. La presentación adapta tablas y formularios sin cambiar las reglas de cobro. Ver [interfaz operativa](interfaz.md).
+
+## Seguridad
 
 Spring Security autentica y aplica roles. BCrypt se usa para contraseñas; los formularios conservan CSRF. `@InitBinder` limita campos aceptados; el servidor decide cuota, estado y usuario del cobro. La descarga requiere Administrador, Operativo o Caja y responde `Cache-Control: no-store`. Los textos exportados se escriben como celdas STRING, nunca como fórmulas. Los logs no incluyen contraseñas, DNI ni contenido libre de formularios.
 
