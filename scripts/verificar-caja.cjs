@@ -21,6 +21,7 @@ const assert = require('node:assert/strict');
     await Promise.all([page.waitForURL(/\/caja\/\d+$/), page.getByRole('button', { name: 'Abrir caja', exact: true }).click()]);
     const urlCaja = page.url();
     async function movimiento(tipo, medio, importe, concepto) {
+      await page.locator('[data-movimientos-diarios] > summary').click();
       await page.locator('#tipo').selectOption(tipo); await page.locator('#medio').selectOption(medio);
       await page.locator('#importe').fill(importe); await page.locator('#concepto').fill(concepto);
       await Promise.all([page.waitForNavigation(), page.getByRole('button', { name: 'Registrar movimiento', exact: true }).click()]);
@@ -35,19 +36,23 @@ const assert = require('node:assert/strict');
       assert.equal(await option.count(), 1, `Se requiere un turno pendiente de ${placa}`);
       await page.locator('#turno').selectOption(await option.getAttribute('value'));
       await page.locator('#cantidadPasajeros').fill('4');
-      await page.locator('#pagoAlSalir').selectOption(pagada); await page.locator('#medioPago').selectOption(medio);
+      await page.locator('#pagoAlSalir').selectOption(pagada);
+      if (pagada === 'true') await page.locator('#medioPago').selectOption(medio);
       await Promise.all([page.waitForURL(u => u.pathname === '/salidas'), page.getByRole('button', { name: 'Registrar salida', exact: true }).click()]);
       assert.equal(await page.locator('.error-message').count(), 0);
     }
     const form = page.locator('tr').filter({ has: page.locator('[data-label="Vehículo"]').filter({ hasText: 'QA-002' }) }).locator('form[action$="/pago"]');
     assert.equal(await form.count(), 1);
+    await form.locator('..').locator('summary').click();
     await form.locator('[name="medioPago"]').selectOption('EFECTIVO');
     page.once('dialog', d => d.accept());
     await Promise.all([page.waitForNavigation(), form.getByRole('button').click()]);
     await page.goto(urlCaja);
-    const card = name => page.locator('.card').filter({ has: page.locator('span').filter({ hasText: new RegExp(`^${name}$`) }) }).locator('strong');
+    const card = name => page.locator('.card, .readonly-grid > div').filter({ has: page.locator('span').filter({ hasText: new RegExp(`^${name}$`) }) }).locator('strong');
     assert.equal(await card('Efectivo esperado').innerText(), 'S/ 62.00');
+    await page.getByText('Ver cómo se calculó', { exact: true }).click();
     assert.equal(await card('Ingresos digitales').innerText(), 'S/ 25.00');
+    await page.getByText('Ver cómo se calculó', { exact: true }).click();
     let comprobaciones = 0;
     for (const route of [base + '/caja', urlCaja, base + '/salidas/nuevo']) {
       await page.goto(route);
@@ -60,6 +65,7 @@ const assert = require('node:assert/strict');
       }
     }
     await page.goto(urlCaja);
+    await page.locator('details.cierre-panel > summary').click();
     await page.locator('#contado').fill('61.00'); await page.locator('#observacion').fill('Faltante de S/ 1.00 simulado en QA');
     page.once('dialog', d => d.accept());
     await Promise.all([page.waitForNavigation(), page.getByRole('button', { name: 'Cerrar caja definitivamente' }).click()]);

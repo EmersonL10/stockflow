@@ -56,6 +56,56 @@ class CajaIntegrationTests {
         caja.registrarManual(id, tipo, medio, soles(importe), "Concepto de prueba", UUID.randomUUID().toString());
     }
 
+    @Test void resumenDistingueNetoDeMovimientosFondoInicialYEfectivoFisico() throws Exception {
+        var c = caja.abrir(soles("10.00"));
+        manual(c.getId(), TipoMovimientoCaja.INGRESO, MedioPago.EFECTIVO, "30.00");
+        manual(c.getId(), TipoMovimientoCaja.EGRESO, MedioPago.EFECTIVO, "30.00");
+        manual(c.getId(), TipoMovimientoCaja.INGRESO, MedioPago.YAPE, "70.00");
+        manual(c.getId(), TipoMovimientoCaja.EGRESO, MedioPago.PLIN, "10.00");
+        var resumen = caja.resumir(c, caja.movimientos(c.getId()));
+        assertEquals(soles("100.00"), resumen.ingresos()); assertEquals(soles("40.00"), resumen.egresos());
+        assertEquals(soles("70.00"), resumen.totalRegistrado());
+        assertEquals(soles("60.00"), resumen.neto()); assertEquals(soles("60.00"), resumen.netoDigital());
+        assertEquals(soles("10.00"), resumen.efectivoEsperado());
+        mvc.perform(get("/caja/" + c.getId())).andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Saldo neto de movimientos")));
+    }
+
+    @Test void cierreFallidoConservaConteoYPermiteCorregirMotivo() throws Exception {
+        var c = caja.abrir(soles("10.00"));
+        var intento = mvc.perform(post("/caja/" + c.getId() + "/cerrar").with(csrf()).param("contado","9.00").param("observacion",""))
+                .andExpect(status().is3xxRedirection()).andExpect(flash().attribute("mostrarCierre", true))
+                .andExpect(flash().attribute("contadoCierre", soles("9.00")))
+                .andExpect(flash().attribute("error", org.hamcrest.Matchers.containsString("Faltan S/ 1.00"))).andReturn();
+        assertTrue(sesiones.findById(c.getId()).orElseThrow().isAbierta());
+        mvc.perform(get("/caja/" + c.getId()).flashAttrs(intento.getFlashMap())).andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("value=\"9.00\"")));
+        mvc.perform(post("/caja/" + c.getId() + "/cerrar").with(csrf()).param("contado","9.00").param("observacion","Faltante confirmado al contar"))
+                .andExpect(status().is3xxRedirection()).andExpect(flash().attributeExists("mensaje"));
+        var cerrada = sesiones.findById(c.getId()).orElseThrow();
+        assertFalse(cerrada.isAbierta()); assertEquals(soles("9.00"), cerrada.getEfectivoContado());
+        assertEquals(soles("-1.00"), cerrada.getDiferencia());
+    }
+
+    @Test void corteDiarioMuestraArqueoPendienteYPermiteCerrarAyerYAbrirHoy() throws Exception {
+        var c = caja.abrir(soles("10.00"));
+        c.setApertura(c.getApertura().minusDays(1)); sesiones.saveAndFlush(c);
+        assertTrue(c.isPendienteArqueo()); assertFalse(c.isOperativaHoy());
+        mvc.perform(get("/caja/" + c.getId())).andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Pendiente de arqueo")))
+                .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("data-movimientos-diarios"))));
+        mvc.perform(post("/caja/" + c.getId() + "/movimientos").with(csrf()).param("tipo","INGRESO").param("medio","YAPE")
+                .param("importe","1.00").param("concepto","No debe aceptar").param("solicitud",UUID.randomUUID().toString()))
+                .andExpect(flash().attribute("error", org.hamcrest.Matchers.containsString("pendiente de arqueo")));
+        assertEquals(0, movimientos.count());
+        mvc.perform(post("/caja/" + c.getId() + "/cerrar").with(csrf()).param("contado","10.00"))
+                .andExpect(flash().attributeExists("mensaje"));
+        mvc.perform(post("/caja/abrir").with(csrf()).param("saldoInicial","10.00"))
+                .andExpect(flash().attributeExists("mensaje"));
+        assertTrue(sesiones.findByClaveActiva(1).orElseThrow().isOperativaHoy());
+        assertFalse(sesiones.findById(c.getId()).orElseThrow().isAbierta());
+    }
+
     @Test void aperturaMovimientosDigitalesYArqueoConDiferencia() {
         var c = caja.abrir(soles("50.00"));
         manual(c.getId(), TipoMovimientoCaja.INGRESO, MedioPago.EFECTIVO, "20.00");
@@ -110,8 +160,9 @@ class CajaIntegrationTests {
     }
 
     @Test void cuotaAnteriorSeCobraEnLaCajaActualYElHistoricoNoSeImporta() {
-        turno.setFecha(turno.getFecha().minusDays(2)); turnos.saveAndFlush(turno);
         var pendiente = salidas.guardar(salida(false, MedioPago.EFECTIVO));
+        // Simula un viaje histórico ya registrado; no crea una salida retroactiva.
+        turno.setFecha(turno.getFecha().minusDays(2)); turnos.saveAndFlush(turno);
         var c = caja.abrir(soles("20.00"));
         salidas.registrarPago(pendiente.getId(), MedioPago.EFECTIVO);
         assertEquals(soles("30.00"), caja.resumir(c, caja.movimientos(c.getId())).efectivoEsperado());
@@ -167,7 +218,7 @@ class CajaIntegrationTests {
                 .andExpect(status().is3xxRedirection());
         assertEquals(soles("0.00"), sesiones.findById(c.getId()).orElseThrow().getDiferencia());
         mvc.perform(get("/caja/" + c.getId())).andExpect(status().isOk())
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("Resultado del cierre")));
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Efectivo confirmado al cerrar")));
         mvc.perform(get("/caja/999999")).andExpect(status().is3xxRedirection());
     }
 

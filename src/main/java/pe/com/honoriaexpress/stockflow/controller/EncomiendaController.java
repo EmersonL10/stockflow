@@ -52,7 +52,7 @@ public class EncomiendaController {
         try {
             var e = service.buscar(id);
             model.addAttribute("e", e); model.addAttribute("eventos", service.eventos(id));
-            model.addAttribute("salidas", e.getEstado() == EstadoEncomienda.RECIBIDA ? service.salidasDisponibles(e.getRuta()) : java.util.List.of());
+            model.addAttribute("turnos", e.getEstado() == EstadoEncomienda.RECIBIDA ? service.turnosDisponibles(e.getRuta()) : java.util.List.of());
             return "encomiendas/detalle";
         } catch (EncomiendaOperacionException ex) { flash.addFlashAttribute("error", ex.getMessage()); return "redirect:/encomiendas"; }
     }
@@ -97,6 +97,14 @@ public class EncomiendaController {
     @PostMapping("/{id}/pago")
     public String pago(@PathVariable Long id, @RequestParam(defaultValue = "EFECTIVO") MedioPago medio, RedirectAttributes flash) {
         return ejecutar(id, flash, () -> service.cobrar(id, medio), "Cobro registrado y vinculado a Caja.");
+    }
+    @PostMapping("/{id}/asignar")
+    public String asignar(@PathVariable Long id, @RequestParam(required = false) Long turnoId, RedirectAttributes flash) {
+        return ejecutar(id, flash, () -> service.asignar(id, turnoId), "Vehículo y conductor asignados. Pendiente de salida.");
+    }
+    @PostMapping("/{id}/retirar-asignacion")
+    public String retirar(@PathVariable Long id, RedirectAttributes flash) {
+        return ejecutar(id, flash, () -> service.retirarAsignacion(id), "Asignación retirada. Puede elegir otro transporte.");
     }
     @PostMapping("/{id}/despachar")
     public String despachar(@PathVariable Long id, @RequestParam(required = false) Long salidaId, RedirectAttributes flash) {

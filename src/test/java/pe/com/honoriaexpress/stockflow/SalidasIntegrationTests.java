@@ -121,6 +121,35 @@ class SalidasIntegrationTests {
         assertEquals(1,salidas.count());
     }
 
+    @Test void inicioMuestraDatosRealesSinIndicadoresDeEjemplo() throws Exception {
+        service.guardar(nueva(false));
+        var resultado = mvc.perform(get("/")).andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Cuotas por cobrar")))
+                .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("cuando implementemos"))))
+                .andReturn();
+        var resumen = (InicioService.Resumen) resultado.getModelAndView().getModel().get("resumen");
+        assertEquals(0, resumen.enEspera()); assertEquals(1, resumen.salidasHoy()); assertEquals(0, resumen.enviosActivos());
+        assertEquals(new java.math.BigDecimal("10.00"), resumen.cuotasPendientes());
+    }
+
+    @Test void registrarSalidaDesdeFilaPreseleccionaSoloUnTurnoPendiente() throws Exception {
+        mvc.perform(get("/salidas/nuevo").param("turnoId", turno.getId().toString())).andExpect(status().isOk())
+                .andExpect(model().attribute("salida", org.hamcrest.Matchers.hasProperty("turno",
+                        org.hamcrest.Matchers.hasProperty("id", org.hamcrest.Matchers.is(turno.getId())))));
+        mvc.perform(get("/salidas/nuevo").param("turnoId", "999999")).andExpect(status().isOk());
+    }
+
+    @Test void inicioYNavegacionMuestranAccionesSegunRol() throws Exception {
+        mvc.perform(get("/").with(user("operador").roles("OPERATIVO"))).andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Registrar llegada")))
+                .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("href=\"/caja\""))));
+        mvc.perform(get("/").with(user("cajero").roles("CAJA"))).andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Cobrar encomienda")))
+                .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("href=\"/turnos/nuevo\""))));
+        mvc.perform(get("/conductores").with(user("cajero").roles("CAJA"))).andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("Nuevo conductor"))));
+    }
+
     @Test void dosCobrosSimultaneosSoloRegistranUno() throws Exception {
         var s=service.guardar(nueva(false));
         int exitos=simultaneos(()->{service.registrarPago(s.getId());return null;});

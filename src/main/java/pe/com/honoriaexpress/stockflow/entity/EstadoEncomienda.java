@@ -1,7 +1,7 @@
 package pe.com.honoriaexpress.stockflow.entity;
 
 public enum EstadoEncomienda {
-    RECIBIDA("Recibida"), EN_TRANSITO("En tránsito"), DISPONIBLE("Disponible"),
+    RECIBIDA("Recibida"), ASIGNADA("Asignada"), EN_TRANSITO("En tránsito"), DISPONIBLE("Disponible"),
     ENTREGADA("Entregada"), CANCELADA("Cancelada");
 
     private final String etiqueta;

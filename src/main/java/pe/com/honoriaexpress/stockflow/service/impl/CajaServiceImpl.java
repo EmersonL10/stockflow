@@ -50,7 +50,7 @@ public class CajaServiceImpl implements CajaService {
     @Transactional
     public CajaSesion abrir(BigDecimal saldoInicial) {
         var monto = dinero(saldoInicial, true);
-        if (abierta().isPresent()) throw new CajaOperacionException("Ya hay una caja abierta. Ciérrela antes de abrir otra.");
+        if (abierta().isPresent()) throw new CajaOperacionException("Hay una caja sin arqueo final. Cuente y cierre esa caja antes de abrir la siguiente.");
         var caja = new CajaSesion();
         caja.setClaveActiva(1); caja.setApertura(LocalDateTime.now(LIMA)); caja.setAbiertaPor(usuario()); caja.setSaldoInicial(monto);
         // La restricción única protege también dos aperturas simultáneas sobre una tabla vacía.
@@ -106,7 +106,11 @@ public class CajaServiceImpl implements CajaService {
         BigDecimal diferencia = efectivo.subtract(esperado);
         String motivo = StringUtils.normalizeSpace(StringUtils.defaultString(observacion));
         if (motivo.length() > 250 || (diferencia.signum() != 0 && motivo.isEmpty())) {
-            throw new CajaOperacionException("Explique la diferencia de efectivo con un motivo de hasta 250 caracteres.");
+            throw new CajaOperacionException(diferencia.signum() == 0
+                    ? "El motivo admite hasta 250 caracteres."
+                    : "Se esperaban S/ " + esperado + " en efectivo y contó S/ " + efectivo + ". "
+                    + (diferencia.signum() < 0 ? "Faltan" : "Sobran") + " S/ " + diferencia.abs()
+                    + ". Escriba el motivo de la diferencia para cerrar (máximo 250 caracteres).");
         }
         caja.setEfectivoEsperado(esperado); caja.setEfectivoContado(efectivo); caja.setDiferencia(diferencia);
         caja.setObservacionCierre(motivo); caja.setCerradaPor(usuario()); caja.setCierre(LocalDateTime.now(LIMA)); caja.setClaveActiva(null);
@@ -121,7 +125,7 @@ public class CajaServiceImpl implements CajaService {
     }
     private void verificarHoy(CajaSesion caja) {
         if (!caja.getApertura().toLocalDate().equals(LocalDate.now(LIMA))) {
-            throw new CajaOperacionException("La caja abierta es de otra fecha. Ciérrela y abra la caja de hoy antes de registrar movimientos.");
+            throw new CajaOperacionException("Terminó el día de esta caja: está pendiente de arqueo y ya no recibe movimientos. Cuente su efectivo, cierre esa caja y abra la de hoy.");
         }
     }
     private void guardarMovimiento(CajaSesion caja, Salida salida, Encomienda encomienda, TipoMovimientoCaja tipo, MedioPago medio,

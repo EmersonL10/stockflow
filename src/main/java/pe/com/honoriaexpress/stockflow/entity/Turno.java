@@ -53,6 +53,15 @@ public class Turno {
     @Column(nullable = false)
     private LocalDate fecha;
 
+    @Size(max = 120, message = "La ruta no puede superar 120 caracteres")
+    @Column(length = 120)
+    private String rutaOperativa;
+
+    public String getRutaMostrada() {
+        return rutaOperativa == null || rutaOperativa.isBlank()
+                ? pe.com.honoriaexpress.stockflow.service.Rutas.de(sentidoRuta) : rutaOperativa;
+    }
+
 
     /*
      * ============================================================

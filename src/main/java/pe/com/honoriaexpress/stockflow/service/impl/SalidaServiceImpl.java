@@ -25,6 +25,7 @@ public class SalidaServiceImpl implements SalidaService {
     private final Validator validator;
     private final pe.com.honoriaexpress.stockflow.service.CajaService cajaService;
     private final pe.com.honoriaexpress.stockflow.repository.EncomiendaRepository encomiendas;
+    private final pe.com.honoriaexpress.stockflow.repository.EncomiendaEventoRepository eventosEncomienda;
 
     @Override
     @Transactional(readOnly = true)
@@ -94,6 +95,12 @@ public class SalidaServiceImpl implements SalidaService {
     private jakarta.persistence.EntityManager entityManager;
 
     @Override
+    @Transactional(readOnly = true)
+    public List<pe.com.honoriaexpress.stockflow.entity.Encomienda> encomiendasAsignadas(Long turnoId) {
+        return encomiendas.findByTurnoAsignadoIdAndEstadoOrderByIdAsc(turnoId, pe.com.honoriaexpress.stockflow.entity.EstadoEncomienda.ASIGNADA);
+    }
+
+    @Override
     public List<Salida> listarTodos() {
         return salidaRepository.findAllByOrderByIdDesc();
     }
@@ -129,6 +136,9 @@ public class SalidaServiceImpl implements SalidaService {
         }
         Turno turno = turnoRepository.findById(salida.getTurno().getId())
                 .orElseThrow(() -> new SalidaValidationException("turno", "El turno seleccionado no existe."));
+        if (original == null && !pe.com.honoriaexpress.stockflow.service.FechaOperativa.hoy().equals(turno.getFecha())) {
+            throw new SalidaValidationException("turno", "Seleccione una llegada registrada hoy. Los turnos antiguos quedan en el historial.");
+        }
         var cola = turnoRepository.bloquearCola(turno.getFecha(), turno.getSentidoRuta());
         // Una espera por el bloqueo puede dejar entidades ya cargadas desactualizadas.
         if (entityManager != null) {
@@ -186,8 +196,7 @@ public class SalidaServiceImpl implements SalidaService {
             throw new SalidaValidationException("estado", "La salida transporta encomiendas y no puede cancelarse desde este formulario.");
         }
         if (salida.getRutaReal() == null || salida.getRutaReal().isBlank()) {
-            salida.setRutaReal(turno.getSentidoRuta() == pe.com.honoriaexpress.stockflow.entity.SentidoRuta.PUCALLPA_HONORIA
-                    ? "Pucallpa - Honoria" : "Honoria - Pucallpa");
+            salida.setRutaReal(turno.getRutaMostrada());
         } else {
             salida.setRutaReal(salida.getRutaReal().strip());
         }
@@ -196,7 +205,34 @@ public class SalidaServiceImpl implements SalidaService {
         } else if (salida.getEstado() == EstadoSalida.CANCELADA) {
             turno.setEstado(EstadoTurno.CANCELADO);
         }
+        var paquetes = original == null ? encomiendas.bloquearAsignadas(turno.getId()) : java.util.List.<pe.com.honoriaexpress.stockflow.entity.Encomienda>of();
+        if (!paquetes.isEmpty() && !salida.isCargaConfirmada()) {
+            throw new SalidaValidationException("cargaConfirmada", "Revise las encomiendas asignadas y confirme que están cargadas antes de salir.");
+        }
+        String idsCarga = paquetes.stream().map(p -> p.getId().toString()).collect(java.util.stream.Collectors.joining(","));
+        if (!paquetes.isEmpty() && !idsCarga.equals(salida.getCargaIds())) {
+            throw new SalidaValidationException("cargaConfirmada", "La carga cambió. Vuelva a revisar las encomiendas y confirme la lista actualizada.");
+        }
+        for (var paquete : paquetes) {
+            if (!pe.com.honoriaexpress.stockflow.service.Rutas.coinciden(paquete.getRuta(), salida.getRutaMostrada())) {
+                throw new SalidaValidationException("rutaReal", "La ruta debe coincidir con las encomiendas asignadas. Retire la asignación si cambia de destino.");
+            }
+        }
+        if (original != null && encomiendas.existsBySalidaId(original.getId())
+                && !pe.com.honoriaexpress.stockflow.service.Rutas.coinciden(original.getRutaMostrada(), salida.getRutaMostrada())) {
+            throw new SalidaValidationException("rutaReal", "No se cambia la ruta de un viaje que transporta encomiendas.");
+        }
         Salida guardada = salidaRepository.saveAndFlush(salida);
+        for (var paquete : paquetes) {
+            paquete.setSalida(guardada); paquete.setEstado(pe.com.honoriaexpress.stockflow.entity.EstadoEncomienda.EN_TRANSITO);
+            encomiendas.save(paquete);
+            var evento = new pe.com.honoriaexpress.stockflow.entity.EncomiendaEvento();
+            evento.setEncomienda(paquete); evento.setAccion("DESPACHO");
+            evento.setDetalle("Carga confirmada en salida #" + guardada.getId() + " · " + turno.getVehiculo().getPlaca());
+            evento.setFecha(java.time.LocalDateTime.now(pe.com.honoriaexpress.stockflow.service.FechaOperativa.ZONA));
+            var auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+            evento.setUsuario(auth == null ? "sistema" : auth.getName()); eventosEncomienda.save(evento);
+        }
         if (nuevoCobro) cajaService.registrarCobroSalida(guardada, salida.getMedioPago());
         return guardada;
     }

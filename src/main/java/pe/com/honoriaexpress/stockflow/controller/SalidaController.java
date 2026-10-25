@@ -30,7 +30,7 @@ public class SalidaController {
     @InitBinder("salida")
     public void protegerDatosFinancieros(org.springframework.web.bind.WebDataBinder binder) {
         // Solo el identificador del turno se recibe, nunca sus datos persistidos.
-        binder.setAllowedFields("id", "turno.id", "rutaReal", "horaSalidaReal", "cantidadPasajeros", "estado", "observacion", "pagoAlSalir", "medioPago");
+        binder.setAllowedFields("id", "turno.id", "rutaReal", "horaSalidaReal", "cantidadPasajeros", "estado", "observacion", "pagoAlSalir", "medioPago", "cargaConfirmada", "cargaIds");
         binder.setDisallowedFields("cuotaAgencia", "estadoCuota", "montoRecaudado");
     }
 
@@ -44,6 +44,8 @@ public class SalidaController {
         if (fecha == null) fecha = java.time.LocalDate.now(java.time.ZoneId.of("America/Lima"));
         final var dia = fecha;
         var registros = salidaService.listarTodos();
+        model.addAttribute("totalHistorico", registros.size());
+        model.addAttribute("ultimaFecha", registros.stream().map(s -> s.getTurno().getFecha()).max(java.util.Comparator.naturalOrder()).orElse(null));
         model.addAttribute("rutas", registros.stream()
                 .map(salida -> salida.getRutaMostrada())
                 .distinct()
@@ -97,7 +99,7 @@ public class SalidaController {
     }
 
     @GetMapping("/nuevo")
-    public String nuevo(Model model) {
+    public String nuevo(Model model, @RequestParam(required = false) Long turnoId) {
 
         Salida salida = new Salida();
         salida.setEstado(EstadoSalida.EN_RUTA);
@@ -106,6 +108,9 @@ public class SalidaController {
         model.addAttribute("salida", salida);
 
         cargarDatosFormulario(model);
+        if (turnoId != null) {
+            turnoService.listarColaPendiente().stream().filter(t -> t.getId().equals(turnoId)).findFirst().ifPresent(salida::setTurno);
+        }
 
         return "salidas/formulario";
     }
@@ -193,6 +198,9 @@ public class SalidaController {
             });
         }
         model.addAttribute("turnos", turnos);
+        var manifiesto = new java.util.LinkedHashMap<Long, java.util.List<pe.com.honoriaexpress.stockflow.entity.Encomienda>>();
+        for (var turno : turnos) manifiesto.put(turno.getId(), salidaService.encomiendasAsignadas(turno.getId()));
+        model.addAttribute("manifiesto", manifiesto);
         model.addAttribute("tarifaAgencia", salidaService.getTarifaAgencia());
 
         model.addAttribute(

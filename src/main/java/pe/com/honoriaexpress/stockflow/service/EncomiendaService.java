@@ -14,6 +14,9 @@ public interface EncomiendaService {
     void editar(Long id, EncomiendaFormulario datos);
     void cobrar(Long id, MedioPago medio);
     void despachar(Long id, Long salidaId);
+    List<Turno> turnosDisponibles(String ruta);
+    void asignar(Long id, Long turnoId);
+    void retirarAsignacion(Long id);
     void recibirDestino(Long id);
     void entregar(Long id, EntregaEncomiendaFormulario datos);
     void cancelar(Long id, String motivo);

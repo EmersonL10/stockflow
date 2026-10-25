@@ -18,10 +18,11 @@ public class TurnoServiceImpl implements TurnoService {
 
     private final TurnoRepository turnoRepository;
     private final pe.com.honoriaexpress.stockflow.repository.SalidaRepository salidaRepository;
+    private final pe.com.honoriaexpress.stockflow.repository.EncomiendaRepository encomiendas;
 
     @Override
     public List<Turno> listarColaPendiente() {
-        return turnoRepository.findColaPendiente();
+        return turnoRepository.findColaPendienteDelDia(pe.com.honoriaexpress.stockflow.service.FechaOperativa.hoy());
     }
 
 
@@ -43,12 +44,25 @@ public class TurnoServiceImpl implements TurnoService {
     @Override
     @org.springframework.transaction.annotation.Transactional
     public Turno guardar(Turno turno) {
+        if (!pe.com.honoriaexpress.stockflow.service.FechaOperativa.hoy().equals(turno.getFecha())) {
+            throw new pe.com.honoriaexpress.stockflow.exception.SalidaValidationException("fecha", "Las llegadas se registran con la fecha de hoy. Los turnos antiguos se conservan en el historial.");
+        }
         if (turno.getId() != null) {
-            turnoRepository.buscarParaActualizar(turno.getId()).orElseThrow(
+            var original = turnoRepository.buscarParaActualizar(turno.getId()).orElseThrow(
                     () -> new pe.com.honoriaexpress.stockflow.exception.SalidaValidationException("id", "El turno no existe."));
+            if (!original.getFecha().equals(turno.getFecha())) {
+                throw new pe.com.honoriaexpress.stockflow.exception.SalidaValidationException("fecha", "La fecha original de una llegada no se modifica. Registre una nueva llegada para hoy.");
+            }
+            if (encomiendas.existsByTurnoAsignadoIdAndEstado(turno.getId(), pe.com.honoriaexpress.stockflow.entity.EstadoEncomienda.ASIGNADA)) {
+                throw new pe.com.honoriaexpress.stockflow.exception.SalidaValidationException("id", "Retire las encomiendas asignadas antes de modificar el turno.");
+            }
             if (salidaRepository.existsByTurnoId(turno.getId())) {
                 throw new pe.com.honoriaexpress.stockflow.exception.SalidaValidationException("id", "El turno tiene una salida registrada y no se puede modificar. Consulte su historial en Salidas.");
             }
+        }
+        if (turno.getRutaOperativa() != null && !turno.getRutaOperativa().isBlank()) {
+            turno.setRutaOperativa(turno.getRutaOperativa().strip());
+            turno.setSentidoRuta(pe.com.honoriaexpress.stockflow.service.Rutas.coinciden(turno.getRutaOperativa(), "Honoria - Pucallpa") ? SentidoRuta.HONORIA_PUCALLPA : SentidoRuta.PUCALLPA_HONORIA);
         }
         return turnoRepository.save(turno);
     }

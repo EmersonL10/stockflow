@@ -12,6 +12,7 @@ public interface SalidaService {
     void registrarPago(Long id, pe.com.honoriaexpress.stockflow.entity.MedioPago medio);
 
     List<Salida> listarTodos();
+    List<pe.com.honoriaexpress.stockflow.entity.Encomienda> encomiendasAsignadas(Long turnoId);
 
     Optional<Salida> buscarPorId(Long id);
 

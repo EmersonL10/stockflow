@@ -32,6 +32,7 @@ public class TurnoController {
     @GetMapping
     public String listar(Model model) {
         model.addAttribute("cola", turnoService.listarColaPendiente());
+        model.addAttribute("fechaCola", pe.com.honoriaexpress.stockflow.service.FechaOperativa.hoy());
 
         model.addAttribute(
                 "turnos",
@@ -51,11 +52,16 @@ public class TurnoController {
     public String mostrarFormulario(Model model) {
 
         Turno turno = new Turno();
+        turno.setFecha(pe.com.honoriaexpress.stockflow.service.FechaOperativa.hoy());
+        turno.setSentidoRuta(SentidoRuta.PUCALLPA_HONORIA);
+        turno.setRutaOperativa("Pucallpa - Honoria");
+        turno.setHoraProgramada(java.time.LocalTime.now(pe.com.honoriaexpress.stockflow.service.FechaOperativa.ZONA).withSecond(0).withNano(0));
 
         turno.setEstado(
                 EstadoTurno.PROGRAMADO
         );
 
+        if (turno.getRutaOperativa() == null) turno.setRutaOperativa(turno.getRutaMostrada());
         model.addAttribute(
                 "turno",
                 turno
@@ -85,6 +91,7 @@ public class TurnoController {
                         )
                 );
 
+        if (turno.getRutaOperativa() == null) turno.setRutaOperativa(turno.getRutaMostrada());
         model.addAttribute(
                 "turno",
                 turno
@@ -114,6 +121,10 @@ public class TurnoController {
          * ========================================================
          */
 
+        if (turno.getRutaOperativa() != null && !turno.getRutaOperativa().isBlank()) {
+            turno.setRutaOperativa(turno.getRutaOperativa().strip());
+            turno.setSentidoRuta(pe.com.honoriaexpress.stockflow.service.Rutas.coinciden(turno.getRutaOperativa(), "Honoria - Pucallpa") ? SentidoRuta.HONORIA_PUCALLPA : SentidoRuta.PUCALLPA_HONORIA);
+        }
         if (datosBasicosValidos(turno)) {
 
             if (turno.getId() == null) {
