@@ -1,30 +1,16 @@
 # Seguimiento de la rúbrica del Proyecto Integrador
 
-La rúbrica suma 20 puntos. Esta matriz identifica evidencia y trabajo pendiente; no constituye una nota ni una garantía de evaluación.
+Evaluación de evidencias al 25/10/2026 sobre develop cc264aa. Los 20 puntos son el máximo de la rúbrica, no una calificación asignada por este documento.
 
-| Criterio | Máximo | Evidencia disponible | Pendiente |
+| Criterio | Máximo | Evidencia concreta | Cierre pendiente |
 | --- | ---: | --- | --- |
-| Diseño | 3 | MVC, repositorios como DAO, ejemplos SOLID y seguridad en arquitectura.md | Sustentar con código y recorrido funcional |
-| Recursos Java | 2 | POI, Guava, Commons y Logback aplicados, pruebas y librerias-java.md | Capturas y demostración del estudiante |
-| Git | 3 | PR anteriores #4 y #5; modificaciones y archivos nuevos locales para esta funcionalidad | El estudiante debe crear rama, commits y PR de este trabajo y documentos; no se ha ejecutado Git automáticamente |
-| Interfaces | 6 | Conductores, Vehículos, Turnos, Salidas, exportación, Caja operativa y Encomiendas | Confirmar el alcance aprobado, mapear cada requisito y completar módulos comprometidos |
-| Producto final | 4 | Código organizado, pruebas y documentación técnica | Alcance completo, documentos académicos alineados, datos de prueba identificados y dominio del estudiante |
-| Sustentación | 2 | Guía de preguntas y recorrido | Ensayo individual y demostración |
+| Diseño | 3 | MVC; repositorios JPA como DAO; SRP y DIP como ejemplos SOLID; roles, BCrypt y CSRF | Sustentar tres enfoques con código. No afirmar TDD histórico |
+| Recursos Java | 2 | Guava agrupa rutas, POI genera XLSX, Commons normaliza filtros, Logback procesa registros SLF4J | Demostración y capturas explicadas |
+| Git | 3 | PR #4 a #10 fusionados a develop según las salidas compartidas; ramas y commits técnicos | Versionar los entregables de esta rama y preparar publicación final |
+| Interfaces | 6 | RF01 a RF18 de alcance-trazabilidad.md; pantallas operativas y 84 comprobaciones responsive | Presentar la delimitación al docente; ocho casos QA de registros verificados |
+| Producto final | 4 | 77 pruebas Java aprobadas; servicios transaccionales; documentación y trazabilidad | Revisión final del informe y dominio del código |
+| Sustentación | 2 | Guía de recorrido y respuestas con clases y pruebas | Ensayo del estudiante y evaluación oral |
 
-## Alcance que debe confirmarse
+No hubo una lista previa comprometida por el estudiante. El alcance actual se delimita de forma explícita en alcance-trazabilidad.md, sin inventar una aprobación anterior. No se declara cobertura de módulos excluidos ni garantía de 20/20.
 
-No se dispone aquí de una lista validada de requisitos comprometidos al docente. Caja incluye apertura, ingresos y egresos, vínculo con cobros y cierre por sesión; no incluye conciliación bancaria automática, comprobantes ni devoluciones. Encomiendas incluye registro, pago completo, despacho, recepción y entrega con historial; sus límites se describen en encomiendas.md. No se declaran terminadas las demás funciones sin contrastarlas con el alcance aprobado.
-
-Agregar cada requisito aprobado con su ID, descripción, pantalla, clase responsable, prueba, estado y evidencia. No asignar porcentajes de cobertura hasta completar ese inventario.
-
-## Preguntas para la sustentación
-
-1. ¿Dónde comienza y termina el registro de una salida? Mostrar formulario, controlador, servicio y repositorio.
-2. ¿Qué diferencia existe entre cuota generada, pendiente, pagada y cobrada durante un día?
-3. ¿Cómo se impide un cobro duplicado? Mostrar transacción, bloqueo y prueba concurrente.
-4. ¿Para qué sirve cada librería? Mostrar sus llamadas y descargar un Excel real.
-5. ¿Qué ocurre si un texto exportado empieza por el signo igual? Mostrar su tipo STRING.
-6. ¿Por qué el repositorio cumple el papel de DAO? Explicar la separación de acceso a datos.
-7. ¿Qué principio SOLID se puede demostrar y dónde? Evitar afirmar TDD sin historial verificable.
-8. ¿Cómo llegó un cambio de una rama funcional a develop? Explicar commit, push, PR y merge.
-9. ¿Qué funciones siguen pendientes y por qué? Distinguir alcance implementado de propuestas.
+main, tag y release se preparan tras revisar los entregables. Son parte del flujo elegido; no se presentan como exigencias expresas de esta rúbrica. CI no reporta checks en el PR #10: las pruebas acreditadas son locales. La publicación en GitHub no implica despliegue de la aplicación.

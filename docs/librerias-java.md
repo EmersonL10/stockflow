@@ -34,3 +34,5 @@ El perfil test recrea tablas únicamente en `stockflow_test_codex`. No dirigirlo
 Verificación del 24/10/2026: 37 pruebas aprobadas, sin fallos, errores ni omisiones. Descarga autenticada en Chromium sobre localhost:18080 y base de QA, con cinco anchos de pantalla sin desbordamiento. Evidencias locales en `target/evidencias-librerias`; `scripts/verificar-exportacion.cjs` permite repetir la comprobación contra la instancia aislada. El archivo descargado contiene datos de QA, no datos de producción.
 
 Referencias: [Apache POI](https://poi.apache.org/components/spreadsheet/quick-guide.html), [Guava](https://github.com/google/guava/releases), [Commons Lang](https://commons.apache.org/proper/commons-lang/apidocs/org/apache/commons/lang3/StringUtils.html), [Logback](https://logback.qos.ch/manual/).
+
+La validación posterior del 25/10/2026 amplió la suite general a 77 pruebas aprobadas. El informe y el resumen saneado de Surefire están en entregables y evidencias; la cifra de 37 corresponde a la verificación histórica de la incorporación del reporte, no al total actual.
