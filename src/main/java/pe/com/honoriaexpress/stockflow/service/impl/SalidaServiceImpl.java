@@ -185,7 +185,7 @@ public class SalidaServiceImpl implements SalidaService {
             salida.setFechaPago(null);
             salida.setPagoRegistradoPor(null);
             if (salida.isPagoAlSalir()) { sellarPago(salida); nuevoCobro = true; }
-        } else {
+        } else if (original != null) {
             salida.setCuotaAgencia(original.getCuotaAgencia());
             salida.setEstadoCuota(original.getEstadoCuota());
             salida.setFechaPago(original.getFechaPago());
