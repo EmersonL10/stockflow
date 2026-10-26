@@ -13,6 +13,7 @@
             <a th:href="@{/encomiendas}" sec:authorize="hasAnyRole('ADMINISTRADOR','OPERATIVO','CAJA')" th:attr="aria-current=${activePage == 'encomiendas' ? 'page' : null}" th:classappend="${activePage == 'encomiendas'} ? ' active' : ''">Encomiendas</a>
             <span class="nav-heading" sec:authorize="hasAnyRole('ADMINISTRADOR','CAJA')">Cobros</span>
             <a th:href="@{/caja}" sec:authorize="hasAnyRole('ADMINISTRADOR','CAJA')" th:attr="aria-current=${activePage == 'caja' ? 'page' : null}" th:classappend="${activePage == 'caja'} ? ' active' : ''">Caja</a>
+            <a th:href="@{/reportes}" sec:authorize="hasAnyRole('ADMINISTRADOR','OPERATIVO','CAJA')" th:attr="aria-current=${activePage == 'reportes' ? 'page' : null}" th:classappend="${activePage == 'reportes'} ? ' active' : ''">Reportes</a>
             <span class="nav-heading">Registros</span>
             <a th:href="@{/conductores}" th:attr="aria-current=${activePage == 'conductores' ? 'page' : null}" th:classappend="${activePage == 'conductores'} ? ' active' : ''">Conductores</a>
             <a th:href="@{/vehiculos}" th:attr="aria-current=${activePage == 'vehiculos' ? 'page' : null}" th:classappend="${activePage == 'vehiculos'} ? ' active' : ''">Vehículos</a>

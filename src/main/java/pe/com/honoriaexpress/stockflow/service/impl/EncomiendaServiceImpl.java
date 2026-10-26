@@ -27,6 +27,7 @@ public class EncomiendaServiceImpl implements EncomiendaService {
     private final TurnoRepository turnos;
     private final CajaService caja;
     private final Validator validator;
+    private final ValidacionTransporteService validacionTransporte;
     @jakarta.persistence.PersistenceContext
     private jakarta.persistence.EntityManager entityManager;
 
@@ -93,6 +94,7 @@ public class EncomiendaServiceImpl implements EncomiendaService {
 
     public List<Turno> turnosDisponibles(String ruta) {
         return turnos.findColaPendienteDelDia(FechaOperativa.hoy()).stream()
+                .filter(validacionTransporte::estaActivo)
                 .filter(t -> Rutas.coinciden(t.getRutaMostrada(), ruta)).toList();
     }
 
@@ -107,6 +109,11 @@ public class EncomiendaServiceImpl implements EncomiendaService {
                 || (turno.getEstado() != EstadoTurno.PROGRAMADO && turno.getEstado() != EstadoTurno.EN_ESPERA)
                 || !Rutas.coinciden(turno.getRutaMostrada(), e.getRuta())) {
             throw new EncomiendaOperacionException("Elija un turno en espera de hoy y de la misma ruta.");
+        }
+        try {
+            validacionTransporte.validar(turno);
+        } catch (pe.com.honoriaexpress.stockflow.exception.SalidaValidationException ex) {
+            throw new EncomiendaOperacionException(ex.getMessage());
         }
         e.setTurnoAsignado(turno); e.setEstado(EstadoEncomienda.ASIGNADA); encomiendas.saveAndFlush(e);
         evento(e, "ASIGNACION", "Transporte asignado: " + turno.getVehiculo().getPlaca() + " · "

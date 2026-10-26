@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Reportes | StockFlow</title><link rel="stylesheet" th:href="@{/css/dashboard.css}"></head>
+<body><div class="layout"><aside th:replace="~{fragments/sidebar :: sidebar('reportes')}"></aside>
+<main class="main-content">
+    <header class="topbar"><div><span class="eyebrow">Consultas</span><h1>Reportes</h1></div></header>
+    <section class="panel">
+        <form class="stack-form" method="get" th:action="@{/reportes}">
+            <div class="field-grid reporte-filtros">
+                <div><label for="modulo">¿Qué deseas consultar?</label><select id="modulo" name="modulo">
+                    <option value="SALIDAS" th:selected="${modulo.name() == 'SALIDAS'}">Salidas</option>
+                    <option value="ENCOMIENDAS" th:selected="${modulo.name() == 'ENCOMIENDAS'}">Encomiendas</option>
+                    <option value="CAJA" sec:authorize="hasAnyRole('ADMINISTRADOR','CAJA')" th:selected="${modulo.name() == 'CAJA'}">Caja</option>
+                </select></div>
+                <div><label for="desde">Desde</label><input id="desde" type="date" name="desde" th:value="${desde}" required></div>
+                <div><label for="hasta">Hasta</label><input id="hasta" type="date" name="hasta" th:value="${hasta}" required></div>
+            </div>
+            <div class="form-actions"><a class="text-link" th:href="@{/reportes}">Ver hoy</a><button class="secondary-button" type="submit" th:formaction="@{/reportes/exportar}">Descargar Excel</button><button class="primary-button" type="submit">Consultar</button></div>
+        </form>
+    </section>
+    <div class="error-message" role="alert" th:if="${error}" th:text="${error}"></div>
+    <section class="panel" th:if="${resultado != null}">
+        <div class="section-heading"><h2 th:text="${resultado.modulo.etiqueta}"></h2><span class="muted" th:text="${#lists.size(resultado.filas) + ' registro(s)'}"></span></div>
+        <p class="muted" th:text="${resultado.criterioFecha}"></p>
+        <div class="cards"><article class="card" th:each="indicador : ${resultado.indicadores}"><span th:text="${indicador.nombre}"></span><strong th:text="${'S/ ' + #numbers.formatDecimal(indicador.importe, 1, 2, 'POINT')}"></strong></article></div>
+        <div class="table-responsive"><table class="data-table"><thead><tr><th>Fecha y hora</th><th>Referencia</th><th>Detalle</th><th>Estado</th><th>Importe</th></tr></thead><tbody>
+            <tr th:each="fila : ${filas}"><td data-label="Fecha y hora" th:text="${#temporals.format(fila.fecha, 'dd/MM/yyyy HH:mm')}"></td><td data-label="Referencia" th:text="${fila.referencia}"></td><td data-label="Detalle" th:text="${fila.detalle}"></td><td data-label="Estado" th:text="${fila.estado}"></td><td data-label="Importe" th:text="${fila.importe == null ? 'Sin determinar' : 'S/ ' + #numbers.formatDecimal(fila.importe, 1, 2, 'POINT')}"></td></tr>
+            <tr th:if="${#lists.isEmpty(filas)}"><td colspan="5">No hay registros en este período.</td></tr>
+        </tbody></table></div>
+        <nav class="form-actions" aria-label="Páginas del reporte" th:if="${paginas > 1}"><a class="secondary-button" th:if="${pagina > 0}" th:href="@{/reportes(modulo=${modulo},desde=${desde},hasta=${hasta},pagina=${pagina - 1})}">Anterior</a><span th:text="${'Página ' + (pagina + 1) + ' de ' + paginas}"></span><a class="secondary-button" th:if="${pagina + 1 < paginas}" th:href="@{/reportes(modulo=${modulo},desde=${desde},hasta=${hasta},pagina=${pagina + 1})}">Siguiente</a></nav>
+    </section>
+</main></div></body></html>

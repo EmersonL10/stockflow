@@ -7,6 +7,9 @@ import pe.com.honoriaexpress.stockflow.entity.*;
 import java.util.*;
 
 public interface EncomiendaRepository extends JpaRepository<Encomienda, Long>, JpaSpecificationExecutor<Encomienda> {
+    List<Encomienda> findByRegistradaEnGreaterThanEqualAndRegistradaEnLessThanOrderByRegistradaEnDescIdDesc(
+            java.time.LocalDateTime inicio, java.time.LocalDateTime fin, org.springframework.data.domain.Pageable limite);
+
     long countByEstadoIn(Collection<EstadoEncomienda> estados);
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select e from Encomienda e where e.id = :id")

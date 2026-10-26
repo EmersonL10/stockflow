@@ -51,6 +51,10 @@ public class Vehiculo {
     )
     private String placa;
 
+    @Size(max = 120, message = "El propietario no debe superar los 120 caracteres")
+    @Column(length = 120)
+    private String propietario;
+
     /*
      * Marca comercial.
      * Ejemplo: Toyota, Hyundai, Nissan.

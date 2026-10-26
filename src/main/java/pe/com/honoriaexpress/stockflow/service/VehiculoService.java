@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface VehiculoService {
+    org.springframework.data.domain.Page<pe.com.honoriaexpress.stockflow.entity.Turno> historial(Long id, int pagina);
+
 
     List<Vehiculo> listarTodos();
 

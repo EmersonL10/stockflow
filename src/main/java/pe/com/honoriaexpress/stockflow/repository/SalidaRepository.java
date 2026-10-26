@@ -6,6 +6,9 @@ import pe.com.honoriaexpress.stockflow.entity.Salida;
 import java.util.List;
 
 public interface SalidaRepository extends JpaRepository<Salida, Long> {
+    List<Salida> findByTurnoFechaBetweenOrderByTurnoFechaDescIdDesc(java.time.LocalDate desde,
+            java.time.LocalDate hasta, org.springframework.data.domain.Pageable limite);
+
     long countByTurnoFechaAndEstadoIn(java.time.LocalDate fecha, java.util.Collection<pe.com.honoriaexpress.stockflow.entity.EstadoSalida> estados);
     @org.springframework.data.jpa.repository.Query("select sum(s.cuotaAgencia) from Salida s where s.estadoCuota = pe.com.honoriaexpress.stockflow.entity.EstadoCuota.PENDIENTE and s.estado <> pe.com.honoriaexpress.stockflow.entity.EstadoSalida.CANCELADA")
     java.math.BigDecimal sumarCuotasPendientes();
