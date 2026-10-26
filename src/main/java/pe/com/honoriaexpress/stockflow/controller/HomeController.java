@@ -11,6 +11,11 @@ public class HomeController {
     @GetMapping("/")
     public String home(org.springframework.ui.Model model) {
         model.addAttribute("resumen", inicio.consultar());
+        var auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getAuthorities().stream().anyMatch(a ->
+                a.getAuthority().equals("ROLE_ADMINISTRADOR") || a.getAuthority().equals("ROLE_CAJA"))) {
+            model.addAttribute("ingresosHoy", inicio.ingresosHoy());
+        }
         return "home";
     }
 }

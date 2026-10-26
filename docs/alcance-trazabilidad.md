@@ -26,3 +26,12 @@ Alcance delimitado para esta entrega a partir de las funciones implementadas. No
 ## Fuera de este alcance
 
 Venta individual de pasajes, mantenimiento de vehículos, sanciones, facturación fiscal, conciliación automática con bancos/billeteras, devoluciones y despliegue productivo. La gestión de cuentas por una interfaz administrativa tampoco se declara implementada. No se atribuyen funciones al sistema por la mera existencia de tablas antiguas.
+
+## Ampliación verificada el 26/10/2026
+
+- Reportes por rango inclusivo y módulo: Salidas, Encomiendas y Caja, con Excel y permisos. `ReporteService` y `ReportesIntegrationTests`.
+- Inicio: vehículos activos e ingresos recibidos hoy; el importe financiero se entrega solo a Administrador y Caja.
+- Vehículos: propietario opcional e historial paginado de conductores por los turnos registrados.
+- Registros activos: validación transaccional de nuevas llegadas, partidas y asignaciones. `RegistrosActivosIntegrationTests`.
+
+Suite completa: 109 pruebas aprobadas. Navegador: 28 comprobaciones responsive y tres descargas Excel. Los cambios locales requieren revisión e integración en GitHub. Ver [reportes](reportes.md) y [evidencia de ejecución](evidencias/reportes-2026-10-26.json).

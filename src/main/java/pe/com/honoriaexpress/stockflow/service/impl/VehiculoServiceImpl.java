@@ -14,6 +14,15 @@ import java.util.Optional;
 public class VehiculoServiceImpl implements VehiculoService {
 
     private final VehiculoRepository vehiculoRepository;
+    private final pe.com.honoriaexpress.stockflow.repository.TurnoRepository turnos;
+
+    @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public org.springframework.data.domain.Page<pe.com.honoriaexpress.stockflow.entity.Turno> historial(Long id, int pagina) {
+        return turnos.findByVehiculoIdOrderByFechaDescNumeroTurnoAsc(id,
+                org.springframework.data.domain.PageRequest.of(Math.max(0, pagina), 25));
+    }
+
 
     @Override
     public List<Vehiculo> listarTodos() {
@@ -27,6 +36,10 @@ public class VehiculoServiceImpl implements VehiculoService {
 
     @Override
     public Vehiculo guardar(Vehiculo vehiculo) {
+        if (vehiculo.getPropietario() != null) {
+            String propietario = vehiculo.getPropietario().strip();
+            vehiculo.setPropietario(propietario.isEmpty() ? null : propietario);
+        }
         return vehiculoRepository.save(vehiculo);
     }
 

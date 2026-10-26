@@ -15,11 +15,13 @@
             <a class="quick-action" sec:authorize="hasRole('CAJA') and !hasRole('ADMINISTRADOR')" th:href="@{/encomiendas(pago='PENDIENTE')}"><span class="action-symbol" aria-hidden="true">→</span><strong>Cobrar encomienda</strong><span>Ver envíos pendientes de pago</span></a>
         </div><a class="text-link" th:href="@{/salidas(todasFechas=true)}">Consultar viajes registrados</a></section>
     <section class="panel"><div class="section-heading"><h2>Resumen de la agencia</h2><span class="muted">Datos actualizados al abrir esta página</span></div>
-        <div class="cards">
+        <div class="cards inicio-indicadores">
             <a class="card metric-link" th:href="@{/turnos}"><span>En espera hoy</span><strong th:text="${resumen.enEspera}"></strong><small>Vehículos por salir</small></a>
             <a class="card metric-link" th:href="@{/salidas}"><span>Salidas de hoy</span><strong th:text="${resumen.salidasHoy}"></strong><small>En ruta o finalizadas</small></a>
             <a class="card metric-link" th:href="@{/encomiendas}"><span>Encomiendas activas</span><strong th:text="${resumen.enviosActivos}"></strong><small>Aún no entregadas</small></a>
             <a class="card metric-link" th:href="@{/salidas(pago='PENDIENTE',todasFechas=true)}"><span>Cuotas por cobrar</span><strong th:text="${'S/ ' + resumen.cuotasPendientes}"></strong><small>Salidas de todas las fechas</small></a>
+            <a class="card metric-link" th:href="@{/vehiculos}"><span>Vehículos activos</span><strong th:text="${resumen.vehiculosActivos}"></strong><small>Unidades habilitadas</small></a>
+            <a class="card metric-link" sec:authorize="hasAnyRole('ADMINISTRADOR','CAJA')" th:href="@{/reportes(modulo='CAJA',desde=${resumen.fecha},hasta=${resumen.fecha})}"><span>Ingresos de hoy</span><strong th:text="${'S/ ' + ingresosHoy}"></strong><small>Cobros y otros ingresos en efectivo y digital</small></a>
         </div></section>
     <section class="panel getting-started" sec:authorize="hasAnyRole('ADMINISTRADOR','OPERATIVO')"><h2>El recorrido de un vehículo</h2>
         <ol class="simple-steps"><li><b>1</b><span><strong>Turnos</strong>Registra su llegada.</span></li><li><b>2</b><span><strong>Salidas</strong>Registra cuándo sale.</span></li><li><b>3</b><span><strong>Caja</strong>Confirma el cobro cuando pague.</span></li></ol></section>

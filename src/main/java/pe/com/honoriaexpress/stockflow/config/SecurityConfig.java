@@ -52,6 +52,9 @@ public class SecurityConfig {
                                 "/images/**"
                         ).permitAll()
 
+                        .requestMatchers("/reportes", "/reportes/**")
+                        .hasAnyRole("ADMINISTRADOR", "OPERATIVO", "CAJA")
+
                         .requestMatchers("/admin/**")
                         .hasRole("ADMINISTRADOR")
 

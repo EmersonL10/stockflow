@@ -26,6 +26,7 @@ public class SalidaServiceImpl implements SalidaService {
     private final pe.com.honoriaexpress.stockflow.service.CajaService cajaService;
     private final pe.com.honoriaexpress.stockflow.repository.EncomiendaRepository encomiendas;
     private final pe.com.honoriaexpress.stockflow.repository.EncomiendaEventoRepository eventosEncomienda;
+    private final pe.com.honoriaexpress.stockflow.service.ValidacionTransporteService validacionTransporte;
 
     @Override
     @Transactional(readOnly = true)
@@ -159,6 +160,11 @@ public class SalidaServiceImpl implements SalidaService {
         } else if (turno.getEstado() == EstadoTurno.CANCELADO || turno.getEstado() == EstadoTurno.COMPLETADO) {
             throw new SalidaValidationException("turno", "El turno ya no está en espera.");
         }
+        boolean iniciaViaje = original == null || (original.getEstado() == EstadoSalida.PROGRAMADA
+                && (salida.getEstado() == EstadoSalida.EN_RUTA || salida.getEstado() == EstadoSalida.FINALIZADA));
+        if (iniciaViaje) {
+            validacionTransporte.validar(turno);
+        }
         boolean duplicado = salida.getId() == null
                 ? salidaRepository.existsByTurnoId(turno.getId())
                 : salidaRepository.existsByTurnoIdAndIdNot(turno.getId(), salida.getId());
@@ -169,8 +175,7 @@ public class SalidaServiceImpl implements SalidaService {
             throw new SalidaValidationException("cantidadPasajeros", "La cantidad de pasajeros supera la capacidad del vehículo.");
         }
         salida.setTurno(turno);
-        if (original == null || (original.getEstado() == EstadoSalida.PROGRAMADA
-                && (salida.getEstado() == EstadoSalida.EN_RUTA || salida.getEstado() == EstadoSalida.FINALIZADA))) {
+        if (iniciaViaje) {
             if (tarifaAgencia == null || tarifaAgencia.signum() < 0 || tarifaAgencia.scale() > 2
                     || tarifaAgencia.compareTo(new java.math.BigDecimal("99999999.99")) > 0) {
                 throw new IllegalStateException("La tarifa de agencia debe ser un importe válido con hasta dos decimales.");
@@ -180,7 +185,7 @@ public class SalidaServiceImpl implements SalidaService {
             salida.setFechaPago(null);
             salida.setPagoRegistradoPor(null);
             if (salida.isPagoAlSalir()) { sellarPago(salida); nuevoCobro = true; }
-        } else {
+        } else if (original != null) {
             salida.setCuotaAgencia(original.getCuotaAgencia());
             salida.setEstadoCuota(original.getEstadoCuota());
             salida.setFechaPago(original.getFechaPago());

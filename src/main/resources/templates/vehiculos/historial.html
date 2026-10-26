@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Historial del vehículo | StockFlow</title><link rel="stylesheet" th:href="@{/css/dashboard.css}"></head>
+<body><div class="layout"><aside th:replace="~{fragments/sidebar :: sidebar('vehiculos')}"></aside><main class="main-content">
+<header class="topbar"><div><span class="eyebrow">Vehículos / Historial</span><h1 th:text="${vehiculo.placa}"></h1><p th:text="${'Propietario: ' + (#strings.isEmpty(vehiculo.propietario) ? 'Sin registrar' : vehiculo.propietario)}"></p></div><a class="secondary-button" th:href="@{/vehiculos}">Volver a vehículos</a></header>
+<section class="panel"><div class="section-heading"><h2>Conductores y llegadas registradas</h2><span class="muted" th:text="${historial.totalElements + ' registro(s)'}"></span></div>
+<div class="table-responsive"><table class="data-table"><thead><tr><th>Fecha</th><th>Conductor</th><th>Ruta</th><th>Orden</th><th>Estado</th><th>Consulta</th></tr></thead><tbody>
+<tr th:each="turno : ${historial.content}"><td data-label="Fecha" th:text="${#temporals.format(turno.fecha, 'dd/MM/yyyy')}"></td><td data-label="Conductor" th:text="${turno.conductor.nombres + ' ' + turno.conductor.apellidos}"></td><td data-label="Ruta" th:text="${turno.rutaMostrada}"></td><td data-label="Orden" th:text="${turno.numeroTurno}"></td><td data-label="Estado" th:text="${turno.estado.etiqueta}"></td><td data-label="Consulta"><a class="text-link" th:href="@{/salidas(fecha=${turno.fecha},placa=${vehiculo.placa})}">Ver viajes</a></td></tr>
+<tr th:if="${historial.empty}"><td colspan="6">Este vehículo todavía no tiene llegadas registradas.</td></tr>
+</tbody></table></div>
+<nav class="form-actions" aria-label="Páginas del historial" th:if="${historial.totalPages > 1}"><a class="secondary-button" th:if="${historial.hasPrevious()}" th:href="@{/vehiculos/{id}/historial(id=${vehiculo.id},pagina=${historial.number - 1})}">Anterior</a><span th:text="${'Página ' + (historial.number + 1) + ' de ' + historial.totalPages}"></span><a class="secondary-button" th:if="${historial.hasNext()}" th:href="@{/vehiculos/{id}/historial(id=${vehiculo.id},pagina=${historial.number + 1})}">Siguiente</a></nav>
+</section></main></div></body></html>

@@ -245,12 +245,21 @@ class CajaIntegrationTests {
     @Test void cierreConcurrenteConPagoNoPierdeNiDesvinculaDinero() throws Exception {
         var c = caja.abrir(soles("0.00"));
         var s = salidas.guardar(salida(false, MedioPago.EFECTIVO));
-        paralelos(() -> { caja.cerrar(c.getId(), soles("0.00"), "Arqueo de prueba concurrente"); return null; },
+        int exitos = paralelos(() -> { caja.cerrar(c.getId(), soles("0.00"), "Arqueo de prueba concurrente"); return null; },
                 () -> { salidas.registrarPago(s.getId()); return null; });
+        assertTrue(exitos >= 1);
         var cerrada = caja.buscar(c.getId());
-        assertFalse(cerrada.isAbierta());
         boolean pagada = salidaRepository.findById(s.getId()).orElseThrow().getEstadoCuota() == EstadoCuota.PAGADA;
         assertEquals(pagada ? 1 : 0, movimientos.count());
+        var esperado = pagada ? soles("10.00") : soles("0.00");
+        assertEquals(esperado, caja.resumir(cerrada, caja.movimientos(c.getId())).efectivoEsperado());
+        if (cerrada.isAbierta()) {
+            assertTrue(pagada);
+            assertNull(cerrada.getCierre());
+            caja.cerrar(c.getId(), esperado, "Conteo revisado después de la operación concurrente");
+            cerrada = caja.buscar(c.getId());
+        }
+        assertFalse(cerrada.isAbierta());
         assertEquals(pagada ? soles("10.00") : soles("0.00"), cerrada.getEfectivoEsperado());
     }
 

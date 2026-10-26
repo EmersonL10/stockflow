@@ -139,3 +139,9 @@ details.panel > summary { padding:0; font-size:15px; color:var(--ink); } details
 .caja-saldo .help-details { margin-top:20px; }
 #resultadoConteo { margin:0; }
 @media(max-width:600px){.caja-saldo > .cards{grid-template-columns:1fr}.caja-saldo .caja-total{font-size:34px}}
+
+/* Indicadores y filtros de reportes. */
+.inicio-indicadores { grid-template-columns:repeat(3,minmax(0,1fr)); }
+.reporte-filtros { grid-template-columns:repeat(3,minmax(0,1fr)); }
+@media(max-width:1000px){.inicio-indicadores{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){.inicio-indicadores,.reporte-filtros{grid-template-columns:1fr}}
