@@ -42,9 +42,13 @@ public class EncomiendaServiceImpl implements EncomiendaService {
             }
             if (estado != null) condiciones.add(cb.equal(root.get("estado"), estado));
             if (pago != null) condiciones.add(cb.equal(root.get("estadoPago"), pago));
+            if (query != null) {
+                var identificador = root.getModel().getId(Long.class);
+                query.orderBy(cb.desc(root.get(identificador)));
+            }
             return cb.and(condiciones.toArray(jakarta.persistence.criteria.Predicate[]::new));
         };
-        return encomiendas.findAll(filtro, PageRequest.of(Math.max(0, pagina), 20, Sort.by(Sort.Direction.DESC, "id")));
+        return encomiendas.findAll(filtro, PageRequest.of(Math.max(0, pagina), 20));
     }
 
     public Encomienda buscar(Long id) {
