@@ -19,10 +19,12 @@ public class TurnoServiceImpl implements TurnoService {
     private final TurnoRepository turnoRepository;
     private final pe.com.honoriaexpress.stockflow.repository.SalidaRepository salidaRepository;
     private final pe.com.honoriaexpress.stockflow.repository.EncomiendaRepository encomiendas;
+    private final pe.com.honoriaexpress.stockflow.service.ValidacionTransporteService validacionTransporte;
 
     @Override
     public List<Turno> listarColaPendiente() {
-        return turnoRepository.findColaPendienteDelDia(pe.com.honoriaexpress.stockflow.service.FechaOperativa.hoy());
+        return turnoRepository.findColaPendienteDelDia(pe.com.honoriaexpress.stockflow.service.FechaOperativa.hoy())
+                .stream().filter(validacionTransporte::estaActivo).toList();
     }
 
 
@@ -60,6 +62,7 @@ public class TurnoServiceImpl implements TurnoService {
                 throw new pe.com.honoriaexpress.stockflow.exception.SalidaValidationException("id", "El turno tiene una salida registrada y no se puede modificar. Consulte su historial en Salidas.");
             }
         }
+        validacionTransporte.validar(turno);
         if (turno.getRutaOperativa() != null && !turno.getRutaOperativa().isBlank()) {
             turno.setRutaOperativa(turno.getRutaOperativa().strip());
             turno.setSentidoRuta(pe.com.honoriaexpress.stockflow.service.Rutas.coinciden(turno.getRutaOperativa(), "Honoria - Pucallpa") ? SentidoRuta.HONORIA_PUCALLPA : SentidoRuta.PUCALLPA_HONORIA);

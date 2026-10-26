@@ -29,7 +29,7 @@ La configuración rota por día y tamaño de 10 MB, conserva hasta 14 días y ap
 .\mvnw.cmd dependency:tree "-Dincludes=org.apache.poi:*,com.google.guava:*,org.apache.commons:commons-lang3,ch.qos.logback:*"
 ```
 
-El perfil test recrea tablas únicamente en `stockflow_test_codex`. No dirigirlo a una base operativa. Las versiones están declaradas en el POM y Logback está administrado por Spring Boot.
+El perfil test recrea tablas únicamente en `stockflow_test`. No dirigirlo a una base operativa. Las versiones están declaradas en el POM y Logback está administrado por Spring Boot.
 
 Verificación del 24/10/2026: 37 pruebas aprobadas, sin fallos, errores ni omisiones. Descarga autenticada en Chromium sobre localhost:18080 y base de QA, con cinco anchos de pantalla sin desbordamiento. Evidencias locales en `target/evidencias-librerias`; `scripts/verificar-exportacion.cjs` permite repetir la comprobación contra la instancia aislada. El archivo descargado contiene datos de QA, no datos de producción.
 

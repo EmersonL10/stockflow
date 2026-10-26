@@ -1,4 +1,4 @@
-// Ejecutar únicamente sobre localhost:18080 y stockflow_qa_codex.
+// Ejecutar únicamente sobre localhost:18080 y stockflow_qa.
 // Requiere dos turnos pendientes con vehículos QA-001 y QA-002, y ninguna caja abierta.
 const { chromium } = require('playwright');
 const fs = require('node:fs');

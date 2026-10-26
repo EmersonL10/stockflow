@@ -36,6 +36,15 @@ public class VehiculoController {
     /*
      * FORMULARIO DE NUEVO VEHÍCULO
      */
+    @GetMapping("/{id}/historial")
+    public String historial(@PathVariable Long id, @RequestParam(defaultValue = "0") int pagina, Model model) {
+        var vehiculo = vehiculoService.buscarPorId(id).orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(
+                org.springframework.http.HttpStatus.NOT_FOUND, "El vehículo no existe."));
+        model.addAttribute("vehiculo", vehiculo);
+        model.addAttribute("historial", vehiculoService.historial(id, pagina));
+        return "vehiculos/historial";
+    }
+
     @GetMapping("/nuevo")
     public String mostrarFormulario(Model model) {
 

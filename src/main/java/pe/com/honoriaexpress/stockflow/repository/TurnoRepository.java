@@ -8,7 +8,10 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface TurnoRepository extends JpaRepository<Turno, Long> {
-    @org.springframework.data.jpa.repository.Query("select count(t) from Turno t where t.fecha = :fecha and t.estado in (pe.com.honoriaexpress.stockflow.entity.EstadoTurno.PROGRAMADO, pe.com.honoriaexpress.stockflow.entity.EstadoTurno.EN_ESPERA) and not exists (select s.id from Salida s where s.turno = t)")
+    org.springframework.data.domain.Page<Turno> findByVehiculoIdOrderByFechaDescNumeroTurnoAsc(
+            Long vehiculoId, org.springframework.data.domain.Pageable pagina);
+
+    @org.springframework.data.jpa.repository.Query("select count(t) from Turno t where t.fecha = :fecha and t.conductor.activo = true and t.vehiculo.activo = true and t.estado in (pe.com.honoriaexpress.stockflow.entity.EstadoTurno.PROGRAMADO, pe.com.honoriaexpress.stockflow.entity.EstadoTurno.EN_ESPERA) and not exists (select s.id from Salida s where s.turno = t)")
     long contarEsperaDelDia(@org.springframework.data.repository.query.Param("fecha") LocalDate fecha);
     @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
     @org.springframework.data.jpa.repository.Query("select t from Turno t where t.id = :id")

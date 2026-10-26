@@ -23,6 +23,6 @@ const {chromium}=require('playwright');const assert=require('node:assert/strict'
   row=p.locator('tbody tr').filter({hasText:key});assert.match(await row.innerText(),/Inactivo/);await row.screenshot({path:dir+'/'+mod+'-inactivo.png'});
   resultados.push({modulo:mod,caso:'inactivacion',resultado:'aprobado'});
  }
- fs.writeFileSync(dir+'/resultados.json',JSON.stringify({fecha:new Date().toISOString(),entorno:'stockflow_qa_codex',resultados},null,2));
+ fs.writeFileSync(dir+'/resultados.json',JSON.stringify({fecha:new Date().toISOString(),entorno:'stockflow_qa',resultados},null,2));
  console.log('8 casos QA aprobados: registro, edición, duplicados e inactivación de conductores y vehículos.');
 }finally{await b.close();}})().catch(e=>{console.error(e.message);process.exitCode=1;});

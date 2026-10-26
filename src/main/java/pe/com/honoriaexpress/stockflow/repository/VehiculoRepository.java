@@ -8,6 +8,12 @@ import java.util.Optional;
 public interface VehiculoRepository
         extends JpaRepository<Vehiculo, Long> {
 
+    long countByActivoTrue();
+
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_READ)
+    @org.springframework.data.jpa.repository.Query("select v from Vehiculo v where v.id = :id")
+    Optional<Vehiculo> buscarParaOperacion(@org.springframework.data.repository.query.Param("id") Long id);
+
     Optional<Vehiculo> findByPlaca(String placa);
 
     Optional<Vehiculo> findByNumeroTuc(String numeroTuc);
