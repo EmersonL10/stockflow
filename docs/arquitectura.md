@@ -1,6 +1,6 @@
 # Arquitectura de StockFlow
 
-StockFlow usa Java 21, Spring Boot, MVC, Thymeleaf y MySQL. La base operativa configurada es `stockflow_db`; las pruebas automatizadas usan `stockflow_test_codex` y las verificaciones de navegador `stockflow_qa_codex`.
+StockFlow usa Java 21, Spring Boot, MVC, Thymeleaf y MySQL. La base operativa configurada es `stockflow_db`; las pruebas automatizadas usan `stockflow_test` y las verificaciones de navegador `stockflow_qa`.
 
 ## MVC y separación en capas
 
@@ -23,9 +23,13 @@ Estas son evidencias específicas; no se afirma cumplimiento automático de todo
 
 ## Presentación compartida
 
+`ReporteController` y `ReporteService` consultan Salidas, Encomiendas y Caja por fechas y generan XLSX. Inicio muestra vehículos activos e ingresos del día con permisos financieros. Vehículos conserva propietario y consulta la relación histórica con conductores mediante Turno. Ver [reportes e historial](reportes.md).
+
 `InicioService` consulta indicadores agregados para el inicio; `HomeController` los entrega a la vista. La navegación se comparte mediante el fragmento de sidebar. La presentación adapta tablas y formularios sin cambiar las reglas de cobro. Ver [interfaz operativa](interfaz.md).
 
 ## Seguridad
+
+`ValidacionTransporteService` comprueba conductor y vehículo persistidos antes de guardar una llegada, iniciar un viaje o asignar un paquete. La comprobación comparte la transacción y mantiene bloqueos de lectura sobre los registros maestros. Los cobros y la finalización de viajes anteriores conservan su historial. Ver [validación de registros activos](registros-activos.md).
 
 Spring Security autentica y aplica roles. BCrypt se usa para contraseñas; los formularios conservan CSRF. `@InitBinder` limita campos aceptados; el servidor decide cuota, estado y usuario del cobro. La descarga requiere Administrador, Operativo o Caja y responde `Cache-Control: no-store`. Los textos exportados se escriben como celdas STRING, nunca como fórmulas. Los logs no incluyen contraseñas, DNI ni contenido libre de formularios.
 
