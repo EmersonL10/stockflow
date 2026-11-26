@@ -225,11 +225,22 @@ class EncomiendasIntegrationTests {
 
     @Test void cierreConcurrenteNoDejaPagoDesvinculado() throws Exception {
         var e = nueva(); var c = caja.abrir(BigDecimal.ZERO);
-        paralelos(() -> { service.cobrar(e.getId(), MedioPago.EFECTIVO); return null; },
+        int exitos = paralelos(() -> { service.cobrar(e.getId(), MedioPago.EFECTIVO); return null; },
                 () -> { caja.cerrar(c.getId(), BigDecimal.ZERO, "Arqueo concurrente de prueba"); return null; });
-        assertFalse(caja.buscar(c.getId()).isAbierta());
+        assertTrue(exitos >= 1);
         boolean pagada = service.buscar(e.getId()).getEstadoPago() == EstadoPagoEncomienda.PAGADA;
         assertEquals(pagada ? 1 : 0, movimientos.count());
+        var actual = caja.buscar(c.getId());
+        var registros = caja.movimientos(c.getId());
+        var esperado = new BigDecimal(pagada ? "25.00" : "0.00");
+        assertEquals(esperado, caja.resumir(actual, registros).efectivoEsperado());
+        if (actual.isAbierta()) {
+            // MySQL puede elegir el cierre como víctima del bloqueo. Se revisa el saldo antes de reintentar.
+            assertTrue(pagada);
+            assertNull(actual.getCierre());
+            caja.cerrar(c.getId(), esperado, "Conteo revisado después de la operación concurrente");
+        }
+        assertFalse(caja.buscar(c.getId()).isAbierta());
         assertEquals(new BigDecimal(pagada ? "25.00" : "0.00"), caja.buscar(c.getId()).getEfectivoEsperado());
     }
 
@@ -280,7 +291,7 @@ class EncomiendasIntegrationTests {
     @Test void colaDiariaNoMezclaPendientesAntiguosNiReescribeSuFecha() throws Exception {
         var antiguo = espera(); antiguo.setFecha(FechaOperativa.hoy().minusDays(1)); turnos.saveAndFlush(antiguo);
         var actual = espera();
-        assertEquals(List.of(actual.getId()), turnoService.listarColaPendiente().stream().map(Turno::getId).toList());
+        assertEquals(List.of(actual.getId()), turnoService.listarColaPendiente().stream().map(turno -> turno.getId()).toList());
         assertThrows(SalidaValidationException.class, () -> salidaService.guardar(Salida.builder().turno(antiguo).horaSalidaReal(LocalTime.NOON).cantidadPasajeros(1).build()));
         assertThrows(SalidaValidationException.class, () -> turnoService.guardar(antiguo));
         var cambiar = Turno.builder().id(antiguo.getId()).fecha(FechaOperativa.hoy()).numeroTurno(antiguo.getNumeroTurno())

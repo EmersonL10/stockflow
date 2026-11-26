@@ -1,0 +1,14 @@
+{
+  "version": "0.2",
+  "language": "en,es",
+  "words": [
+    "StockFlow",
+    "honoriaexpress",
+    "thymeleaf"
+  ],
+  "ignorePaths": [
+    "target/**",
+    "logs/**",
+    "operacion-local/**"
+  ]
+}

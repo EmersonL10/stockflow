@@ -1,0 +1,32 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta charset="utf-8"><style>body{font:16px Arial,sans-serif;max-width:1200px;margin:40px auto;padding:20px;color:#18283a}table{border-collapse:collapse;width:100%;font-size:14px}th,td{border:1px solid #ccd3da;padding:10px;text-align:left;vertical-align:top;overflow-wrap:anywhere}th{background:#eef2f6}h1{font-size:28px}p{line-height:1.5}@media print{body{margin:0}tr{break-inside:avoid}}</style>
+</head><body>
+<h1>StockFlow: evidencia de verificación</h1><p>Fecha: 11/26/2026 12:01:48. Entorno: Windows local, Java 21 y MySQL.</p><p>126 pruebas Java y 20 comprobaciones de entorno. Esta página resume resultados reales del JSON; no es una captura de la aplicación ni una calificación académica.</p>
+<table>
+<colgroup><col/><col/><col/><col/></colgroup>
+<tr><th>Caso</th><th>Objetivo</th><th>Resultado</th><th>Obtenido</th></tr>
+<tr><td>DEP01</td><td>JAR desplegado responde al login</td><td>APROBADO</td><td>200</td></tr>
+<tr><td>WEB-/</td><td>Vista accesible con autenticaci&#243;n real sin modificar registros</td><td>APROBADO</td><td>{&quot;destino&quot;:&quot;/&quot;,&quot;http&quot;:200}</td></tr>
+<tr><td>WEB-/conductores</td><td>Vista accesible con autenticaci&#243;n real sin modificar registros</td><td>APROBADO</td><td>{&quot;destino&quot;:&quot;/conductores&quot;,&quot;http&quot;:200}</td></tr>
+<tr><td>WEB-/vehiculos</td><td>Vista accesible con autenticaci&#243;n real sin modificar registros</td><td>APROBADO</td><td>{&quot;destino&quot;:&quot;/vehiculos&quot;,&quot;http&quot;:200}</td></tr>
+<tr><td>WEB-/turnos</td><td>Vista accesible con autenticaci&#243;n real sin modificar registros</td><td>APROBADO</td><td>{&quot;destino&quot;:&quot;/turnos&quot;,&quot;http&quot;:200}</td></tr>
+<tr><td>WEB-/salidas</td><td>Vista accesible con autenticaci&#243;n real sin modificar registros</td><td>APROBADO</td><td>{&quot;destino&quot;:&quot;/salidas&quot;,&quot;http&quot;:200}</td></tr>
+<tr><td>WEB-/encomiendas</td><td>Vista accesible con autenticaci&#243;n real sin modificar registros</td><td>APROBADO</td><td>{&quot;destino&quot;:&quot;/encomiendas&quot;,&quot;http&quot;:200}</td></tr>
+<tr><td>WEB-/caja</td><td>Vista accesible con autenticaci&#243;n real sin modificar registros</td><td>APROBADO</td><td>{&quot;destino&quot;:&quot;/caja&quot;,&quot;http&quot;:200}</td></tr>
+<tr><td>WEB-/reportes</td><td>Vista accesible con autenticaci&#243;n real sin modificar registros</td><td>APROBADO</td><td>{&quot;destino&quot;:&quot;/reportes&quot;,&quot;http&quot;:200}</td></tr>
+<tr><td>MON01</td><td>Salud an&#243;nima UP sin detalles internos</td><td>APROBADO</td><td>&quot;UP&quot;</td></tr>
+<tr><td>SEC01</td><td>M&#233;tricas sin autenticaci&#243;n rechazadas</td><td>APROBADO</td><td>401</td></tr>
+<tr><td>SEC02</td><td>Administrador consulta m&#233;tricas</td><td>APROBADO</td><td>200</td></tr>
+<tr><td>SEC03</td><td>Endpoint env no expuesto</td><td>APROBADO</td><td>404</td></tr>
+<tr><td>SEC04</td><td>POST sin CSRF rechazado sin crear ingresos</td><td>APROBADO</td><td>{&quot;movimientosDespues&quot;:18,&quot;http&quot;:403,&quot;movimientosAntes&quot;:18}</td></tr>
+<tr><td>MON02</td><td>Log JSON con evento, nivel y correlaci&#243;n</td><td>APROBADO</td><td>{&quot;eventosHttp&quot;:66}</td></tr>
+<tr><td>MON03</td><td>Muestreo de siete m&#233;tricas</td><td>APROBADO</td><td>&quot;UP; m&#233;tricas consultadas: 7; duraci&#243;n del muestreo: 1513 ms.&quot;</td></tr>
+<tr><td>MAN01</td><td>Conteos origen/restauraci&#243;n coinciden en tres tablas cr&#237;ticas</td><td>APROBADO</td><td>{&quot;baseDestino&quot;:&quot;stockflow_restore_20261126105544467&quot;,&quot;origen&quot;:&quot;13\r\n18\r\n7&quot;,&quot;restauracion&quot;:&quot;13\r\n18\r\n7&quot;}</td></tr>
+<tr><td>TASK-StockFlow-BackupDiario</td><td>Tarea ejecutada por el programador con salida cero</td><td>APROBADO</td><td>{&quot;nombre&quot;:&quot;StockFlow-BackupDiario&quot;,&quot;proximaEjecucion&quot;:&quot;2026-11-26T23:30:00-05:00&quot;,&quot;ultimaEjecucion&quot;:&quot;2026-11-26T11:09:53-05:00&quot;,&quot;resultado&quot;:0}</td></tr>
+<tr><td>TASK-StockFlow-Monitoreo</td><td>Tarea ejecutada por el programador con salida cero</td><td>APROBADO</td><td>{&quot;nombre&quot;:&quot;StockFlow-Monitoreo&quot;,&quot;proximaEjecucion&quot;:&quot;2026-11-26T12:03:01-05:00&quot;,&quot;ultimaEjecucion&quot;:&quot;2026-11-26T11:23:02-05:00&quot;,&quot;resultado&quot;:0}</td></tr>
+<tr><td>PERF01</td><td>Lectura concurrente exploratoria: 25 solicitudes sin error</td><td>APROBADO</td><td>{&quot;ruta&quot;:&quot;/login&quot;,&quot;concurrenciaMaxima&quot;:5,&quot;medianaMs&quot;:3.88,&quot;p95Ms&quot;:36.48,&quot;solicitudes&quot;:25,&quot;maxMs&quot;:36.61,&quot;errores&quot;:0}</td></tr>
+</table>
+<p>Consultar pruebas-seguridad.md, operacion.md, monitoreo.md y mantenimiento.md para procedimientos y límites. El respaldo se restauró en una base separada; no se publica el dump. El ensayo de carga se limita a lecturas del login.</p>
+</body></html>

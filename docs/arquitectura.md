@@ -23,20 +23,26 @@ Estas son evidencias específicas; no se afirma cumplimiento automático de todo
 
 ## Presentación compartida
 
-`ReporteController` y `ReporteService` consultan Salidas, Encomiendas y Caja por fechas y generan XLSX. Inicio muestra vehículos activos e ingresos del día con permisos financieros. Vehículos conserva propietario y consulta la relación histórica con conductores mediante Turno. Ver [reportes e historial](reportes.md).
+`ReporteController` y `ReporteService` consultan Salidas, Encomiendas y Caja por fechas y generan XLSX. Inicio muestra vehículos activos e ingresos del día con permisos financieros. Vehículos conserva propietario y consulta la relación histórica con conductores mediante Turno. Ver [alcance y trazabilidad](alcance-trazabilidad.md).
 
-`InicioService` consulta indicadores agregados para el inicio; `HomeController` los entrega a la vista. La navegación se comparte mediante el fragmento de sidebar. La presentación adapta tablas y formularios sin cambiar las reglas de cobro. Ver [interfaz operativa](interfaz.md).
+`InicioService` consulta indicadores agregados para el inicio; `HomeController` los entrega a la vista. La navegación se comparte mediante el fragmento de sidebar. La presentación adapta tablas y formularios sin cambiar las reglas de cobro. Las verificaciones actuales se describen en [pruebas y seguridad](pruebas-seguridad.md).
 
 ## Seguridad
 
-`ValidacionTransporteService` comprueba conductor y vehículo persistidos antes de guardar una llegada, iniciar un viaje o asignar un paquete. La comprobación comparte la transacción y mantiene bloqueos de lectura sobre los registros maestros. Los cobros y la finalización de viajes anteriores conservan su historial. Ver [validación de registros activos](registros-activos.md).
+`ValidacionTransporteService` comprueba conductor y vehículo persistidos antes de guardar una llegada, iniciar un viaje o asignar un paquete. La comprobación comparte la transacción y mantiene bloqueos de lectura sobre los registros maestros. Los cobros y la finalización de viajes anteriores conservan su historial. Ver [verificación de reglas](pruebas-seguridad.md).
 
 Spring Security autentica y aplica roles. BCrypt se usa para contraseñas; los formularios conservan CSRF. `@InitBinder` limita campos aceptados; el servidor decide cuota, estado y usuario del cobro. La descarga requiere Administrador, Operativo o Caja y responde `Cache-Control: no-store`. Los textos exportados se escriben como celdas STRING, nunca como fórmulas. Los logs no incluyen contraseñas, DNI ni contenido libre de formularios.
 
 ## Límites actuales
 
-Caja usa formularios DTO separados de las entidades. `CajaServiceImpl` controla apertura, movimientos y cierre; `CajaSesionRepository` bloquea la sesión antes de modificarla. Los cobros de `SalidaServiceImpl` y su movimiento de Caja se confirman o revierten juntos. Ver [reglas de Caja](caja.md).
+Caja usa formularios DTO separados de las entidades. `CajaServiceImpl` controla apertura, movimientos y cierre; `CajaSesionRepository` bloquea la sesión antes de modificarla. Los cobros de `SalidaServiceImpl` y su movimiento de Caja se confirman o revierten juntos. Ver [pruebas de integridad](pruebas-seguridad.md).
 
-Encomiendas usa DTOs en `dto`, controlador, servicio y repositorios propios. El envío tiene estados separados del pago, eventos de seguimiento y consultas paginadas en base de datos. Su cobro se confirma junto con el movimiento de Caja; el despacho se coordina con Salida mediante bloqueo. Ver [reglas de Encomiendas](encomiendas.md).
+Encomiendas usa DTOs en `dto`, controlador, servicio y repositorios propios. El envío tiene estados separados del pago, eventos de seguimiento y consultas paginadas en base de datos. Su cobro se confirma junto con el movimiento de Caja; el despacho se coordina con Salida mediante bloqueo. Ver [alcance](alcance-trazabilidad.md).
 
-La consulta de Salidas todavía carga el historial antes de filtrar en memoria. El Excel limita la selección a 10000 filas antes de construir el libro, pero eso no limita la consulta inicial. Para volúmenes mayores se requiere filtrado y paginación en la base. El desarrollo usa `ddl-auto=update`; no reemplaza migraciones versionadas ni una estrategia de respaldos.
+La consulta de Salidas todavía carga el historial antes de filtrar en memoria. El Excel limita la selección a 10000 filas antes de construir el libro, pero eso no limita la consulta inicial. Para volúmenes mayores se requiere filtrado y paginación en la base. El desarrollo usa `ddl-auto=update`; el perfil `operacion` exige un esquema existente con `validate`. No se sustituyen migraciones versionadas.
+
+## Operación y observabilidad
+
+Actuator y Micrometer exponen salud y métricas. Una cadena de seguridad específica exige Administrador para métricas y deja únicamente salud mínima sin autenticación. La configuración de operación separa el puerto administrativo en loopback. RegistroHttpFilter agrega correlación, método, estado y duración sin cuerpo ni parámetros; el archivo de operación usa JSON ECS.
+
+Los scripts PowerShell gestionan despliegue por copia SHA256 del JAR, backup con manifiesto, restauración en una base nueva y tareas Windows. Ver [despliegue](operacion.md), [monitoreo](monitoreo.md), [mantenimiento](mantenimiento.md) y [verificación](pruebas-seguridad.md).

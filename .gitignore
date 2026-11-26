@@ -1,6 +1,9 @@
 HELP.md
 target/
 logs/
+operacion-local/
+backups/
+*.sql.gz
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/

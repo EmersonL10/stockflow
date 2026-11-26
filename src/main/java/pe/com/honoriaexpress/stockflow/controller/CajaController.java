@@ -75,6 +75,9 @@ public class CajaController {
             flash.addFlashAttribute("mensaje", "Caja cerrada. Ya puede abrir la siguiente con el efectivo inicial que corresponda.");
         } catch (CajaOperacionException ex) { flash.addFlashAttribute("error", ex.getMessage()); }
         catch (DataIntegrityViolationException ex) { flash.addFlashAttribute("error", "La caja cambió mientras cerraba. Revise el saldo actualizado antes de confirmar."); }
+        catch (org.springframework.dao.PessimisticLockingFailureException ex) {
+            flash.addFlashAttribute("error", "Se está registrando otra operación en esta caja. Revise el saldo actualizado y vuelva a confirmar el cierre.");
+        }
         return "redirect:/caja/" + id;
     }
 
