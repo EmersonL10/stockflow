@@ -31,6 +31,11 @@ Documentación técnica:
 - [Arquitectura](docs/arquitectura.md)
 - [Requisitos y trazabilidad](docs/alcance-trazabilidad.md)
 - [Librerías Java](docs/librerias-java.md)
+- [Pruebas y seguridad](docs/pruebas-seguridad.md)
+- [Despliegue local](docs/operacion.md)
+- [Plan de monitoreo](docs/monitoreo.md)
+- [Mantenimiento y respaldos](docs/mantenimiento.md)
+- [Estado de la entrega final](docs/entrega-final.md)
 
 ## Ejecución local
 
@@ -54,10 +59,10 @@ Ejecutar las pruebas automatizadas:
 .\mvnw.cmd test
 ```
 
-Última ejecución verificada: 26 de octubre de 2026.
+Última ejecución documentada: 26 de noviembre de 2026.
 
-**Resultado:** 109 pruebas aprobadas, sin fallos ni errores.
+**Resultado:** 126 pruebas aprobadas, sin fallos, errores ni omisiones. Además, 20 comprobaciones del despliegue, vistas y mantenimiento. Consultar el [reporte y sus límites](docs/pruebas-seguridad.md); el número de pruebas no representa cobertura total ni aceptación de usuarios.
 
 ## Informe académico
 
-[Informe del proyecto StockFlow](entregables/StockFlow_Informe.docx)
+[Informe del avance 3](docs/entregables/StockFlow_Informe_Avance_3.docx). Es un antecedente académico; los cambios de operación posteriores se documentan en los enlaces anteriores.

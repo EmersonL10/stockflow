@@ -1,0 +1,308 @@
+{
+  "respaldo": {
+    "baseRestaurada": "stockflow_restore_20261126105544467",
+    "sha256": "5BA5F715810FD1606BFD283899AA45A90110AD4FEF65F743C6615F161E98D3CF",
+    "tablas": 11
+  },
+  "tareas": [
+    {
+      "nombre": "StockFlow-BackupDiario",
+      "proximaEjecucion": "2026-11-26T23:30:00-05:00",
+      "ultimaEjecucion": "2026-11-26T11:09:53-05:00",
+      "resultado": 0,
+      "estadoActual": "Ready"
+    },
+    {
+      "nombre": "StockFlow-Monitoreo",
+      "proximaEjecucion": "2026-11-26T12:03:01-05:00",
+      "ultimaEjecucion": "2026-11-26T11:23:02-05:00",
+      "resultado": 0,
+      "estadoActual": "Disabled"
+    }
+  ],
+  "rendimiento": {
+    "ruta": "/login",
+    "concurrenciaMaxima": 5,
+    "medianaMs": 3.88,
+    "p95Ms": 36.48,
+    "solicitudes": 25,
+    "maxMs": 36.61,
+    "errores": 0
+  },
+  "pruebasJava": [
+    {
+      "pruebas": 1,
+      "errores": 0,
+      "suite": "pe.com.honoriaexpress.stockflow.CajaControllerTests",
+      "omitidas": 0,
+      "fallos": 0
+    },
+    {
+      "pruebas": 15,
+      "errores": 0,
+      "suite": "pe.com.honoriaexpress.stockflow.CajaIntegrationTests",
+      "omitidas": 0,
+      "fallos": 0
+    },
+    {
+      "pruebas": 22,
+      "errores": 0,
+      "suite": "pe.com.honoriaexpress.stockflow.EncomiendasIntegrationTests",
+      "omitidas": 0,
+      "fallos": 0
+    },
+    {
+      "pruebas": 16,
+      "errores": 0,
+      "suite": "pe.com.honoriaexpress.stockflow.RegistrosActivosIntegrationTests",
+      "omitidas": 0,
+      "fallos": 0
+    },
+    {
+      "pruebas": 1,
+      "errores": 0,
+      "suite": "pe.com.honoriaexpress.stockflow.ReporteLimiteTests",
+      "omitidas": 0,
+      "fallos": 0
+    },
+    {
+      "pruebas": 4,
+      "errores": 0,
+      "suite": "pe.com.honoriaexpress.stockflow.ReporteSalidasTests",
+      "omitidas": 0,
+      "fallos": 0
+    },
+    {
+      "pruebas": 15,
+      "errores": 0,
+      "suite": "pe.com.honoriaexpress.stockflow.ReportesIntegrationTests",
+      "omitidas": 0,
+      "fallos": 0
+    },
+    {
+      "pruebas": 2,
+      "errores": 0,
+      "suite": "pe.com.honoriaexpress.stockflow.SalidaControllerTests",
+      "omitidas": 0,
+      "fallos": 0
+    },
+    {
+      "pruebas": 24,
+      "errores": 0,
+      "suite": "pe.com.honoriaexpress.stockflow.SalidaServiceTests",
+      "omitidas": 0,
+      "fallos": 0
+    },
+    {
+      "pruebas": 9,
+      "errores": 0,
+      "suite": "pe.com.honoriaexpress.stockflow.SalidasIntegrationTests",
+      "omitidas": 0,
+      "fallos": 0
+    },
+    {
+      "pruebas": 16,
+      "errores": 0,
+      "suite": "pe.com.honoriaexpress.stockflow.SeguridadOperacionIntegrationTests",
+      "omitidas": 0,
+      "fallos": 0
+    },
+    {
+      "pruebas": 1,
+      "errores": 0,
+      "suite": "pe.com.honoriaexpress.stockflow.StockflowApplicationTests",
+      "omitidas": 0,
+      "fallos": 0
+    }
+  ],
+  "entorno": "Windows local, perfil operacion, MySQL",
+  "casos": [
+    {
+      "obtenido": 200,
+      "id": "DEP01",
+      "descripcion": "JAR desplegado responde al login",
+      "aprobado": true
+    },
+    {
+      "obtenido": {
+        "destino": "/",
+        "http": 200
+      },
+      "id": "WEB-/",
+      "descripcion": "Vista accesible con autenticación real sin modificar registros",
+      "aprobado": true
+    },
+    {
+      "obtenido": {
+        "destino": "/conductores",
+        "http": 200
+      },
+      "id": "WEB-/conductores",
+      "descripcion": "Vista accesible con autenticación real sin modificar registros",
+      "aprobado": true
+    },
+    {
+      "obtenido": {
+        "destino": "/vehiculos",
+        "http": 200
+      },
+      "id": "WEB-/vehiculos",
+      "descripcion": "Vista accesible con autenticación real sin modificar registros",
+      "aprobado": true
+    },
+    {
+      "obtenido": {
+        "destino": "/turnos",
+        "http": 200
+      },
+      "id": "WEB-/turnos",
+      "descripcion": "Vista accesible con autenticación real sin modificar registros",
+      "aprobado": true
+    },
+    {
+      "obtenido": {
+        "destino": "/salidas",
+        "http": 200
+      },
+      "id": "WEB-/salidas",
+      "descripcion": "Vista accesible con autenticación real sin modificar registros",
+      "aprobado": true
+    },
+    {
+      "obtenido": {
+        "destino": "/encomiendas",
+        "http": 200
+      },
+      "id": "WEB-/encomiendas",
+      "descripcion": "Vista accesible con autenticación real sin modificar registros",
+      "aprobado": true
+    },
+    {
+      "obtenido": {
+        "destino": "/caja",
+        "http": 200
+      },
+      "id": "WEB-/caja",
+      "descripcion": "Vista accesible con autenticación real sin modificar registros",
+      "aprobado": true
+    },
+    {
+      "obtenido": {
+        "destino": "/reportes",
+        "http": 200
+      },
+      "id": "WEB-/reportes",
+      "descripcion": "Vista accesible con autenticación real sin modificar registros",
+      "aprobado": true
+    },
+    {
+      "obtenido": "UP",
+      "id": "MON01",
+      "descripcion": "Salud anónima UP sin detalles internos",
+      "aprobado": true
+    },
+    {
+      "obtenido": 401,
+      "id": "SEC01",
+      "descripcion": "Métricas sin autenticación rechazadas",
+      "aprobado": true
+    },
+    {
+      "obtenido": 200,
+      "id": "SEC02",
+      "descripcion": "Administrador consulta métricas",
+      "aprobado": true
+    },
+    {
+      "obtenido": 404,
+      "id": "SEC03",
+      "descripcion": "Endpoint env no expuesto",
+      "aprobado": true
+    },
+    {
+      "obtenido": {
+        "movimientosDespues": 18,
+        "http": 403,
+        "movimientosAntes": 18
+      },
+      "id": "SEC04",
+      "descripcion": "POST sin CSRF rechazado sin crear ingresos",
+      "aprobado": true
+    },
+    {
+      "obtenido": {
+        "eventosHttp": 66
+      },
+      "id": "MON02",
+      "descripcion": "Log JSON con evento, nivel y correlación",
+      "aprobado": true
+    },
+    {
+      "obtenido": "UP; métricas consultadas: 7; duración del muestreo: 1513 ms.",
+      "id": "MON03",
+      "descripcion": "Muestreo de siete métricas",
+      "aprobado": true
+    },
+    {
+      "obtenido": {
+        "baseDestino": "stockflow_restore_20261126105544467",
+        "origen": "13\r\n18\r\n7",
+        "restauracion": "13\r\n18\r\n7"
+      },
+      "id": "MAN01",
+      "descripcion": "Conteos origen/restauración coinciden en tres tablas críticas",
+      "aprobado": true
+    },
+    {
+      "obtenido": {
+        "nombre": "StockFlow-BackupDiario",
+        "proximaEjecucion": "2026-11-26T23:30:00-05:00",
+        "ultimaEjecucion": "2026-11-26T11:09:53-05:00",
+        "resultado": 0
+      },
+      "id": "TASK-StockFlow-BackupDiario",
+      "descripcion": "Tarea ejecutada por el programador con salida cero",
+      "aprobado": true
+    },
+    {
+      "obtenido": {
+        "nombre": "StockFlow-Monitoreo",
+        "proximaEjecucion": "2026-11-26T12:03:01-05:00",
+        "ultimaEjecucion": "2026-11-26T11:23:02-05:00",
+        "resultado": 0
+      },
+      "id": "TASK-StockFlow-Monitoreo",
+      "descripcion": "Tarea ejecutada por el programador con salida cero",
+      "aprobado": true
+    },
+    {
+      "obtenido": {
+        "ruta": "/login",
+        "concurrenciaMaxima": 5,
+        "medianaMs": 3.88,
+        "p95Ms": 36.48,
+        "solicitudes": 25,
+        "maxMs": 36.61,
+        "errores": 0
+      },
+      "id": "PERF01",
+      "descripcion": "Lectura concurrente exploratoria: 25 solicitudes sin error",
+      "aprobado": true
+    }
+  ],
+  "fecha": "2026-11-26T12:01:48.6794552-05:00",
+  "springBootVersion": "4.2.0",
+  "despliegue": {
+    "monitoreo": 18081,
+    "sha256": "3DB658FC5AEC04B9A110D5D31CECEAB69FE2DD473104F1A3849ACFB15DF38000",
+    "pid": 28380,
+    "puerto": 18080,
+    "baseVerificacion": "stockflow_restore_20261126105544467",
+    "fecha": "2026-11-26T12:01:36.8611997-05:00"
+  },
+  "construccionMaven": {
+    "resultado": "BUILD SUCCESS",
+    "artefacto": "stockflow-0.0.1-SNAPSHOT.jar",
+    "sha256": "3DB658FC5AEC04B9A110D5D31CECEAB69FE2DD473104F1A3849ACFB15DF38000"
+  }
+}

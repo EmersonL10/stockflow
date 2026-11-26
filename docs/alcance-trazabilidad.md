@@ -34,4 +34,8 @@ Venta individual de pasajes, mantenimiento de vehículos, sanciones, facturació
 - Vehículos: propietario opcional e historial paginado de conductores por los turnos registrados.
 - Registros activos: validación transaccional de nuevas llegadas, partidas y asignaciones. `RegistrosActivosIntegrationTests`.
 
-Suite completa: 109 pruebas aprobadas. Navegador: 28 comprobaciones responsive y tres descargas Excel. Los cambios locales requieren revisión e integración en GitHub. Ver [reportes](reportes.md) y [evidencia de ejecución](evidencias/reportes-2026-10-26.json).
+Antecedente de esa ampliación: 109 pruebas aprobadas, 28 comprobaciones responsive y tres descargas Excel. Las rutas de evidencia antiguas no se conservan en esta copia, por lo que no se presentan como adjuntos actuales.
+
+## Operación y entrega final, 26/11/2026
+
+Se añaden perfil de operación, salud y métricas protegidas, logs estructurados, tareas Windows, backup y restauración aislada. La batería actual tiene 126 pruebas y 20 verificaciones de entorno; ver [reporte de pruebas y límites](pruebas-seguridad.md) y [matriz final](entrega-final.md). Los porcentajes de cobertura y la aceptación no se deducen del número de pruebas. La cuenta limitada requiere autorización específica antes de crearse.
